@@ -43,15 +43,6 @@ function auditEnvVars() {
     "NEXT_PUBLIC_APP_URL",
   ];
 
-  const stripeVars = [
-    "STRIPE_SECRET_KEY",
-    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
-    "STRIPE_WEBHOOK_SECRET",
-    "STRIPE_STARTER_PRICE_ID",
-    "STRIPE_PRO_PRICE_ID",
-    "STRIPE_ENTERPRISE_PRICE_ID",
-  ];
-
   const asaasVars = [
     "ASAAS_API_KEY",
     "ASAAS_WEBHOOK_TOKEN",
@@ -62,17 +53,6 @@ function auditEnvVars() {
       pass(`${v} is configured`, `Variable ${v} has a value set`, category);
     } else {
       fail(`${v} is missing`, `Critical variable ${v} is not configured`, category, "critical");
-    }
-  }
-
-  for (const v of stripeVars) {
-    const val = process.env[v];
-    if (val && !val.startsWith("sk_test_") && !val.startsWith("pk_test_") && !val.startsWith("whsec_") && !val.startsWith("price_")) {
-      pass(`${v} is configured with real value`, `Variable ${v} has a production value`, category);
-    } else if (val && (val.startsWith("sk_test_") || val.startsWith("pk_test_"))) {
-      warn(`${v} is using test key`, `Variable ${v} is set to a Stripe test key. This is fine for development but should be replaced for production.`, category);
-    } else {
-      warn(`${v} is placeholder or missing`, `Variable ${v} needs a real value from Stripe dashboard`, category);
     }
   }
 
@@ -146,7 +126,7 @@ function auditAuth() {
   const category = "Authentication & Authorization";
 
   // Middleware
-  pass("Middleware protects all dashboard routes", "middleware.ts redirects unauthenticated users to /login", category);
+  pass("Proxy protects all dashboard routes", "proxy.ts redirects unauthenticated users to /login", category);
 
   // Login page
   pass("Magic Link authentication available", "Users can sign in without password via email magic link", category);
@@ -169,10 +149,6 @@ function auditAuth() {
 function auditAPIs() {
   const category = "API Routes";
 
-  // Stripe checkout
-  pass("Stripe checkout uses server-side only", "STRIPE_SECRET_KEY is only used in server-side API routes", category);
-  pass("Stripe webhook validates signature", "Uses stripe.webhooks.constructEvent() with STRIPE_WEBHOOK_SECRET", category);
-
   // ASAAS
   pass("ASAAS API key is server-side only", "ASAAS_API_KEY is only used in server-side lib/asaas.ts", category);
   pass("ASAAS webhook validates token", "Checks asaas-webhook-token header against ASAAS_WEBHOOK_TOKEN", category);
@@ -185,7 +161,6 @@ function auditAPIs() {
   pass("Inventory API verifies tenant ownership", "Checks product belongs to user's tenant before updating", category);
 
   // Webhook error handling
-  pass("Stripe webhook returns 400 on invalid signature", "Prevents processing of forged webhook events", category);
   pass("ASAAS webhook returns 401 on invalid token", "Prevents unauthorized webhook calls", category);
   pass("ASAAS webhook returns 200 even on errors", "Prevents ASAAS from retrying endlessly. Error is logged server-side.", category);
 
@@ -308,14 +283,13 @@ function generateReport() {
 
   // Recommendations
   console.log("── Recommendations ──");
-  console.log("  1. Configure Stripe env vars (all are placeholders)");
-  console.log("  2. Replace localhost URLs with production before Vercel deploy");
+  console.log("  1. Replace localhost URLs with production before Vercel deploy");
   console.log("  3. Add Zod for runtime API validation");
   console.log("  4. Implement rate limiting for API routes");
   console.log("  5. Add role-based UI checks (admin/manager/operator)");
   console.log("  6. Set ASAAS_SANDBOX=false for production payments");
   console.log("  7. Run `npm audit` to check for dependency vulnerabilities");
-  console.log("  8. Verify ASAAS webhook token header name matches ASAAS docs");
+  console.log("  7. Verify ASAAS webhook token header name matches ASAAS docs");
   console.log("\n");
 }
 

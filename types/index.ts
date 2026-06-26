@@ -5,12 +5,12 @@ export interface Tenant {
   name: string;
   slug: string;
   created_at: string;
-  payment_provider: "stripe" | "asaas" | null;
+  payment_provider: "asaas" | null;
   payment_customer_id: string | null;
   subscription_id: string | null;
   subscription_status: "active" | "trialing" | "past_due" | "canceled" | "incomplete" | null;
   plan: "free" | "starter" | "pro" | "enterprise";
-  locale: "pt-BR" | "en" | "es";
+  locale: "pt-BR";
 }
 
 export interface Profile {
@@ -151,7 +151,6 @@ export interface SubscriptionPlan {
   name: string;
   description: string;
   price_brl: number;
-  price_usd: number;
   features: string[];
   limits: {
     products: number;
@@ -182,10 +181,11 @@ export interface TransferForm {
 
 // ─── i18n ───
 
-export type SupportedLocale = "pt-BR" | "en" | "es";
+export type SupportedLocale = "pt-BR";
 
 export interface Locale {
   code: SupportedLocale;
   name: string;
   flag: string;
 }
+

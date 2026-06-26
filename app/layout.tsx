@@ -20,7 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "INVENTOY — Gestão de Estoque Inteligente",
   description:
-    "Sistema de gestão de inventário multi-tenant com suporte a pagamentos globais (Stripe) e brasileiros (ASAAS).",
+    "Sistema de gestão de inventário multi-tenant com suporte a pagamentos brasileiros via ASAAS (PIX, Boleto, Cartão).",
   keywords: ["inventário", "estoque", "gestão", "SaaS", "inventory management"],
   authors: [{ name: "INVENTOY" }],
 };

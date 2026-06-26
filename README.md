@@ -5,22 +5,22 @@
 </p>
 
 <p align="center">
-  <span style="color: #3ECF8E;">●</span> Stripe (Global)
-  <span style="color: #3ECF8E;"> ●</span> ASAAS (Brasil)
-  <span style="color: #3ECF8E;"> ●</span> Multi-language (pt-BR, en, es)
+  <span style="color: #3ECF8E;">●</span> ASAAS (Brasil)
+  <span style="color: #3ECF8E;"> ●</span> PIX, Boleto, Cartão
+  <span style="color: #3ECF8E;"> ●</span> 100% Português Brasileiro
 </p>
 
 ---
 
-**INVENTOY** é um sistema de gestão de inventário multi-tenant com suporte a pagamentos globais via **Stripe** e pagamentos brasileiros via **ASAAS** (PIX, Boleto, Cartão de Crédito).
+**INVENTOY** é um sistema de gestão de inventário multi-tenant com foco no mercado brasileiro — pagamentos via **ASAAS** (PIX, Boleto, Cartão de Crédito).
 
 ## Stack
 
 - **Frontend:** Next.js 14 (App Router) + Tailwind CSS v4 + shadcn/ui
 - **Database:** Supabase (PostgreSQL + RLS + Realtime)
 - **Auth:** Supabase Auth (Magic Link + Email/Senha)
-- **Payments:** Stripe (global) + ASAAS (Brasil)
-- **i18n:** react-i18next (pt-BR, en, es)
+- **Payments:** ASAAS (PIX, Boleto, Cartão)
+- **i18n:** react-i18next (pt-BR)
 - **Charts:** Recharts
 
 ## Design System
@@ -39,7 +39,7 @@
 - CRUD de categorias e localizações
 - Relatórios exportáveis
 - Cadastro de produtos
-- Configurações multi-idioma
+- Configurações da conta
 
 ### Mobile (Operação) — *Em planejamento*
 - Scanner de código de barras (câmera fullscreen)
