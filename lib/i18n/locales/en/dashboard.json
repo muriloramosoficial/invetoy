@@ -1,0 +1,25 @@
+{
+  "title": "Dashboard",
+  "subtitle": "Overview of your inventory operations",
+  "kpis": {
+    "total_items": "Total Items",
+    "total_value": "Total Value",
+    "low_stock": "Low Stock",
+    "movements_today": "Movements Today"
+  },
+  "chart": {
+    "title": "Entries × Exits (Last 15 Days)",
+    "subtitle": "Daily inventory movement volume",
+    "entries": "Entries",
+    "exits": "Exits"
+  },
+  "low_stock": {
+    "title": "Low Stock Alerts",
+    "items": "{{count}} items"
+  },
+  "expiring": {
+    "title": "Expiring Soon",
+    "items": "{{count}} items",
+    "days": "{{days}}d"
+  }
+}

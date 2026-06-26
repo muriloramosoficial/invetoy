@@ -1,0 +1,64 @@
+{
+  "app": {
+    "name": "INVENTOY",
+    "tagline": "Smart Inventory Management",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "actions": "Actions",
+    "status": "Status",
+    "no_results": "No results found",
+    "loading_data": "Loading data...",
+    "error_occurred": "An error occurred",
+    "try_again": "Try again",
+    "yes": "Yes",
+    "no": "No",
+    "all": "All",
+    "none": "None"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "inventory": "Inventory",
+    "movements": "Movements",
+    "categories": "Categories",
+    "locations": "Locations",
+    "reports": "Reports",
+    "settings": "Settings",
+    "logout": "Logout",
+    "profile": "Profile"
+  },
+  "search": {
+    "placeholder": "Search products, SKUs, categories...",
+    "command_hint": "Press Cmd+K to search",
+    "no_results": "No results for \"{{query}}\"",
+    "results": "{{count}} result(s) found",
+    "searching": "Searching..."
+  },
+  "locale": {
+    "pt-BR": "Portuguese (Brazil)",
+    "en": "English",
+    "es": "Spanish",
+    "switch_to": "Switch to {{locale}}"
+  },
+  "errors": {
+    "required": "This field is required",
+    "invalid_email": "Invalid email",
+    "min_length": "Minimum {{min}} characters",
+    "max_length": "Maximum {{max}} characters",
+    "network": "Network error. Check your connection.",
+    "unauthorized": "You are not authorized for this action.",
+    "not_found": "Resource not found."
+  }
+}

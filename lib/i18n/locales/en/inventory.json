@@ -1,0 +1,42 @@
+{
+  "title": "Inventory",
+  "add_product": "Add Product",
+  "edit_product": "Edit Product",
+  "delete_product": "Delete Product",
+  "search_placeholder": "Search by SKU, name, category...",
+  "total_items": "{{count}} items",
+  "filter_all": "All",
+  "filter_low_stock": "Low Stock",
+  "filter_critical": "Critical",
+  "columns": {
+    "sku": "SKU",
+    "name": "Name",
+    "category": "Category",
+    "total_qty": "Total Qty",
+    "location": "Location",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "status": {
+    "ok": "OK",
+    "low": "LOW",
+    "critical": "CRITICAL"
+  },
+  "adjustment": {
+    "title": "Quick Adjustment",
+    "entry": "Entry",
+    "exit": "Exit",
+    "count": "Count",
+    "quantity": "Quantity",
+    "notes": "Notes",
+    "notes_required": "Notes are required for exits",
+    "confirm": "Confirm Adjustment",
+    "cancel": "Cancel"
+  },
+  "move": {
+    "title": "Move Item",
+    "from": "From",
+    "to": "To"
+  },
+  "empty": "No items found matching your criteria"
+}

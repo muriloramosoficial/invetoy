@@ -1,0 +1,172 @@
+@import "tailwindcss";
+
+/* ─── INVENTOY Design System ─────────────────────────────── *
+ *  Dark mode nativo · Verde Supabase · Cinzas frios profundos *
+ *  Tipografia técnica · Texturas sutis                        *
+ * ─────────────────────────────────────────────────────────── */
+
+/* ── Custom Properties ── */
+:root {
+  /* Backgrounds */
+  --color-bg-primary: #121212;
+  --color-bg-secondary: #1c1c1c;
+  --color-bg-surface: #242424;
+  --color-bg-surface-hover: #2a2a2a;
+  --color-bg-elevated: #2e2e2e;
+
+  /* Brand */
+  --color-brand-primary: #3ECF8E;
+  --color-brand-primary-hover: #45d99a;
+  --color-brand-primary-dim: rgba(62, 207, 142, 0.12);
+  --color-brand-info: #53B1E5;
+  --color-brand-warning: #F5A623;
+  --color-brand-danger: #E5484D;
+  --color-brand-danger-dim: rgba(229, 72, 77, 0.12);
+
+  /* Borders */
+  --color-border-default: #333333;
+  --color-border-muted: #2a2a2a;
+  --color-border-brand: rgba(62, 207, 142, 0.3);
+
+  /* Text */
+  --color-text-primary: #EDEDED;
+  --color-text-secondary: #A1A1AA;
+  --color-text-muted: #52525B;
+  --color-text-brand: #3ECF8E;
+
+  /* Mono badges */
+  --color-badge-bg: rgba(62, 207, 142, 0.08);
+  --color-badge-border: rgba(62, 207, 142, 0.2);
+
+  /* Chart */
+  --color-chart-line: #3ECF8E;
+  --color-chart-area: rgba(62, 207, 142, 0.08);
+  --color-chart-grid: #2a2a2a;
+}
+
+/* ── Theme Inline (Tailwind v4) ── */
+@theme inline {
+  --color-bg-primary: var(--color-bg-primary);
+  --color-bg-secondary: var(--color-bg-secondary);
+  --color-bg-surface: var(--color-bg-surface);
+  --color-bg-surface-hover: var(--color-bg-surface-hover);
+  --color-bg-elevated: var(--color-bg-elevated);
+
+  --color-brand: var(--color-brand-primary);
+  --color-brand-hover: var(--color-brand-primary-hover);
+  --color-brand-dim: var(--color-brand-primary-dim);
+  --color-brand-info: var(--color-brand-info);
+  --color-brand-warning: var(--color-brand-warning);
+  --color-brand-danger: var(--color-brand-danger);
+  --color-brand-danger-dim: var(--color-brand-danger-dim);
+
+  --color-border-default: var(--color-border-default);
+  --color-border-muted: var(--color-border-muted);
+  --color-border-brand: var(--color-border-brand);
+
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-brand: var(--color-text-brand);
+
+  --color-badge-bg: var(--color-badge-bg);
+  --color-badge-border: var(--color-badge-border);
+
+  --color-chart-line: var(--color-chart-line);
+  --color-chart-area: var(--color-chart-area);
+  --color-chart-grid: var(--color-chart-grid);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+
+  --radius-button: 4px;
+  --radius-card: 6px;
+  --radius-modal: 8px;
+}
+
+/* ── Noise Texture (SVG data URI overlay) ── */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ── Base ── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Selection ── */
+::selection {
+  background-color: var(--color-brand-dim);
+  color: var(--color-brand-primary);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+/* ── Focus Ring ── */
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-bg-primary), 0 0 0 4px var(--color-brand-primary);
+  border-radius: 2px;
+}
+
+/* ── Glass effect (neon glass on hover) ── */
+@utility neon-glow {
+  box-shadow: 0 0 0 1px rgba(62, 207, 142, 0.15), 0 0 20px rgba(62, 207, 142, 0.05);
+}
+
+@utility neon-glow-hover {
+  transition: box-shadow 0.2s ease;
+  &:hover {
+    box-shadow: 0 0 0 1px rgba(62, 207, 142, 0.3), 0 0 20px rgba(62, 207, 142, 0.1);
+  }
+}
+
+/* ── Terminal-style divider ── */
+@utility terminal-divider {
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+/* ── Monospace text for data ── */
+@utility mono {
+  font-family: var(--font-mono);
+  letter-spacing: -0.02em;
+}
+
+/* ── Cmd+K overlay ── */
+@utility command-overlay {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+}

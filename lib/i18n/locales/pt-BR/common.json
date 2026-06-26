@@ -1,0 +1,64 @@
+{
+  "app": {
+    "name": "INVENTOY",
+    "tagline": "Gestão de Estoque Inteligente",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "create": "Criar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "close": "Fechar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "submit": "Enviar",
+    "actions": "Ações",
+    "status": "Status",
+    "no_results": "Nenhum resultado encontrado",
+    "loading_data": "Carregando dados...",
+    "error_occurred": "Ocorreu um erro",
+    "try_again": "Tente novamente",
+    "yes": "Sim",
+    "no": "Não",
+    "all": "Todos",
+    "none": "Nenhum"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "inventory": "Inventário",
+    "movements": "Movimentações",
+    "categories": "Categorias",
+    "locations": "Localizações",
+    "reports": "Relatórios",
+    "settings": "Configurações",
+    "logout": "Sair",
+    "profile": "Perfil"
+  },
+  "search": {
+    "placeholder": "Buscar produtos, SKUs, categorias...",
+    "command_hint": "Pressione Cmd+K para buscar",
+    "no_results": "Nenhum resultado para \"{{query}}\"",
+    "results": "{{count}} resultado(s) encontrado(s)",
+    "searching": "Buscando..."
+  },
+  "locale": {
+    "pt-BR": "Português (Brasil)",
+    "en": "English",
+    "es": "Español",
+    "switch_to": "Mudar para {{locale}}"
+  },
+  "errors": {
+    "required": "Este campo é obrigatório",
+    "invalid_email": "Email inválido",
+    "min_length": "Mínimo de {{min}} caracteres",
+    "max_length": "Máximo de {{max}} caracteres",
+    "network": "Erro de rede. Verifique sua conexão.",
+    "unauthorized": "Você não tem permissão para esta ação.",
+    "not_found": "Recurso não encontrado."
+  }
+}

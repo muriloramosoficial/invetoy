@@ -1,0 +1,42 @@
+{
+  "title": "Inventário",
+  "add_product": "Adicionar Produto",
+  "edit_product": "Editar Produto",
+  "delete_product": "Excluir Produto",
+  "search_placeholder": "Buscar por SKU, nome, categoria...",
+  "total_items": "{{count}} itens",
+  "filter_all": "Todos",
+  "filter_low_stock": "Estoque Baixo",
+  "filter_critical": "Crítico",
+  "columns": {
+    "sku": "SKU",
+    "name": "Nome",
+    "category": "Categoria",
+    "total_qty": "Qtd Total",
+    "location": "Localização",
+    "status": "Status",
+    "actions": "Ações"
+  },
+  "status": {
+    "ok": "OK",
+    "low": "BAIXO",
+    "critical": "CRÍTICO"
+  },
+  "adjustment": {
+    "title": "Ajuste Rápido",
+    "entry": "Entrada",
+    "exit": "Saída",
+    "count": "Contagem",
+    "quantity": "Quantidade",
+    "notes": "Observação",
+    "notes_required": "Observação obrigatória para saídas",
+    "confirm": "Confirmar Ajuste",
+    "cancel": "Cancelar"
+  },
+  "move": {
+    "title": "Mover Item",
+    "from": "Origem",
+    "to": "Destino"
+  },
+  "empty": "Nenhum item encontrado com os critérios informados"
+}

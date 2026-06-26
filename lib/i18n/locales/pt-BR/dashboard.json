@@ -1,0 +1,25 @@
+{
+  "title": "Dashboard",
+  "subtitle": "Visão geral das operações de estoque",
+  "kpis": {
+    "total_items": "Total de Itens",
+    "total_value": "Valor Total",
+    "low_stock": "Estoque Baixo",
+    "movements_today": "Mov. Hoje"
+  },
+  "chart": {
+    "title": "Entradas × Saídas (Últimos 15 Dias)",
+    "subtitle": "Volume diário de movimentações",
+    "entries": "Entradas",
+    "exits": "Saídas"
+  },
+  "low_stock": {
+    "title": "Alertas de Estoque Baixo",
+    "items": "{{count}} itens"
+  },
+  "expiring": {
+    "title": "Vencendo em Breve",
+    "items": "{{count}} itens",
+    "days": "{{days}}d"
+  }
+}

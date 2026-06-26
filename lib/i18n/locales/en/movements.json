@@ -1,0 +1,22 @@
+{
+  "title": "Movements",
+  "subtitle": "Audit log · All inventory changes recorded chronologically",
+  "search_placeholder": "Search by SKU or user...",
+  "columns": {
+    "date": "Date/Time",
+    "user": "User",
+    "sku": "SKU",
+    "type": "Type",
+    "quantity": "Qty",
+    "from": "From",
+    "to": "To"
+  },
+  "types": {
+    "in": "Entry",
+    "out": "Exit",
+    "transfer": "Transfer",
+    "count": "Count",
+    "adjustment": "Adjustment"
+  },
+  "showing": "Showing {{count}} of {{total}} movements"
+}

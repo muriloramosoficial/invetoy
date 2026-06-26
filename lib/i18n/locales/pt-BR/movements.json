@@ -1,0 +1,22 @@
+{
+  "title": "Movimentações",
+  "subtitle": "Log de auditoria · Todas as alterações de estoque em ordem cronológica",
+  "search_placeholder": "Buscar por SKU ou usuário...",
+  "columns": {
+    "date": "Data/Hora",
+    "user": "Usuário",
+    "sku": "SKU",
+    "type": "Tipo",
+    "quantity": "Qtd",
+    "from": "Origem",
+    "to": "Destino"
+  },
+  "types": {
+    "in": "Entrada",
+    "out": "Saída",
+    "transfer": "Transferência",
+    "count": "Contagem",
+    "adjustment": "Ajuste"
+  },
+  "showing": "Exibindo {{count}} de {{total}} movimentações"
+}
