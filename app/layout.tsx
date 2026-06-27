@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { Providers } from "@/components/providers";
 
 
 const inter = Inter({
@@ -48,7 +49,9 @@ export default function RootLayout({
         }} />
       </head>
       <body className="h-full bg-bg-primary text-text-primary font-sans antialiased">
+        <Providers>
           {children}
+        </Providers>
       </body>
     </html>
   );
