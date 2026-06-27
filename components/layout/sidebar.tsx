@@ -25,16 +25,16 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
-  { label: "Produtos", href: "/products", icon: <Box className="h-4 w-4" /> },
+  { label: "Painel", href: "/dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
+  { label: "Produtos e Patrimonio", href: "/products", icon: <Box className="h-4 w-4" /> },
   { label: "Estoque", href: "/inventory", icon: <Package className="h-4 w-4" /> },
   { label: "Movimentacoes", href: "/movements", icon: <ArrowRightLeft className="h-4 w-4" /> },
-  { label: "Scanner", href: "/scanner", icon: <ScanLine className="h-4 w-4" /> },
+  { label: "Leitor de Codigos", href: "/scanner", icon: <ScanLine className="h-4 w-4" /> },
   { label: "Categorias", href: "/categories", icon: <Tags className="h-4 w-4" /> },
-  { label: "Localizacoes", href: "/locations", icon: <MapPin className="h-4 w-4" /> },
+  { label: "Locais", href: "/locations", icon: <MapPin className="h-4 w-4" /> },
   { label: "Relatorios", href: "/reports", icon: <BarChart3 className="h-4 w-4" /> },
   { label: "Configuracoes", href: "/settings", icon: <Settings className="h-4 w-4" /> },
-  { label: "API Docs", href: "/settings/api", icon: <Code2 className="h-4 w-4" /> },
+  { label: "Documentacao da API", href: "/settings/api", icon: <Code2 className="h-4 w-4" /> },
 ];
 
 interface SidebarProps {
@@ -97,7 +97,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
         <button
           onClick={onToggle}
           className="flex items-center justify-center w-full h-9 rounded-[4px] text-text-muted hover:text-text-primary hover:bg-bg-surface-hover transition-colors"
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? "Expandir barra" : "Recolher barra"}
         >
           {collapsed ? (
             <ChevronRight className="h-4 w-4" />

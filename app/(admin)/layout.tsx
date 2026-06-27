@@ -5,13 +5,14 @@ import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { cn } from "@/lib/utils";
-import { Shield, Menu } from "lucide-react";
+import { Shield, Menu, LogOut } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [userName, setUserName] = useState<string>("");
   const router = useRouter();
   const pathname = usePathname();
 
@@ -26,7 +27,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
       const { data: profile } = await supabase
         .from("profiles")
-        .select("is_system_admin")
+        .select("is_system_admin, name")
         .eq("id", user.id)
         .single();
 
@@ -35,6 +36,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           router.push("/dashboard");
           return;
         }
+        setUserName(profile?.name || user.email || "");
         setAuthorized(true);
         setLoading(false);
       }
@@ -91,17 +93,34 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         )}
       >
         <header className="h-14 border-b border-border-default flex items-center justify-between px-4 shrink-0">
-          <button
-            className="lg:hidden p-1.5 rounded-[4px] text-text-muted hover:text-text-primary hover:bg-bg-surface-hover"
-            onClick={() => setMobileOpen(true)}
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-          <div className="flex items-center gap-2 text-sm text-text-muted">
-            <Shield className="h-4 w-4 text-brand" />
-            <span>Admin Panel</span>
+          <div className="flex items-center gap-3">
+            <button
+              className="lg:hidden p-1.5 rounded-[4px] text-text-muted hover:text-text-primary hover:bg-bg-surface-hover"
+              onClick={() => setMobileOpen(true)}
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <div className="flex items-center gap-2 text-sm text-text-muted">
+              <Shield className="h-4 w-4 text-brand" />
+              <span>Painel Administrativo</span>
+            </div>
           </div>
-          <div className="w-8" />
+          <div className="flex items-center gap-3">
+            {userName && (
+              <span className="text-sm text-text-secondary hidden sm:block">{userName}</span>
+            )}
+            <button
+              onClick={async () => {
+                const supabase = createClient();
+                await supabase.auth.signOut();
+                router.push("/login");
+              }}
+              className="p-1.5 rounded-[4px] text-text-muted hover:text-brand-danger hover:bg-brand-danger-dim transition-colors"
+              title="Sair"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
         </header>
 
         <main className="flex-1 overflow-y-auto p-6">{children}</main>

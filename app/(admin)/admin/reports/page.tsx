@@ -206,7 +206,7 @@ export default function AdminReportsPage() {
                     {t.tenant_name}
                   </span>
                   <div className="flex items-center gap-3 text-xs text-text-muted">
-                    <span>{t.user_count} users</span>
+                    <span>{t.user_count} usuarios</span>
                     <span>{t.product_count} prod</span>
                     <span className="text-brand font-mono">{t.movement_count} movs</span>
                   </div>

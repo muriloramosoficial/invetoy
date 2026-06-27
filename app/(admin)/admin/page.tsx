@@ -132,7 +132,7 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-text-primary tracking-tight">Overview</h1>
+        <h1 className="text-2xl font-semibold text-text-primary tracking-tight">Visao Geral</h1>
         <p className="text-sm text-text-muted mt-1">Health do SaaS em tempo real</p>
       </div>
 

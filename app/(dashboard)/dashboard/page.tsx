@@ -159,7 +159,7 @@ export default function DashboardPage() {
           const p = e.product as { name?: string; sku?: string } | null;
           return {
             product_id: e.product_id,
-            name: p?.name || "Unknown",
+            name: p?.name || "Desconhecido",
             sku: p?.sku || "",
             expiration_date: e.expiration_date,
             quantity: e.quantity,
@@ -192,19 +192,19 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-text-primary tracking-tight">
-          Dashboard
+          Painel
         </h1>
         <p className="text-sm text-text-muted mt-1">
-          Overview of your inventory operations
+          Visao geral das operacoes de inventario
         </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total Items", value: metrics ? metrics.total_items.toLocaleString() : "-", accent: "border-t-brand", subtitle: "in stock" },
-          { label: "Total Value", value: metrics ? `R$ ${(metrics.total_sale_value / 1000).toFixed(1)}K` : "-", accent: "border-t-brand-info", subtitle: "sale value" },
-          { label: "Low Stock", value: metrics ? String(metrics.low_stock_count) : "-", accent: "border-t-brand-warning", subtitle: "alerts active" },
-          { label: "Movements Today", value: metrics ? String(metrics.movements_today) : "-", accent: "border-t-brand", subtitle: "today" },
+          { label: "Total de Itens", value: metrics ? metrics.total_items.toLocaleString() : "-", accent: "border-t-brand", subtitle: "em estoque" },
+          { label: "Valor Total", value: metrics ? `R$ ${(metrics.total_sale_value / 1000).toFixed(1)}K` : "-", accent: "border-t-brand-info", subtitle: "valor de venda" },
+          { label: "Estoque Baixo", value: metrics ? String(metrics.low_stock_count) : "-", accent: "border-t-brand-warning", subtitle: "alertas ativos" },
+          { label: "Movimentacoes Hoje", value: metrics ? String(metrics.movements_today) : "-", accent: "border-t-brand", subtitle: "hoje" },
         ].map((kpi) => (
           <div key={kpi.label} className={cn("rounded-[6px] bg-bg-surface border border-border-default p-5 border-t-2", kpi.accent)}>
             <p className="text-[11px] font-medium tracking-[0.12em] uppercase text-text-muted mb-2">{kpi.label}</p>
@@ -220,20 +220,20 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-sm font-medium text-text-primary">
-                  Entries × Exits (Last 15 Days)
+                  Entradas x Saidas (Ultimos 15 Dias)
                 </h3>
                 <p className="text-xs text-text-muted mt-0.5">
-                  Daily inventory movement volume
+                  Volume diario de movimentacao de inventario
                 </p>
               </div>
-              <div className="flex items-center gap-3 text-xs">
+                <div className="flex items-center gap-3 text-xs">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-brand" />
-                  <span className="text-text-muted">Entries</span>
+                  <span className="text-text-muted">Entradas</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-brand-danger" />
-                  <span className="text-text-muted">Exits</span>
+                  <span className="text-text-muted">Saidas</span>
                 </div>
               </div>
             </div>
@@ -261,7 +261,7 @@ export default function DashboardPage() {
                 </ResponsiveContainer>
               ) : (
                 <div className="h-full flex items-center justify-center text-text-muted text-sm">
-                  No movement data yet
+                  Nenhum dado de movimentacao ainda
                 </div>
               )}
             </div>
@@ -272,8 +272,8 @@ export default function DashboardPage() {
           <div className="h-full flex flex-col">
             <div className="flex items-center gap-2 mb-4">
               <AlertTriangle className="h-4 w-4 text-brand-warning" />
-              <h3 className="text-sm font-medium text-text-primary">Low Stock Alerts</h3>
-              <TechBadge variant="yellow" className="ml-auto">{lowStockItems.length} items</TechBadge>
+              <h3 className="text-sm font-medium text-text-primary">Alertas de Estoque Baixo</h3>
+              <TechBadge variant="yellow" className="ml-auto">{lowStockItems.length} itens</TechBadge>
             </div>
             <div className="flex-1 overflow-y-auto space-y-2 -mx-1">
               {lowStockItems.length > 0 ? lowStockItems.map((item) => (
@@ -289,7 +289,7 @@ export default function DashboardPage() {
                 </div>
               )) : (
                 <div className="flex items-center justify-center h-full text-text-muted text-sm">
-                  All products well stocked
+                  Todos os produtos bem abastecidos
                 </div>
               )}
             </div>
@@ -300,8 +300,8 @@ export default function DashboardPage() {
           <div className="h-full flex flex-col">
             <div className="flex items-center gap-2 mb-4">
               <CalendarClock className="h-4 w-4 text-brand-info" />
-              <h3 className="text-sm font-medium text-text-primary">Expiring Soon</h3>
-              <TechBadge variant="blue" className="ml-auto">{expiringItems.length} items</TechBadge>
+              <h3 className="text-sm font-medium text-text-primary">Vencimento Proximo</h3>
+              <TechBadge variant="blue" className="ml-auto">{expiringItems.length} itens</TechBadge>
             </div>
             <div className="flex-1 overflow-y-auto space-y-2 -mx-1">
               {expiringItems.length > 0 ? expiringItems.map((item) => {
@@ -314,13 +314,13 @@ export default function DashboardPage() {
                     </div>
                     <div className="text-right shrink-0 ml-3">
                       <p className="text-sm font-semibold text-brand-info">{daysLeft}d</p>
-                      <p className="text-[10px] text-text-muted">{item.quantity} units</p>
+                      <p className="text-[10px] text-text-muted">{item.quantity} unidades</p>
                     </div>
                   </div>
                 );
               }) : (
                 <div className="flex items-center justify-center h-full text-text-muted text-sm">
-                  No items expiring soon
+                  Nenhum item vencendo em breve
                 </div>
               )}
             </div>

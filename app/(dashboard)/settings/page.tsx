@@ -39,7 +39,7 @@ export default function SettingsPage() {
         const supabase = createClient();
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError) throw userError;
-        if (!user) throw new Error("Not authenticated");
+        if (!user) throw new Error("Nao autenticado");
 
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
@@ -64,7 +64,7 @@ export default function SettingsPage() {
           setTenantSlug(tenantData.slug);
         }
       } catch (err) {
-        if (mounted) setError(err instanceof Error ? err.message : "Failed to load settings");
+        if (mounted) setError(err instanceof Error ? err.message : "Erro ao carregar configuracoes");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -84,7 +84,7 @@ export default function SettingsPage() {
         .eq("id", profile.id);
       if (error) throw error;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update profile");
+      setError(err instanceof Error ? err.message : "Erro ao atualizar perfil");
     } finally {
       setProfileSaving(false);
     }
@@ -101,7 +101,7 @@ export default function SettingsPage() {
         .eq("id", tenant.id);
       if (error) throw error;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update organization");
+      setError(err instanceof Error ? err.message : "Erro ao atualizar organizacao");
     } finally {
       setTenantSaving(false);
     }
@@ -112,7 +112,7 @@ export default function SettingsPage() {
       <div className="flex items-center justify-center py-20">
         <div className="flex flex-col items-center gap-3 text-text-muted">
           <Loader2 className="h-6 w-6 animate-spin" />
-          <p className="text-sm">Loading settings...</p>
+          <p className="text-sm">Carregando configuracoes...</p>
         </div>
       </div>
     );
@@ -217,7 +217,7 @@ export default function SettingsPage() {
                   <p className="text-2xl font-semibold text-text-primary font-mono">{plan.price}</p>
                   <p className="text-xs text-text-muted mt-1">{plan.description}</p>
                   {!isCurrent && (
-                    <Button variant="outline" size="sm" className="w-full mt-3">Upgrade</Button>
+                    <Button variant="outline" size="sm" className="w-full mt-3">Fazer Upgrade</Button>
                   )}
                   {isCurrent && (
                     <TechBadge variant="green" className="w-full justify-center mt-3">Atual</TechBadge>

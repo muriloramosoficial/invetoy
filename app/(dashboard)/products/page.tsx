@@ -108,7 +108,7 @@ export default function ProductsPage() {
         });
         if (mounted) setStockMap(stock);
       } catch (err) {
-        if (mounted) setError(err instanceof Error ? err.message : "Failed to fetch products");
+        if (mounted) setError(err instanceof Error ? err.message : "Erro ao carregar produtos");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -203,7 +203,7 @@ export default function ProductsPage() {
       setModalOpen(false);
       setRefreshKey((k) => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save product");
+      setError(err instanceof Error ? err.message : "Erro ao salvar produto");
     } finally {
       setSaving(false);
     }
@@ -217,7 +217,7 @@ export default function ProductsPage() {
       if (error) throw error;
       setRefreshKey((k) => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete product");
+      setError(err instanceof Error ? err.message : "Erro ao excluir produto");
     }
   };
 

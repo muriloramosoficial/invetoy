@@ -248,7 +248,7 @@ export default function AdminBillingPage() {
             </div>
             <div className="flex items-center justify-between py-3">
               <div>
-                <p className="text-sm text-text-primary">Churn Rate</p>
+                <p className="text-sm text-text-primary">Taxa de Cancelamento</p>
                 <p className="text-[10px] text-text-muted">Taxa de cancelamento</p>
               </div>
               <span className={`text-xl font-bold ${data.churn_rate > 10 ? "text-brand-danger" : "text-brand"}`}>

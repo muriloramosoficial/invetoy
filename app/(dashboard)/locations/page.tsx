@@ -53,7 +53,7 @@ export default function LocationsPage() {
         });
         if (mounted) setItemCountMap(countMap);
       } catch (err) {
-        if (mounted) setError(err instanceof Error ? err.message : "Failed to fetch locations");
+        if (mounted) setError(err instanceof Error ? err.message : "Erro ao carregar locais");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -81,21 +81,21 @@ export default function LocationsPage() {
       setFormDescription("");
       setRefreshKey(k => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create location");
+      setError(err instanceof Error ? err.message : "Erro ao criar local");
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this location?")) return;
+    if (!confirm("Tem certeza que deseja excluir este local?")) return;
     try {
       const supabase = createClient();
       const { error } = await supabase.from("locations").delete().eq("id", id);
       if (error) throw error;
       setRefreshKey(k => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete location");
+      setError(err instanceof Error ? err.message : "Erro ao excluir local");
     }
   };
 
@@ -104,15 +104,15 @@ export default function LocationsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-text-primary tracking-tight">
-            Locations
+            Locais
           </h1>
           <p className="text-sm text-text-muted mt-1">
-            {loading ? "Loading..." : `${locations.length} locations · Manage storage areas`}
+            {loading ? "Carregando..." : `${locations.length} locais · Gerencie areas de armazenamento`}
           </p>
         </div>
         <Button onClick={() => setModalOpen(true)}>
           <Plus className="h-4 w-4" />
-          Add Location
+          Adicionar Local
         </Button>
       </div>
 
@@ -126,12 +126,12 @@ export default function LocationsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Aisle</TableHead>
-              <TableHead>Shelf</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="text-right">Items</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Nome</TableHead>
+              <TableHead>Corredor</TableHead>
+              <TableHead>Estante</TableHead>
+              <TableHead>Descricao</TableHead>
+              <TableHead className="text-right">Itens</TableHead>
+              <TableHead className="text-right">Acoes</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -140,7 +140,7 @@ export default function LocationsPage() {
                 <TableCell colSpan={6} className="text-center py-12">
                   <div className="flex flex-col items-center gap-2 text-text-muted">
                     <Loader2 className="h-6 w-6 animate-spin" />
-                    <p className="text-sm">Loading locations...</p>
+                    <p className="text-sm">Carregando locais...</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -149,7 +149,7 @@ export default function LocationsPage() {
                 <TableCell colSpan={6} className="text-center py-12">
                   <div className="flex flex-col items-center gap-2 text-text-muted">
                     <MapPin className="h-8 w-8" />
-                    <p className="text-sm">No locations found</p>
+                    <p className="text-sm">Nenhum local encontrado</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -184,42 +184,42 @@ export default function LocationsPage() {
       <Dialog
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title="Add Location"
-        description="Create a new storage location"
+        title="Adicionar Local"
+        description="Criar uma nova localizacao de armazenamento"
       >
         <div className="space-y-4">
           <Input
-            label="Name"
-            placeholder="e.g., Galpão Principal - Estante A1"
+            label="Nome"
+            placeholder="ex: Galpao Principal - Estante A1"
             value={formName}
             onChange={(e) => setFormName(e.target.value)}
           />
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Aisle"
-              placeholder="e.g., A"
+              label="Corredor"
+              placeholder="ex: A"
               value={formAisle}
               onChange={(e) => setFormAisle(e.target.value)}
             />
             <Input
-              label="Shelf"
-              placeholder="e.g., 1"
+              label="Estante"
+              placeholder="ex: 1"
               value={formShelf}
               onChange={(e) => setFormShelf(e.target.value)}
             />
           </div>
           <Input
-            label="Description"
-            placeholder="Optional description"
+            label="Descricao"
+            placeholder="Descricao opcional"
             value={formDescription}
             onChange={(e) => setFormDescription(e.target.value)}
           />
           <DialogFooter>
             <Button variant="secondary" onClick={() => setModalOpen(false)} disabled={saving}>
-              Cancel
+              Cancelar
             </Button>
             <Button onClick={handleCreate} disabled={saving}>
-              {saving ? "Saving..." : "Create Location"}
+              {saving ? "Salvando..." : "Criar Local"}
             </Button>
           </DialogFooter>
         </div>

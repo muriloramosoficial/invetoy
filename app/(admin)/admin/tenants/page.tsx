@@ -187,7 +187,7 @@ export default function AdminTenantsPage() {
               <TableHead>Empresa</TableHead>
               <TableHead>Plano</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-center">Users</TableHead>
+              <TableHead className="text-center">Usuarios</TableHead>
               <TableHead className="text-center">Produtos</TableHead>
               <TableHead className="text-center">Movs</TableHead>
               <TableHead>Criada em</TableHead>

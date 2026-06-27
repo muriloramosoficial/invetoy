@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -24,13 +25,13 @@ interface NavItem {
 }
 
 const adminNav: NavItem[] = [
-  { label: "Dashboard", href: "/admin", icon: <LayoutDashboard className="h-4 w-4" /> },
+  { label: "Painel", href: "/admin", icon: <LayoutDashboard className="h-4 w-4" /> },
   { label: "Empresas", href: "/admin/tenants", icon: <Building2 className="h-4 w-4" /> },
   { label: "Usuarios", href: "/admin/users", icon: <Users className="h-4 w-4" /> },
   { label: "Financeiro", href: "/admin/billing", icon: <DollarSign className="h-4 w-4" /> },
   { label: "Relatorios", href: "/admin/reports", icon: <BarChart3 className="h-4 w-4" /> },
-  { label: "Audit Log", href: "/admin/activity", icon: <Activity className="h-4 w-4" /> },
-  { label: "API Keys", href: "/admin/api-keys", icon: <Key className="h-4 w-4" /> },
+  { label: "Registro de Atividades", href: "/admin/activity", icon: <Activity className="h-4 w-4" /> },
+  { label: "Chaves de API", href: "/admin/api-keys", icon: <Key className="h-4 w-4" /> },
 ];
 
 interface AdminSidebarProps {
@@ -40,6 +41,13 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ collapsed = false, onToggle }: AdminSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
 
   return (
     <aside
@@ -92,13 +100,13 @@ export function AdminSidebar({ collapsed = false, onToggle }: AdminSidebarProps)
 
       {/* Footer */}
       <div className="p-2 border-t border-border-default space-y-1">
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-3 rounded-[4px] px-3 py-2.5 text-sm text-text-muted hover:bg-bg-surface-hover hover:text-text-primary transition-colors"
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 rounded-[4px] px-3 py-2.5 text-sm text-text-muted hover:bg-brand-danger-dim hover:text-brand-danger transition-colors w-full"
         >
           <LogOut className="h-4 w-4" />
-          {!collapsed && <span>Voltar ao App</span>}
-        </Link>
+          {!collapsed && <span>Sair</span>}
+        </button>
         <button
           onClick={onToggle}
           className="flex items-center justify-center w-full h-9 rounded-[4px] text-text-muted hover:text-text-primary hover:bg-bg-surface-hover transition-colors"

@@ -79,7 +79,7 @@ export default function AdminUsersPage() {
         .update({ is_system_admin: !currentValue })
         .eq("id", userId);
       if (error) throw error;
-      setSuccess(`Sys admin ${!currentValue ? "adicionado" : "removido"} com sucesso`);
+      setSuccess(`Admin do sistema ${!currentValue ? "adicionado" : "removido"} com sucesso`);
       setTimeout(() => setSuccess(null), 3000);
       setUsers((prev) =>
         prev.map((u) => u.id === userId ? { ...u, is_system_admin: !currentValue } : u)
@@ -101,14 +101,14 @@ export default function AdminUsersPage() {
         .update({ role })
         .eq("id", userId);
       if (error) throw error;
-      setSuccess(`Role alterada para "${role}" com sucesso`);
+      setSuccess(`Funcao alterada para "${role}" com sucesso`);
       setTimeout(() => setSuccess(null), 3000);
       setUsers((prev) =>
         prev.map((u) => u.id === userId ? { ...u, role } : u)
       );
       setEditingRole(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao alterar role");
+      setError(err instanceof Error ? err.message : "Erro ao alterar funcao");
     } finally {
       setUpdating(null);
     }
@@ -133,7 +133,7 @@ export default function AdminUsersPage() {
       <div>
         <h1 className="text-2xl font-semibold text-text-primary tracking-tight">Usuarios</h1>
         <p className="text-sm text-text-muted mt-1">
-          {loading ? "Carregando..." : `${users.length} usuarios · ${adminCount} system admins`}
+          {loading ? "Carregando..." : `${users.length} usuarios · ${adminCount} admins do sistema`}
         </p>
       </div>
 
@@ -176,8 +176,8 @@ export default function AdminUsersPage() {
               <TableHead>Usuario</TableHead>
               <TableHead>Empresa</TableHead>
               <TableHead>Plano</TableHead>
-              <TableHead>Role (clique para editar)</TableHead>
-              <TableHead>Sys Admin</TableHead>
+              <TableHead>Funcao (clique para editar)</TableHead>
+              <TableHead>Admin do Sistema</TableHead>
               <TableHead>Cadastro</TableHead>
               <TableHead className="w-10"></TableHead>
             </TableRow>
@@ -225,10 +225,10 @@ export default function AdminUsersPage() {
                             onChange={(e) => setNewRole(e.target.value)}
                             className="h-8 px-2 rounded-[4px] border border-border-default bg-bg-surface text-xs text-text-primary outline-none focus:border-brand-20"
                           >
-                            <option value="user">User</option>
-                            <option value="admin">Admin</option>
-                            <option value="manager">Manager</option>
-                            <option value="operator">Operator</option>
+                            <option value="user">Usuario</option>
+                            <option value="admin">Administrador</option>
+                            <option value="manager">Gerente</option>
+                            <option value="operator">Operador</option>
                           </select>
                           <button
                             onClick={() => changeRole(u.id, newRole)}
@@ -250,7 +250,7 @@ export default function AdminUsersPage() {
                           className="group flex items-center gap-1.5 hover:bg-bg-surface rounded px-2 py-1 -mx-2 transition-colors"
                         >
                           <TechBadge variant={u.role === "admin" ? "green" : u.role === "manager" ? "blue" : "gray"}>
-                            {u.role?.toUpperCase() || "USER"}
+                            {u.role?.toUpperCase() || "USUARIO"}
                           </TechBadge>
                           <span className="text-[10px] text-text-muted group-hover:text-text-muted">editar</span>
                         </button>
@@ -258,7 +258,7 @@ export default function AdminUsersPage() {
                     </TableCell>
                     <TableCell>
                       {u.is_system_admin ? (
-                        <TechBadge variant="red">SYS ADMIN</TechBadge>
+                        <TechBadge variant="red">ADMIN DO SISTEMA</TechBadge>
                       ) : (
                         <span className="text-[10px] text-text-muted">-</span>
                       )}
@@ -285,9 +285,9 @@ export default function AdminUsersPage() {
                                 disabled={updating === u.id}
                               >
                                 {u.is_system_admin ? (
-                                  <><ShieldOff className="h-3.5 w-3.5" /> Remover sys admin</>
+                                  <><ShieldOff className="h-3.5 w-3.5" /> Remover admin do sistema</>
                                 ) : (
-                                  <><Shield className="h-3.5 w-3.5" /> Tornar sys admin</>
+                                  <><Shield className="h-3.5 w-3.5" /> Tornar admin do sistema</>
                                 )}
                               </button>
                             </div>
@@ -307,19 +307,19 @@ export default function AdminUsersPage() {
         <h3 className="text-xs font-medium text-text-muted uppercase tracking-wider mb-3">Legenda</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
           <div className="flex items-center gap-2">
-            <TechBadge variant="gray">USER</TechBadge>
+            <TechBadge variant="gray">USUARIO</TechBadge>
             <span className="text-text-muted">Acesso basico ao sistema</span>
           </div>
           <div className="flex items-center gap-2">
-            <TechBadge variant="blue">MANAGER</TechBadge>
+            <TechBadge variant="blue">GERENTE</TechBadge>
             <span className="text-text-muted">Pode gerenciar equipe</span>
           </div>
           <div className="flex items-center gap-2">
-            <TechBadge variant="green">ADMIN</TechBadge>
+            <TechBadge variant="green">ADMINISTRADOR</TechBadge>
             <span className="text-text-muted">Admin do tenant</span>
           </div>
           <div className="flex items-center gap-2">
-            <TechBadge variant="red">SYS ADMIN</TechBadge>
+            <TechBadge variant="red">ADMIN DO SISTEMA</TechBadge>
             <span className="text-text-muted">Admin do SaaS (area /admin)</span>
           </div>
         </div>

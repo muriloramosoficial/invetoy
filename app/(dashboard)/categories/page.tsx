@@ -58,7 +58,7 @@ export default function CategoriesPage() {
         });
         if (mounted) setProductCountMap(countMap);
       } catch (err) {
-        if (mounted) setError(err instanceof Error ? err.message : "Failed to fetch categories");
+        if (mounted) setError(err instanceof Error ? err.message : "Erro ao carregar categorias");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -111,21 +111,21 @@ export default function CategoriesPage() {
       setModalOpen(false);
       setRefreshKey(k => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save category");
+      setError(err instanceof Error ? err.message : "Erro ao salvar categoria");
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this category?")) return;
+    if (!confirm("Tem certeza que deseja excluir esta categoria?")) return;
     try {
       const supabase = createClient();
       const { error } = await supabase.from("categories").delete().eq("id", id);
       if (error) throw error;
       setRefreshKey(k => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete category");
+      setError(err instanceof Error ? err.message : "Erro ao excluir categoria");
     }
   };
 
@@ -134,15 +134,15 @@ export default function CategoriesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-text-primary tracking-tight">
-            Categories
+            Categorias
           </h1>
           <p className="text-sm text-text-muted mt-1">
-            {loading ? "Loading..." : `${categories.length} categories · Organize your products`}
+            {loading ? "Carregando..." : `${categories.length} categorias · Organize seus produtos`}
           </p>
         </div>
         <Button onClick={openCreate}>
           <Plus className="h-4 w-4" />
-          Add Category
+          Adicionar Categoria
         </Button>
       </div>
 
@@ -156,10 +156,10 @@ export default function CategoriesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="text-right">Products</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Nome</TableHead>
+              <TableHead>Descricao</TableHead>
+              <TableHead className="text-right">Produtos</TableHead>
+              <TableHead className="text-right">Acoes</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -168,7 +168,7 @@ export default function CategoriesPage() {
                 <TableCell colSpan={4} className="text-center py-12">
                   <div className="flex flex-col items-center gap-2 text-text-muted">
                     <Loader2 className="h-6 w-6 animate-spin" />
-                    <p className="text-sm">Loading categories...</p>
+                    <p className="text-sm">Carregando categorias...</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -177,7 +177,7 @@ export default function CategoriesPage() {
                 <TableCell colSpan={4} className="text-center py-12">
                   <div className="flex flex-col items-center gap-2 text-text-muted">
                     <FolderOpen className="h-8 w-8" />
-                    <p className="text-sm">No categories found</p>
+                    <p className="text-sm">Nenhuma categoria encontrada</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -219,25 +219,25 @@ export default function CategoriesPage() {
       <Dialog
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editingCategory ? "Edit Category" : "Create Category"}
-        description={editingCategory ? `Editing "${editingCategory.name}"` : "Add a new product category"}
+        title={editingCategory ? "Editar Categoria" : "Criar Categoria"}
+        description={editingCategory ? `Editando "${editingCategory.name}"` : "Adicionar uma nova categoria de produto"}
       >
         <div className="space-y-4">
           <Input
-            label="Name"
-            placeholder="e.g., Eletrônicos"
+            label="Nome"
+            placeholder="ex: Eletronicos"
             value={formName}
             onChange={(e) => setFormName(e.target.value)}
           />
           <Input
-            label="Description"
-            placeholder="e.g., Componentes eletrônicos e semicondutores"
+            label="Descricao"
+            placeholder="ex: Componentes eletronicos e semicondutores"
             value={formDescription}
             onChange={(e) => setFormDescription(e.target.value)}
           />
           <div>
             <label className="block text-xs font-medium text-text-secondary mb-1.5 tracking-wide uppercase">
-              Color
+              Cor
             </label>
             <div className="flex items-center gap-2">
               {colorOptions.map((color) => (
@@ -255,10 +255,10 @@ export default function CategoriesPage() {
           </div>
           <DialogFooter>
             <Button variant="secondary" onClick={() => setModalOpen(false)} disabled={saving}>
-              Cancel
+              Cancelar
             </Button>
             <Button onClick={handleSave} disabled={saving}>
-              {saving ? "Saving..." : editingCategory ? "Save Changes" : "Create Category"}
+              {saving ? "Salvando..." : editingCategory ? "Salvar Alteracoes" : "Criar Categoria"}
             </Button>
           </DialogFooter>
         </div>

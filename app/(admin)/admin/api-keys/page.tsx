@@ -51,6 +51,7 @@ export default function AdminApiKeysPage() {
   const [createdKey, setCreatedKey] = useState<string | null>(null);
   const [showKey, setShowKey] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [tableMissing, setTableMissing] = useState(false);
 
   useEffect(() => {
     load();
@@ -66,7 +67,8 @@ export default function AdminApiKeysPage() {
         .order("created_at", { ascending: false });
 
       if (error) {
-        if (error.message.includes("does not exist") || error.message.includes("relation")) {
+        if (error.message.includes("does not exist") || error.message.includes("relation") || error.message.includes("42P01")) {
+          setTableMissing(true);
           setKeys([]);
           return;
         }
@@ -74,7 +76,7 @@ export default function AdminApiKeysPage() {
       }
       setKeys((data || []) as ApiKeyRow[]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao carregar API keys");
+      setError(err instanceof Error ? err.message : "Erro ao carregar chaves de API");
     } finally {
       setLoading(false);
     }
@@ -99,13 +101,13 @@ export default function AdminApiKeysPage() {
       if (error) throw error;
 
       setCreatedKey(key);
-      setSuccess("API key criada com sucesso");
+      setSuccess("Chave de API criada com sucesso");
       setTimeout(() => setSuccess(null), 5000);
       setNewKeyName("");
       setNewKeyPerms(["read"]);
       load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao criar API key");
+      setError(err instanceof Error ? err.message : "Erro ao criar chave de API");
     } finally {
       setCreating(false);
     }
@@ -118,7 +120,7 @@ export default function AdminApiKeysPage() {
       const supabase = createClient();
       const { error } = await supabase.from("api_keys").delete().eq("id", id);
       if (error) throw error;
-      setSuccess("API key removida");
+      setSuccess("Chave de API removida");
       setTimeout(() => setSuccess(null), 3000);
       load();
     } catch (err) {
@@ -154,12 +156,12 @@ export default function AdminApiKeysPage() {
         <div>
           <h1 className="text-2xl font-semibold text-text-primary tracking-tight">API Keys</h1>
           <p className="text-sm text-text-muted mt-1">
-            {loading ? "Carregando..." : `${keys.length} keys ativas`}
+            {loading ? "Carregando..." : `${keys.length} chaves ativas`}
           </p>
         </div>
         <Button onClick={() => { setCreateModal(true); setCreatedKey(null); }}>
           <Plus className="h-4 w-4" />
-          Nova API Key
+          Nova Chave de API
         </Button>
       </div>
 
@@ -174,6 +176,41 @@ export default function AdminApiKeysPage() {
         <div className="rounded-[6px] border border-brand-20 bg-brand-dim p-3 text-sm text-brand flex items-center gap-2">
           <Check className="h-4 w-4" />
           {success}
+        </div>
+      )}
+
+      {tableMissing && (
+        <div className="rounded-[6px] border border-brand-warning bg-brand-warning-dim p-5 text-sm space-y-4">
+          <div className="flex items-center gap-2 text-brand-warning font-medium">
+            <AlertTriangle className="h-4 w-4" />
+            <span>Tabela de API Keys nao encontrada</span>
+          </div>
+          <p className="text-text-muted">Execute a migration para criar a tabela de API keys:</p>
+          <pre className="bg-bg-surface border border-border-default rounded-[4px] p-4 text-xs text-text-secondary overflow-x-auto font-mono">
+{`CREATE TABLE api_keys (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  key_prefix TEXT NOT NULL,
+  key_hash TEXT NOT NULL,
+  permissions TEXT[] DEFAULT ARRAY['read'],
+  is_active BOOLEAN DEFAULT true,
+  last_used_at TIMESTAMPTZ,
+  expires_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Admins can manage API keys"
+  ON api_keys FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.is_system_admin = true
+    )
+  );`}
+          </pre>
         </div>
       )}
 
@@ -214,7 +251,7 @@ export default function AdminApiKeysPage() {
                 <TableCell colSpan={7} className="text-center py-12">
                   <div className="flex flex-col items-center gap-2 text-text-muted">
                     <Key className="h-8 w-8" />
-                    <p className="text-sm">Nenhuma API key encontrada</p>
+                    <p className="text-sm">Nenhuma chave de API encontrada</p>
                     <p className="text-[10px]">Crie uma chave para acessar a API</p>
                   </div>
                 </TableCell>
@@ -272,7 +309,7 @@ export default function AdminApiKeysPage() {
       <Dialog
         open={createModal}
         onClose={() => setCreateModal(false)}
-        title="Nova API Key"
+        title="Nova Chave de API"
         description="Crie uma nova chave de acesso a API"
       >
         {createdKey ? (
@@ -280,7 +317,7 @@ export default function AdminApiKeysPage() {
             <div className="rounded-[6px] border border-brand-20 bg-brand-dim p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Check className="h-4 w-4 text-brand" />
-                <span className="text-sm font-medium text-brand">Key criada com sucesso!</span>
+                <span className="text-sm font-medium text-brand">Chave criada com sucesso!</span>
               </div>
               <p className="text-xs text-text-muted mb-3">Copie e salve em local seguro. Nao sera exibida novamente.</p>
               <div className="flex items-center gap-2">
@@ -299,7 +336,7 @@ export default function AdminApiKeysPage() {
         ) : (
           <div className="space-y-4">
             <Input
-              label="Nome da Key"
+              label="Nome da Chave"
               placeholder="ex: Production API, Mobile App"
               value={newKeyName}
               onChange={(e) => setNewKeyName(e.target.value)}
@@ -333,7 +370,7 @@ export default function AdminApiKeysPage() {
                 Cancelar
               </Button>
               <Button onClick={handleCreate} disabled={creating || !newKeyName.trim()}>
-                {creating ? "Criando..." : "Criar Key"}
+                {creating ? "Criando..." : "Criar Chave"}
               </Button>
             </DialogFooter>
           </div>

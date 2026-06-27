@@ -49,11 +49,11 @@ function MovementIcon({ type }: { type: string }) {
 }
 
 const typeLabels: Record<string, string> = {
-  in: "Entry",
-  out: "Exit",
-  transfer: "Transfer",
-  count: "Count",
-  adjustment: "Adjustment",
+  in: "Entrada",
+  out: "Saida",
+  transfer: "Transferencia",
+  count: "Contagem",
+  adjustment: "Ajuste",
 };
 
 function formatDate(dateStr: string) {
@@ -76,10 +76,10 @@ export default function MovementsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-text-primary tracking-tight">
-            Movements
+            Movimentacoes
           </h1>
           <p className="text-sm text-text-muted mt-1">
-            {loading ? "Loading..." : "Audit log · All inventory changes recorded chronologically"}
+            {loading ? "Carregando..." : "Registro de atividade · Todas as alteracoes de inventario registradas cronologicamente"}
           </p>
         </div>
       </div>
@@ -94,7 +94,7 @@ export default function MovementsPage() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
         <input
           type="text"
-          placeholder="Search by SKU or user..."
+          placeholder="Buscar por SKU ou usuario..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full h-10 pl-10 pr-3 rounded-[4px] border border-border-default bg-bg-surface text-sm text-text-primary placeholder:text-text-muted-60 focus:border-brand-40 focus:ring-1 focus:ring-brand-20 transition-colors outline-none"
@@ -105,13 +105,13 @@ export default function MovementsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date/Time</TableHead>
-              <TableHead>User</TableHead>
+              <TableHead>Data/Hora</TableHead>
+              <TableHead>Usuario</TableHead>
               <TableHead>SKU</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead className="text-right">Qty</TableHead>
-              <TableHead>From</TableHead>
-              <TableHead>To</TableHead>
+              <TableHead>Tipo</TableHead>
+              <TableHead className="text-right">Qtd</TableHead>
+              <TableHead>De</TableHead>
+              <TableHead>Para</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -120,7 +120,7 @@ export default function MovementsPage() {
                 <TableCell colSpan={7} className="text-center py-12">
                   <div className="flex flex-col items-center gap-2 text-text-muted">
                     <Loader2 className="h-6 w-6 animate-spin" />
-                    <p className="text-sm">Loading movements...</p>
+                    <p className="text-sm">Carregando movimentacoes...</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -129,13 +129,13 @@ export default function MovementsPage() {
                 <TableCell colSpan={7} className="text-center py-12">
                   <div className="flex flex-col items-center gap-2 text-text-muted">
                     <ClipboardListIcon className="h-8 w-8" />
-                    <p className="text-sm">No movements found</p>
+                    <p className="text-sm">Nenhuma movimentacao encontrada</p>
                   </div>
                 </TableCell>
               </TableRow>
             ) : (
               filtered.map((m) => {
-                const userName = m.user?.name || "Unknown";
+                const userName = m.user?.name || "Desconhecido";
                 const initials = userName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
                 const fromName = m.from_location
                   ? [m.from_location.aisle, m.from_location.shelf].filter(Boolean).join("-S") || m.from_location.name
@@ -200,13 +200,13 @@ export default function MovementsPage() {
 
       <div className="flex items-center justify-between">
         <p className="text-sm text-text-muted">
-          Showing {filtered.length} of {movements.length} movements
+          Mostrando {filtered.length} de {movements.length} movimentacoes
         </p>
         <div className="flex items-center gap-2">
           <Button variant="secondary" size="sm" disabled>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-sm text-text-muted px-2">Page 1 of 1</span>
+          <span className="text-sm text-text-muted px-2">Pagina 1 de 1</span>
           <Button variant="secondary" size="sm" disabled>
             <ChevronRight className="h-4 w-4" />
           </Button>
