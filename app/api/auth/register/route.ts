@@ -10,28 +10,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Preencha todos os campos" }, { status: 400 });
     }
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      console.error("[api/register] Missing env vars:", { url: !!supabaseUrl, key: !!supabaseKey });
+      return NextResponse.json({ error: "Supabase nao configurado. Verifique .env.local" }, { status: 500 });
+    }
+
     const cookieStore = await cookies();
 
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll();
-          },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch (err) {
-              console.error("[api/register] cookie set error:", err);
-            }
-          },
+    const supabase = createServerClient(supabaseUrl, supabaseKey, {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
         },
-      }
-    );
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // setAll called from Server Component — ignored
+          }
+        },
+      },
+    });
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -43,6 +47,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
+      console.error("[api/register] supabase error:", error.message);
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
@@ -53,9 +58,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log("[api/register] success for", email);
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("[api/register] unexpected error:", err);
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
+    return NextResponse.json({ error: `Erro interno: ${err instanceof Error ? err.message : String(err)}` }, { status: 500 });
   }
 }
