@@ -47,6 +47,7 @@ export default function AdminUsersPage() {
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [editingRole, setEditingRole] = useState<string | null>(null);
   const [newRole, setNewRole] = useState("user");
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
 
   useEffect(() => {
     load();
@@ -294,28 +295,19 @@ export default function AdminUsersPage() {
                         <Button
                           variant="ghost"
                           size="icon-sm"
-                          onClick={() => setMenuOpen(menuOpen === u.id ? null : u.id)}
+                          onClick={(e) => {
+                            if (menuOpen === u.id) {
+                              setMenuOpen(null);
+                              setMenuPos(null);
+                            } else {
+                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                              setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                              setMenuOpen(u.id);
+                            }
+                          }}
                         >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
-                        {menuOpen === u.id && (
-                          <>
-                            <div className="fixed inset-0 z-[60]" onClick={() => setMenuOpen(null)} />
-                            <div className="absolute right-0 top-full mt-1 z-[70] w-52 bg-bg-surface border border-border-default rounded-[6px] shadow-xl py-1">
-                              <button
-                                className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-bg-surface flex items-center gap-2"
-                                onClick={() => toggleAdmin(u.id, u.is_system_admin)}
-                                disabled={updating === u.id}
-                              >
-                                {u.is_system_admin ? (
-                                  <><ShieldOff className="h-3.5 w-3.5" /> Remover admin do sistema</>
-                                ) : (
-                                  <><Shield className="h-3.5 w-3.5" /> Tornar admin do sistema</>
-                                )}
-                              </button>
-                            </div>
-                          </>
-                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -326,6 +318,32 @@ export default function AdminUsersPage() {
         </Table>
       </div>
 
+      {/* Dropdown menu (fixed position - always above overflow containers) */}
+      {menuOpen && menuPos && (() => {
+        const u = users.find((x) => x.id === menuOpen);
+        if (!u) return null;
+        return (
+          <>
+            <div className="fixed inset-0 z-[60]" onClick={() => { setMenuOpen(null); setMenuPos(null); }} />
+            <div
+              className="fixed z-[70] w-52 bg-bg-surface border border-border-default rounded-[6px] shadow-xl py-1"
+              style={{ top: menuPos.top, right: menuPos.right }}
+            >
+              <button
+                className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-bg-surface flex items-center gap-2"
+                onClick={() => toggleAdmin(u.id, u.is_system_admin)}
+                disabled={updating === u.id}
+              >
+                {u.is_system_admin ? (
+                  <><ShieldOff className="h-3.5 w-3.5" /> Remover admin do sistema</>
+                ) : (
+                  <><Shield className="h-3.5 w-3.5" /> Tornar admin do sistema</>
+                )}
+              </button>
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 }

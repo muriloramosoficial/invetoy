@@ -48,6 +48,7 @@ export default function AdminTenantsPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
   const [editModal, setEditModal] = useState<TenantRow | null>(null);
   const [editPlan, setEditPlan] = useState("free");
   const [editStatus, setEditStatus] = useState("active");
@@ -237,46 +238,26 @@ export default function AdminTenantsPage() {
                   <TableCell className="text-center font-mono text-sm text-text-secondary">{t.movement_count || 0}</TableCell>
                   <TableCell className="text-xs text-text-muted">
                     {t.created_at ? new Date(t.created_at).toLocaleDateString("pt-BR") : "-"}
-                  </TableCell>
-                  <TableCell>
-                    <div className="relative">
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => setMenuOpen(menuOpen === t.id ? null : t.id)}
-                      >
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                      {menuOpen === t.id && (
-                        <>
-                          <div className="fixed inset-0 z-[60]" onClick={() => setMenuOpen(null)} />
-                          <div className="absolute right-0 top-full mt-1 z-[70] w-48 bg-bg-surface border border-border-default rounded-[6px] shadow-xl py-1">
-                            <button
-                              className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-bg-surface flex items-center gap-2"
-                              onClick={() => openEdit(t)}
-                            >
-                              <Shield className="h-3.5 w-3.5" />
-                              Gerenciar plano
-                            </button>
-                            <button
-                              className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
-                                t.subscription_status === "active"
-                                  ? "text-brand-danger hover:bg-brand-danger-dim"
-                                  : "text-brand hover:bg-brand-dim"
-                              }`}
-                              onClick={() => toggleStatus(t)}
-                            >
-                              {t.subscription_status === "active" ? (
-                                <><Ban className="h-3.5 w-3.5" /> Suspender</>
-                              ) : (
-                                <><Play className="h-3.5 w-3.5" /> Ativar</>
-                              )}
-                            </button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </TableCell>
+                  </TableCell>                    <TableCell>
+                      <div className="relative">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={(e) => {
+                            if (menuOpen === t.id) {
+                              setMenuOpen(null);
+                              setMenuPos(null);
+                            } else {
+                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                              setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                              setMenuOpen(t.id);
+                            }
+                          }}
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
                 </TableRow>
               ))
             )}
@@ -328,6 +309,42 @@ export default function AdminTenantsPage() {
           </DialogFooter>
         </div>
       </Dialog>
+      {/* Dropdown menu (fixed position - always above overflow containers) */}
+      {menuOpen && menuPos && (() => {
+        const t = tenants.find((x) => x.id === menuOpen);
+        if (!t) return null;
+        return (
+          <>
+            <div className="fixed inset-0 z-[60]" onClick={() => { setMenuOpen(null); setMenuPos(null); }} />
+            <div
+              className="fixed z-[70] w-48 bg-bg-surface border border-border-default rounded-[6px] shadow-xl py-1"
+              style={{ top: menuPos.top, right: menuPos.right }}
+            >
+              <button
+                className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-bg-surface flex items-center gap-2"
+                onClick={() => { setMenuOpen(null); setMenuPos(null); openEdit(t); }}
+              >
+                <Shield className="h-3.5 w-3.5" />
+                Gerenciar plano
+              </button>
+              <button
+                className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
+                  t.subscription_status === "active"
+                    ? "text-brand-danger hover:bg-brand-danger-dim"
+                    : "text-brand hover:bg-brand-dim"
+                }`}
+                onClick={() => { setMenuOpen(null); setMenuPos(null); toggleStatus(t); }}
+              >
+                {t.subscription_status === "active" ? (
+                  <><Ban className="h-3.5 w-3.5" /> Suspender</>
+                ) : (
+                  <><Play className="h-3.5 w-3.5" /> Ativar</>
+                )}
+              </button>
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 }
