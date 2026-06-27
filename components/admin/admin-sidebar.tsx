@@ -5,28 +5,29 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
-  Users,
   Building2,
+  Users,
   BarChart3,
-  Settings,
+  Activity,
   Shield,
   ChevronLeft,
   ChevronRight,
-  Activity,
+  LogOut,
 } from "lucide-react";
 
 interface NavItem {
   label: string;
   href: string;
   icon: React.ReactNode;
+  badge?: string;
 }
 
 const adminNav: NavItem[] = [
-  { label: "Visao Geral", href: "/admin", icon: <LayoutDashboard className="h-4 w-4" /> },
-  { label: "Usuarios", href: "/admin/users", icon: <Users className="h-4 w-4" /> },
+  { label: "Overview", href: "/admin", icon: <LayoutDashboard className="h-4 w-4" /> },
   { label: "Empresas", href: "/admin/tenants", icon: <Building2 className="h-4 w-4" /> },
+  { label: "Usuarios", href: "/admin/users", icon: <Users className="h-4 w-4" /> },
   { label: "Relatorios", href: "/admin/reports", icon: <BarChart3 className="h-4 w-4" /> },
-  { label: "Atividade", href: "/admin/activity", icon: <Activity className="h-4 w-4" /> },
+  { label: "Audit Log", href: "/admin/activity", icon: <Activity className="h-4 w-4" /> },
 ];
 
 interface AdminSidebarProps {
@@ -46,13 +47,13 @@ export function AdminSidebar({ collapsed = false, onToggle }: AdminSidebarProps)
     >
       {/* Logo */}
       <div className="flex items-center gap-3 h-14 px-4 border-b border-border-default shrink-0">
-        <div className="flex items-center justify-center w-8 h-8 rounded-[4px] bg-red-500/10">
-          <Shield className="h-5 w-5 text-red-500" />
+        <div className="flex items-center justify-center w-8 h-8 rounded-[4px] bg-emerald-500/10">
+          <Shield className="h-5 w-5 text-emerald-500" />
         </div>
         {!collapsed && (
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-white tracking-tight">INVENTOY</span>
-            <span className="text-[10px] text-red-400 font-medium uppercase tracking-wider">Admin Panel</span>
+            <span className="text-[10px] text-emerald-400 font-medium uppercase tracking-wider">SaaS Admin</span>
           </div>
         )}
       </div>
@@ -71,7 +72,7 @@ export function AdminSidebar({ collapsed = false, onToggle }: AdminSidebarProps)
               className={cn(
                 "flex items-center gap-3 rounded-[4px] px-3 py-2.5 text-sm transition-all duration-150",
                 isActive
-                  ? "bg-red-500/10 text-red-400 font-medium"
+                  ? "bg-emerald-500/10 text-emerald-400 font-medium"
                   : "text-gray-400 hover:bg-white/5 hover:text-white"
               )}
               title={collapsed ? item.label : undefined}
@@ -79,20 +80,20 @@ export function AdminSidebar({ collapsed = false, onToggle }: AdminSidebarProps)
               <span className="shrink-0">{item.icon}</span>
               {!collapsed && <span className="truncate">{item.label}</span>}
               {isActive && !collapsed && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
               )}
             </Link>
           );
         })}
       </nav>
 
-      {/* Back to app */}
+      {/* Footer */}
       <div className="p-2 border-t border-border-default space-y-1">
         <Link
           href="/dashboard"
           className="flex items-center gap-3 rounded-[4px] px-3 py-2.5 text-sm text-gray-500 hover:bg-white/5 hover:text-white transition-colors"
         >
-          <Settings className="h-4 w-4" />
+          <LogOut className="h-4 w-4" />
           {!collapsed && <span>Voltar ao App</span>}
         </Link>
         <button

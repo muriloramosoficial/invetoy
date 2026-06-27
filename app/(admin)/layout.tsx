@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { cn } from "@/lib/utils";
-import { Menu, Shield } from "lucide-react";
+import { Shield, Menu } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -51,7 +51,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
       <div className="h-full flex items-center justify-center bg-[#0a0a0a]">
         <div className="flex flex-col items-center gap-3">
-          <Shield className="h-8 w-8 text-red-500 animate-pulse" />
+          <Shield className="h-8 w-8 text-emerald-500 animate-pulse" />
           <p className="text-sm text-gray-500">Verificando acesso...</p>
         </div>
       </div>
@@ -99,8 +99,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2 text-sm text-gray-400">
-            <Shield className="h-4 w-4 text-red-400" />
-            <span>Administracao do Sistema</span>
+            <Shield className="h-4 w-4 text-emerald-400" />
+            <span>SaaS Admin</span>
           </div>
           <div className="w-8" />
         </header>

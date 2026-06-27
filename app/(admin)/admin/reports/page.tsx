@@ -6,38 +6,31 @@ import {
   BarChart3,
   Loader2,
   TrendingUp,
-  Package,
+  Building2,
   ArrowRightLeft,
-  MapPin,
+  Package,
+  Users,
 } from "lucide-react";
 
-interface TenantActivity {
+interface TenantUsage {
   tenant_id: string;
   tenant_name: string;
-  movement_count: number;
+  plan: string;
+  user_count: number;
   product_count: number;
   location_count: number;
+  movement_count: number;
 }
 
-interface MovementByType {
-  type: string;
-  count: number;
-}
-
-interface RecentMovement {
-  id: string;
-  tenant_name: string;
-  user_name: string;
-  product_name: string;
-  movement_type: string;
-  quantity: number;
-  created_at: string;
+interface GrowthPoint {
+  month: string;
+  tenants: number;
+  users: number;
 }
 
 export default function AdminReportsPage() {
-  const [tenantActivity, setTenantActivity] = useState<TenantActivity[]>([]);
-  const [movementsByType, setMovementsByType] = useState<MovementByType[]>([]);
-  const [recentMovements, setRecentMovements] = useState<RecentMovement[]>([]);
+  const [tenants, setTenants] = useState<TenantUsage[]>([]);
+  const [growth, setGrowth] = useState<GrowthPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,89 +41,50 @@ export default function AdminReportsPage() {
       try {
         const supabase = createClient();
 
-        const [tenantsRes, productsRes, locationsRes, movementsRes] = await Promise.all([
-          supabase.from("tenants").select("id, name"),
-          supabase.from("products").select("id, tenant_id"),
-          supabase.from("locations").select("id, tenant_id"),
-          supabase
-            .from("movements")
-            .select("id, tenant_id, type, quantity, created_at, user_id, product_id"),
+        const [tenantsRes, usersRes, productsRes, locationsRes, movementsRes] = await Promise.all([
+          supabase.from("tenants").select("id, name, plan, created_at"),
+          supabase.from("profiles").select("tenant_id, created_at"),
+          supabase.from("products").select("tenant_id"),
+          supabase.from("locations").select("tenant_id"),
+          supabase.from("movements").select("tenant_id"),
         ]);
 
         if (tenantsRes.error) throw tenantsRes.error;
-        if (productsRes.error) throw productsRes.error;
-        if (locationsRes.error) throw locationsRes.error;
-        if (movementsRes.error) throw movementsRes.error;
 
-        const tenants = (tenantsRes.data || []) as { id: string; name: string }[];
-        const products = (productsRes.data || []) as { id: string; tenant_id: string }[];
-        const locations = (locationsRes.data || []) as { id: string; tenant_id: string }[];
-        const movements = (movementsRes.data || []) as {
-          id: string; tenant_id: string; type: string; quantity: number; created_at: string;
-          user_id: string; product_id: string;
-        }[];
+        const allTenants = (tenantsRes.data || []) as { id: string; name: string; plan: string; created_at: string }[];
+        const allUsers = (usersRes.data || []) as { tenant_id: string; created_at: string }[];
+        const allProducts = (productsRes.data || []) as { tenant_id: string }[];
+        const allLocations = (locationsRes.data || []) as { tenant_id: string }[];
+        const allMovements = (movementsRes.data || []) as { tenant_id: string }[];
 
-        const tenantMap: Record<string, string> = {};
-        tenants.forEach((t) => { tenantMap[t.id] = t.name; });
-
-        const activity: Record<string, TenantActivity> = {};
-        tenants.forEach((t) => {
-          activity[t.id] = {
+        const tenantUsage: TenantUsage[] = allTenants.map((t) => {
+          return {
             tenant_id: t.id,
             tenant_name: t.name,
-            movement_count: 0,
-            product_count: 0,
-            location_count: 0,
+            plan: t.plan,
+            user_count: allUsers.filter((u) => u.tenant_id === t.id).length,
+            product_count: allProducts.filter((p) => p.tenant_id === t.id).length,
+            location_count: allLocations.filter((l) => l.tenant_id === t.id).length,
+            movement_count: allMovements.filter((m) => m.tenant_id === t.id).length,
           };
-        });
+        }).sort((a, b) => b.movement_count - a.movement_count);
 
-        products.forEach((p) => {
-          if (activity[p.tenant_id]) activity[p.tenant_id].product_count++;
-        });
-        locations.forEach((l) => {
-          if (activity[l.tenant_id]) activity[l.tenant_id].location_count++;
-        });
-        movements.forEach((m) => {
-          if (activity[m.tenant_id]) activity[m.tenant_id].movement_count++;
-        });
-
-        const sorted = Object.values(activity).sort((a, b) => b.movement_count - a.movement_count);
-
-        const typeCounts: Record<string, number> = {};
-        movements.forEach((m) => {
-          typeCounts[m.type] = (typeCounts[m.type] || 0) + 1;
-        });
-        const byType = Object.entries(typeCounts)
-          .map(([type, count]) => ({ type, count }))
-          .sort((a, b) => b.count - a.count);
-
-        const profilesRes = await supabase.from("profiles").select("id, name");
-        const productsAllRes = await supabase.from("products").select("id, name");
-        const profileMap: Record<string, string> = {};
-        const productMap: Record<string, string> = {};
-        (profilesRes.data || []).forEach((p: { id: string; name: string }) => {
-          profileMap[p.id] = p.name;
-        });
-        (productsAllRes.data || []).forEach((p: { id: string; name: string }) => {
-          productMap[p.id] = p.name;
-        });
-
-        const recent = movements
-          .slice(0, 20)
-          .map((m) => ({
-            id: m.id,
-            tenant_name: tenantMap[m.tenant_id] || "-",
-            user_name: profileMap[m.user_id] || "-",
-            product_name: productMap[m.product_id] || "-",
-            movement_type: m.type,
-            quantity: m.quantity,
-            created_at: m.created_at,
-          }));
+        // Growth by month (last 6 months)
+        const now = new Date();
+        const months: GrowthPoint[] = [];
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          const key = d.toISOString().slice(0, 7);
+          months.push({
+            month: key,
+            tenants: allTenants.filter((t) => t.created_at?.slice(0, 7) <= key).length,
+            users: allUsers.filter((u) => u.created_at?.slice(0, 7) <= key).length,
+          });
+        }
 
         if (!cancelled) {
-          setTenantActivity(sorted);
-          setMovementsByType(byType);
-          setRecentMovements(recent);
+          setTenants(tenantUsage);
+          setGrowth(months);
         }
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : "Erro ao carregar relatorios");
@@ -152,103 +106,146 @@ export default function AdminReportsPage() {
 
   if (error) {
     return (
-      <div className="rounded-[4px] border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-400">
-        {error}
-      </div>
+      <div className="rounded-[6px] border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-400">{error}</div>
     );
   }
 
-  const typeLabels: Record<string, string> = {
-    in: "Entrada",
-    out: "Saida",
-    transfer: "Transferencia",
-    adjustment: "Ajuste",
-    count: "Contagem",
-  };
+  const maxMovement = Math.max(...tenants.map((t) => t.movement_count), 1);
 
-  const totalMovements = movementsByType.reduce((s, m) => s + m.count, 0);
+  // Plan distribution
+  const planCounts: Record<string, number> = {};
+  tenants.forEach((t) => { planCounts[t.plan] = (planCounts[t.plan] || 0) + 1; });
+
+  // Growth chart
+  const maxTenants = Math.max(...growth.map((g) => g.tenants), 1);
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold text-white tracking-tight">Relatorios</h1>
-        <p className="text-sm text-gray-500 mt-1">Uso do sistema por empresa</p>
+        <p className="text-sm text-gray-500 mt-1">Uso do SaaS por empresa</p>
       </div>
 
-      {/* Movements by type */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {error && (
+        <div className="rounded-[6px] border border-red-500/20 bg-red-500/5 p-3 text-sm text-red-400">{error}</div>
+      )}
+
+      {/* Growth chart */}
+      <div className="rounded-[6px] border border-border-default bg-bg-card p-5">
+        <div className="flex items-center gap-2 mb-5">
+          <TrendingUp className="h-4 w-4 text-gray-400" />
+          <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider">Crescimento (6 meses)</h2>
+        </div>
+        <div className="grid grid-cols-6 gap-3 h-32">
+          {growth.map((g) => {
+            const h = (g.tenants / maxTenants) * 100;
+            return (
+              <div key={g.month} className="flex flex-col items-center justify-end h-full">
+                <span className="text-[10px] text-gray-500 mb-1">{g.tenants}</span>
+                <div
+                  className="w-full bg-emerald-500/30 rounded-t-[2px]"
+                  style={{ height: `${Math.max(h, 4)}%` }}
+                />
+                <span className="text-[10px] text-gray-600 mt-1.5">
+                  {g.month.slice(5)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex items-center gap-4 mt-4 text-[10px] text-gray-600">
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-500/40" /> Tenants
+          </span>
+          <span>Crescimento mensal acumulado</span>
+        </div>
+      </div>
+
+      {/* Plan distribution + tenant leaderboard */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="rounded-[6px] border border-border-default bg-bg-card p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <ArrowRightLeft className="h-4 w-4 text-gray-400" />
-            <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider">Movimentacoes por Tipo</h2>
-          </div>
+          <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">Planos</h2>
           <div className="space-y-3">
-            {movementsByType.map((m) => {
-              const pct = totalMovements > 0 ? (m.count / totalMovements) * 100 : 0;
-              return (
-                <div key={m.type}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-white">{typeLabels[m.type] || m.type}</span>
-                    <span className="text-sm text-gray-400">{m.count} ({pct.toFixed(0)}%)</span>
+            {Object.entries(planCounts)
+              .sort(([, a], [, b]) => b - a)
+              .map(([plan, count]) => {
+                const pct = tenants.length > 0 ? (count / tenants.length) * 100 : 0;
+                const colors: Record<string, string> = {
+                  free: "bg-gray-500",
+                  starter: "bg-blue-500",
+                  pro: "bg-emerald-500",
+                  enterprise: "bg-amber-500",
+                };
+                return (
+                  <div key={plan}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm text-white capitalize">{plan}</span>
+                      <span className="text-xs text-gray-400">{count} ({pct.toFixed(0)}%)</span>
+                    </div>
+                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${colors[plan] || "bg-gray-500"}`} style={{ width: `${pct}%` }} />
+                    </div>
                   </div>
-                  <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-500/40 rounded-full" style={{ width: `${pct}%` }} />
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
 
         {/* Top tenants by activity */}
-        <div className="rounded-[6px] border border-border-default bg-bg-card p-5">
+        <div className="lg:col-span-2 rounded-[6px] border border-border-default bg-bg-card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="h-4 w-4 text-gray-400" />
+            <BarChart3 className="h-4 w-4 text-gray-400" />
             <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider">Empresas Mais Ativas</h2>
           </div>
           <div className="space-y-3">
-            {tenantActivity.slice(0, 5).map((t, i) => {
-              const maxMov = tenantActivity[0]?.movement_count || 1;
-              const pct = (t.movement_count / maxMov) * 100;
-              return (
-                <div key={t.tenant_id}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-white">
-                      <span className="text-gray-500 mr-2">#{i + 1}</span>
-                      {t.tenant_name}
-                    </span>
-                    <span className="text-sm text-gray-400">{t.movement_count} movs</span>
-                  </div>
-                  <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-green-500/40 rounded-full" style={{ width: `${pct}%` }} />
+            {tenants.slice(0, 8).map((t, i) => (
+              <div key={t.tenant_id}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm text-white">
+                    <span className="text-gray-600 mr-2 text-xs">#{i + 1}</span>
+                    {t.tenant_name}
+                  </span>
+                  <div className="flex items-center gap-3 text-xs text-gray-500">
+                    <span>{t.user_count} users</span>
+                    <span>{t.product_count} prod</span>
+                    <span className="text-emerald-400 font-mono">{t.movement_count} movs</span>
                   </div>
                 </div>
-              );
-            })}
+                <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-emerald-500/30 rounded-full"
+                    style={{ width: `${(t.movement_count / maxMovement) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Tenant summary table */}
+      {/* Full tenant table */}
       <div className="rounded-[6px] border border-border-default bg-bg-card p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <BarChart3 className="h-4 w-4 text-gray-400" />
-          <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider">Resumo por Empresa</h2>
-        </div>
+        <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">Todas as Empresas</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border-default">
-                <th className="text-left py-2 text-gray-400 font-medium">Empresa</th>
-                <th className="text-right py-2 text-gray-400 font-medium">Produtos</th>
-                <th className="text-right py-2 text-gray-400 font-medium">Locais</th>
-                <th className="text-right py-2 text-gray-400 font-medium">Movimentacoes</th>
+                <th className="text-left py-2 text-gray-500 font-medium text-xs">Empresa</th>
+                <th className="text-left py-2 text-gray-500 font-medium text-xs">Plano</th>
+                <th className="text-right py-2 text-gray-500 font-medium text-xs">Users</th>
+                <th className="text-right py-2 text-gray-500 font-medium text-xs">Produtos</th>
+                <th className="text-right py-2 text-gray-500 font-medium text-xs">Locais</th>
+                <th className="text-right py-2 text-gray-500 font-medium text-xs">Movimentacoes</th>
               </tr>
             </thead>
             <tbody>
-              {tenantActivity.map((t) => (
-                <tr key={t.tenant_id} className="border-b border-border-default last:border-0">
+              {tenants.map((t) => (
+                <tr key={t.tenant_id} className="border-b border-border-default last:border-0 hover:bg-white/[0.02]">
                   <td className="py-2 text-white">{t.tenant_name}</td>
+                  <td className="py-2">
+                    <span className="text-[10px] text-gray-400 uppercase">{t.plan}</span>
+                  </td>
+                  <td className="py-2 text-right text-gray-300 font-mono">{t.user_count}</td>
                   <td className="py-2 text-right text-gray-300 font-mono">{t.product_count}</td>
                   <td className="py-2 text-right text-gray-300 font-mono">{t.location_count}</td>
                   <td className="py-2 text-right text-gray-300 font-mono">{t.movement_count}</td>
@@ -256,42 +253,6 @@ export default function AdminReportsPage() {
               ))}
             </tbody>
           </table>
-        </div>
-      </div>
-
-      {/* Recent movements */}
-      <div className="rounded-[6px] border border-border-default bg-bg-card p-5">
-        <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">Movimentacoes Recentes</h2>
-        <div className="space-y-2">
-          {recentMovements.length === 0 ? (
-            <p className="text-sm text-gray-500">Nenhuma movimentacao registrada</p>
-          ) : (
-            recentMovements.map((m) => (
-              <div key={m.id} className="flex items-center justify-between py-2 border-b border-border-default last:border-0">
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-gray-500 w-20 shrink-0">
-                    {m.created_at ? new Date(m.created_at).toLocaleDateString("pt-BR") : "-"}
-                  </span>
-                  <div>
-                    <p className="text-sm text-white">{m.product_name}</p>
-                    <p className="text-xs text-gray-500">
-                      {m.tenant_name} · {m.user_name}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className={`text-xs font-medium ${
-                    m.movement_type === "in" ? "text-green-400" :
-                    m.movement_type === "out" ? "text-red-400" :
-                    "text-gray-400"
-                  }`}>
-                    {typeLabels[m.movement_type] || m.movement_type}
-                  </span>
-                  <p className="text-xs text-gray-500">qtd: {m.quantity}</p>
-                </div>
-              </div>
-            ))
-          )}
         </div>
       </div>
     </div>

@@ -12,16 +12,20 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
+import { Dialog, DialogFooter } from "@/components/ui/dialog";
 import {
   Building2,
   Search,
   Loader2,
   Users,
   Package,
-  MapPin,
   ArrowRightLeft,
+  MapPin,
+  MoreHorizontal,
+  Shield,
+  Ban,
+  Play,
   ExternalLink,
-  CreditCard,
 } from "lucide-react";
 
 interface TenantRow {
@@ -32,75 +36,75 @@ interface TenantRow {
   subscription_status: string;
   payment_provider: string | null;
   created_at: string;
-}
-
-interface TenantMetrics {
-  user_count: number;
-  product_count: number;
-  location_count: number;
-  movement_count: number;
+  user_count?: number;
+  product_count?: number;
+  movement_count?: number;
+  location_count?: number;
 }
 
 export default function AdminTenantsPage() {
   const [tenants, setTenants] = useState<TenantRow[]>([]);
-  const [metricsMap, setMetricsMap] = useState<Record<string, TenantMetrics>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const [editModal, setEditModal] = useState<TenantRow | null>(null);
+  const [editPlan, setEditPlan] = useState("free");
+  const [editStatus, setEditStatus] = useState("active");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      setLoading(true);
-      try {
-        const supabase = createClient();
-
-        const { data: tenantsData, error: tenantsErr } = await supabase
-          .from("tenants")
-          .select("id, name, slug, plan, subscription_status, payment_provider, created_at")
-          .order("created_at", { ascending: false });
-
-        if (tenantsErr) throw tenantsErr;
-        if (!cancelled) setTenants((tenantsData || []) as TenantRow[]);
-
-        const ids: string[] = (tenantsData || []).map((t: TenantRow) => t.id);
-        if (ids.length > 0) {
-          const [usersRes, productsRes, locationsRes, movementsRes] = await Promise.all([
-            supabase.from("profiles").select("tenant_id"),
-            supabase.from("products").select("tenant_id"),
-            supabase.from("locations").select("tenant_id"),
-            supabase.from("movements").select("tenant_id"),
-          ]);
-
-          const counts: Record<string, TenantMetrics> = {};
-          ids.forEach((id) => {
-            counts[id] = { user_count: 0, product_count: 0, location_count: 0, movement_count: 0 };
-          });
-
-          (usersRes.data || []).forEach((r: { tenant_id: string }) => {
-            if (counts[r.tenant_id]) counts[r.tenant_id].user_count++;
-          });
-          (productsRes.data || []).forEach((r: { tenant_id: string }) => {
-            if (counts[r.tenant_id]) counts[r.tenant_id].product_count++;
-          });
-          (locationsRes.data || []).forEach((r: { tenant_id: string }) => {
-            if (counts[r.tenant_id]) counts[r.tenant_id].location_count++;
-          });
-          (movementsRes.data || []).forEach((r: { tenant_id: string }) => {
-            if (counts[r.tenant_id]) counts[r.tenant_id].movement_count++;
-          });
-
-          if (!cancelled) setMetricsMap(counts);
-        }
-      } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Erro ao carregar empresas");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
     load();
-    return () => { cancelled = true; };
   }, []);
+
+  async function load() {
+    setLoading(true);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("tenants")
+        .select("id, name, slug, plan, subscription_status, payment_provider, created_at")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      const tenantsList = (data || []) as TenantRow[];
+
+      // Get counts per tenant
+      const ids = tenantsList.map((t) => t.id);
+      if (ids.length > 0) {
+        const [usersRes, productsRes, locationsRes, movementsRes] = await Promise.all([
+          supabase.from("profiles").select("tenant_id"),
+          supabase.from("products").select("tenant_id"),
+          supabase.from("locations").select("tenant_id"),
+          supabase.from("movements").select("tenant_id"),
+        ]);
+
+        const userCounts: Record<string, number> = {};
+        const prodCounts: Record<string, number> = {};
+        const locCounts: Record<string, number> = {};
+        const movCounts: Record<string, number> = {};
+
+        (usersRes.data || []).forEach((r: any) => { userCounts[r.tenant_id] = (userCounts[r.tenant_id] || 0) + 1; });
+        (productsRes.data || []).forEach((r: any) => { prodCounts[r.tenant_id] = (prodCounts[r.tenant_id] || 0) + 1; });
+        (locationsRes.data || []).forEach((r: any) => { locCounts[r.tenant_id] = (locCounts[r.tenant_id] || 0) + 1; });
+        (movementsRes.data || []).forEach((r: any) => { movCounts[r.tenant_id] = (movCounts[r.tenant_id] || 0) + 1; });
+
+        tenantsList.forEach((t) => {
+          t.user_count = userCounts[t.id] || 0;
+          t.product_count = prodCounts[t.id] || 0;
+          t.location_count = locCounts[t.id] || 0;
+          t.movement_count = movCounts[t.id] || 0;
+        });
+      }
+
+      setTenants(tenantsList);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao carregar empresas");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const filtered = tenants.filter(
     (t) =>
@@ -108,19 +112,46 @@ export default function AdminTenantsPage() {
       t.slug?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const planColors: Record<string, "gray" | "blue" | "green" | "yellow"> = {
-    free: "gray",
-    starter: "blue",
-    pro: "green",
-    enterprise: "yellow",
+  const openEdit = (t: TenantRow) => {
+    setEditModal(t);
+    setEditPlan(t.plan);
+    setEditStatus(t.subscription_status);
+    setMenuOpen(null);
   };
 
-  const statusColors: Record<string, "green" | "blue" | "yellow" | "red" | "gray"> = {
-    active: "green",
-    trialing: "blue",
-    past_due: "yellow",
-    canceled: "red",
-    incomplete: "gray",
+  const handleSaveTenant = async () => {
+    if (!editModal) return;
+    setSaving(true);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("tenants")
+        .update({ plan: editPlan, subscription_status: editStatus })
+        .eq("id", editModal.id);
+      if (error) throw error;
+      setEditModal(null);
+      load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao salvar");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const toggleStatus = async (t: TenantRow) => {
+    setMenuOpen(null);
+    const newStatus = t.subscription_status === "active" ? "canceled" : "active";
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("tenants")
+        .update({ subscription_status: newStatus })
+        .eq("id", t.id);
+      if (error) throw error;
+      load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao alterar status");
+    }
   };
 
   return (
@@ -128,12 +159,12 @@ export default function AdminTenantsPage() {
       <div>
         <h1 className="text-2xl font-semibold text-white tracking-tight">Empresas</h1>
         <p className="text-sm text-gray-500 mt-1">
-          {loading ? "Carregando..." : `${tenants.length} empresas cadastradas`}
+          {loading ? "Carregando..." : `${tenants.length} tenants · ${tenants.filter((t) => t.subscription_status === "active").length} ativos`}
         </p>
       </div>
 
       {error && (
-        <div className="rounded-[4px] border border-red-500/20 bg-red-500/5 p-3 text-sm text-red-400">
+        <div className="rounded-[6px] border border-red-500/20 bg-red-500/5 p-3 text-sm text-red-400">
           {error}
         </div>
       )}
@@ -145,7 +176,7 @@ export default function AdminTenantsPage() {
           placeholder="Buscar empresa..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full h-10 pl-10 pr-3 rounded-[4px] border border-border-default bg-bg-surface text-sm text-white placeholder:text-gray-500 focus:border-red-500/40 focus:ring-1 focus:ring-red-500/20 transition-colors outline-none"
+          className="w-full h-10 pl-10 pr-3 rounded-[6px] border border-border-default bg-bg-surface text-sm text-white placeholder:text-gray-500 focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20 transition-colors outline-none"
         />
       </div>
 
@@ -156,92 +187,147 @@ export default function AdminTenantsPage() {
               <TableHead>Empresa</TableHead>
               <TableHead>Plano</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-center">
-                <Users className="h-3.5 w-3.5 inline mr-1" />
-                Users
-              </TableHead>
-              <TableHead className="text-center">
-                <Package className="h-3.5 w-3.5 inline mr-1" />
-                Produtos
-              </TableHead>
-              <TableHead className="text-center">
-                <MapPin className="h-3.5 w-3.5 inline mr-1" />
-                Locais
-              </TableHead>
-              <TableHead className="text-center">
-                <ArrowRightLeft className="h-3.5 w-3.5 inline mr-1" />
-                Movs
-              </TableHead>
-              <TableHead>Pagamento</TableHead>
+              <TableHead className="text-center">Users</TableHead>
+              <TableHead className="text-center">Produtos</TableHead>
+              <TableHead className="text-center">Movs</TableHead>
               <TableHead>Criada em</TableHead>
+              <TableHead className="w-10"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-12">
+                <TableCell colSpan={8} className="text-center py-12">
                   <Loader2 className="h-6 w-6 text-gray-400 animate-spin mx-auto" />
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-12 text-gray-500">
+                <TableCell colSpan={8} className="text-center py-12 text-gray-500">
                   Nenhuma empresa encontrada
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((t) => {
-                const m = metricsMap[t.id] || { user_count: 0, product_count: 0, location_count: 0, movement_count: 0 };
-                return (
-                  <TableRow key={t.id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-white">{t.name}</p>
-                        <p className="text-xs text-gray-500">{t.slug}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <TechBadge variant={planColors[t.plan] || "gray"}>
-                        {t.plan?.toUpperCase()}
-                      </TechBadge>
-                    </TableCell>
-                    <TableCell>
-                      <TechBadge variant={statusColors[t.subscription_status] || "gray"}>
-                        {t.subscription_status?.toUpperCase() || "UNKNOWN"}
-                      </TechBadge>
-                    </TableCell>
-                    <TableCell className="text-center font-mono text-sm text-gray-300">
-                      {m.user_count}
-                    </TableCell>
-                    <TableCell className="text-center font-mono text-sm text-gray-300">
-                      {m.product_count}
-                    </TableCell>
-                    <TableCell className="text-center font-mono text-sm text-gray-300">
-                      {m.location_count}
-                    </TableCell>
-                    <TableCell className="text-center font-mono text-sm text-gray-300">
-                      {m.movement_count}
-                    </TableCell>
-                    <TableCell>
-                      {t.payment_provider ? (
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
-                          <CreditCard className="h-3 w-3" />
-                          {t.payment_provider}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-gray-600">-</span>
+              filtered.map((t) => (
+                <TableRow key={t.id}>
+                  <TableCell>
+                    <div>
+                      <p className="font-medium text-white">{t.name}</p>
+                      <p className="text-[10px] text-gray-600">{t.slug}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <TechBadge variant={t.plan === "pro" ? "green" : t.plan === "starter" ? "blue" : "gray"}>
+                      {t.plan?.toUpperCase()}
+                    </TechBadge>
+                  </TableCell>
+                  <TableCell>
+                    <TechBadge variant={
+                      t.subscription_status === "active" ? "green" :
+                      t.subscription_status === "trialing" ? "blue" :
+                      t.subscription_status === "canceled" ? "red" :
+                      t.subscription_status === "past_due" ? "yellow" :
+                      "gray"
+                    }>
+                      {t.subscription_status?.toUpperCase()}
+                    </TechBadge>
+                  </TableCell>
+                  <TableCell className="text-center font-mono text-sm text-gray-300">{t.user_count || 0}</TableCell>
+                  <TableCell className="text-center font-mono text-sm text-gray-300">{t.product_count || 0}</TableCell>
+                  <TableCell className="text-center font-mono text-sm text-gray-300">{t.movement_count || 0}</TableCell>
+                  <TableCell className="text-xs text-gray-500">
+                    {t.created_at ? new Date(t.created_at).toLocaleDateString("pt-BR") : "-"}
+                  </TableCell>
+                  <TableCell>
+                    <div className="relative">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => setMenuOpen(menuOpen === t.id ? null : t.id)}
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                      {menuOpen === t.id && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(null)} />
+                          <div className="absolute right-0 top-full mt-1 z-50 w-48 bg-gray-900 border border-border-default rounded-[6px] shadow-xl py-1">
+                            <button
+                              className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 flex items-center gap-2"
+                              onClick={() => openEdit(t)}
+                            >
+                              <Shield className="h-3.5 w-3.5" />
+                              Gerenciar plano
+                            </button>
+                            <button
+                              className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
+                                t.subscription_status === "active"
+                                  ? "text-red-400 hover:bg-red-500/5"
+                                  : "text-emerald-400 hover:bg-emerald-500/5"
+                              }`}
+                              onClick={() => toggleStatus(t)}
+                            >
+                              {t.subscription_status === "active" ? (
+                                <><Ban className="h-3.5 w-3.5" /> Suspender</>
+                              ) : (
+                                <><Play className="h-3.5 w-3.5" /> Ativar</>
+                              )}
+                            </button>
+                          </div>
+                        </>
                       )}
-                    </TableCell>
-                    <TableCell className="text-xs text-gray-500">
-                      {t.created_at ? new Date(t.created_at).toLocaleDateString("pt-BR") : "-"}
-                    </TableCell>
-                  </TableRow>
-                );
-              })
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>
       </div>
+
+      {/* Edit modal */}
+      <Dialog
+        open={!!editModal}
+        onClose={() => setEditModal(null)}
+        title={`Gerenciar: ${editModal?.name}`}
+        description="Altere o plano e status desta empresa"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider">Plano</label>
+            <select
+              value={editPlan}
+              onChange={(e) => setEditPlan(e.target.value)}
+              className="flex h-10 w-full rounded-[6px] border border-border-default bg-bg-surface px-3 py-2 text-sm text-white appearance-none focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20 transition-colors outline-none"
+            >
+              <option value="free">Free</option>
+              <option value="starter">Starter</option>
+              <option value="pro">Pro</option>
+              <option value="enterprise">Enterprise</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider">Status</label>
+            <select
+              value={editStatus}
+              onChange={(e) => setEditStatus(e.target.value)}
+              className="flex h-10 w-full rounded-[6px] border border-border-default bg-bg-surface px-3 py-2 text-sm text-white appearance-none focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20 transition-colors outline-none"
+            >
+              <option value="active">Ativo</option>
+              <option value="trialing">Trial</option>
+              <option value="past_due">Pagamento Pendente</option>
+              <option value="canceled">Cancelado</option>
+            </select>
+          </div>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setEditModal(null)} disabled={saving}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveTenant} disabled={saving}>
+              {saving ? "Salvando..." : "Salvar"}
+            </Button>
+          </DialogFooter>
+        </div>
+      </Dialog>
     </div>
   );
 }

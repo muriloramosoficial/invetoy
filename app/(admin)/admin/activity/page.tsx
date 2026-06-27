@@ -7,46 +7,36 @@ import {
   Activity,
   Loader2,
   ArrowRightLeft,
-  Package,
-  MapPin,
   Building2,
+  User,
+  Package,
 } from "lucide-react";
 
-interface Movement {
+interface AuditEntry {
   id: string;
-  tenant_id: string;
+  type: string;
+  description: string;
   tenant_name: string;
   user_name: string;
-  product_name: string;
-  movement_type: string;
-  quantity: number;
-  from_location?: string;
-  to_location?: string;
-  notes: string | null;
+  details: string;
   created_at: string;
 }
 
-const typeLabels: Record<string, string> = {
-  in: "Entrada",
-  out: "Saida",
-  transfer: "Transferencia",
-  adjustment: "Ajuste",
-  count: "Contagem",
-};
-
-const typeColors: Record<string, "green" | "red" | "blue" | "yellow" | "gray"> = {
-  in: "green",
-  out: "red",
-  transfer: "blue",
-  adjustment: "yellow",
-  count: "gray",
+const typeConfig: Record<string, { label: string; color: "green" | "red" | "blue" | "yellow" | "gray"; icon: React.ReactNode }> = {
+  in: { label: "Entrada", color: "green", icon: <Package className="h-3 w-3" /> },
+  out: { label: "Saida", color: "red", icon: <Package className="h-3 w-3" /> },
+  transfer: { label: "Transferencia", color: "blue", icon: <ArrowRightLeft className="h-3 w-3" /> },
+  adjustment: { label: "Ajuste", color: "yellow", icon: <ArrowRightLeft className="h-3 w-3" /> },
+  count: { label: "Contagem", color: "gray", icon: <ArrowRightLeft className="h-3 w-3" /> },
+  signup: { label: "Cadastro", color: "green", icon: <User className="h-3 w-3" /> },
+  plan_change: { label: "Plano", color: "blue", icon: <Building2 className="h-3 w-3" /> },
 };
 
 export default function AdminActivityPage() {
-  const [movements, setMovements] = useState<Movement[]>([]);
+  const [entries, setEntries] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<string>("all");
+  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
     let cancelled = false;
@@ -55,56 +45,78 @@ export default function AdminActivityPage() {
       try {
         const supabase = createClient();
 
-        const { data: movementsData, error: movErr } = await supabase
+        // Load movements
+        const { data: movements, error: movErr } = await supabase
           .from("movements")
-          .select("id, tenant_id, type, quantity, notes, created_at, user_id, product_id, from_location_id, to_location_id")
+          .select("id, type, quantity, notes, created_at, tenant_id, user_id, product_id")
           .order("created_at", { ascending: false })
           .limit(100);
 
         if (movErr) throw movErr;
 
-        const tenantIds = [...new Set((movementsData || []).map((m: any) => m.tenant_id))];
-        const userIds = [...new Set((movementsData || []).map((m: any) => m.user_id))];
-        const productIds = [...new Set((movementsData || []).map((m: any) => m.product_id))];
-        const locationIds = [
-          ...new Set([
-            ...(movementsData || []).map((m: any) => m.from_location_id).filter(Boolean),
-            ...(movementsData || []).map((m: any) => m.to_location_id).filter(Boolean),
-          ]),
-        ];
+        // Load profiles (for names)
+        const allTenantIds = [...new Set((movements || []).map((m: any) => m.tenant_id).filter(Boolean))];
+        const allUserIds = [...new Set((movements || []).map((m: any) => m.user_id).filter(Boolean))];
+        const allProductIds = [...new Set((movements || []).map((m: any) => m.product_id).filter(Boolean))];
 
-        const [tenantsRes, usersRes, productsRes, locationsRes] = await Promise.all([
-          tenantIds.length ? supabase.from("tenants").select("id, name").in("id", tenantIds) : { data: [] },
-          userIds.length ? supabase.from("profiles").select("id, name").in("id", userIds) : { data: [] },
-          productIds.length ? supabase.from("products").select("id, name").in("id", productIds) : { data: [] },
-          locationIds.length ? supabase.from("locations").select("id, name").in("id", locationIds) : { data: [] },
+        const [tenantsRes, usersRes, productsRes] = await Promise.all([
+          allTenantIds.length ? supabase.from("tenants").select("id, name").in("id", allTenantIds) : { data: [] },
+          allUserIds.length ? supabase.from("profiles").select("id, name").in("id", allUserIds) : { data: [] },
+          allProductIds.length ? supabase.from("products").select("id, name").in("id", allProductIds) : { data: [] },
         ]);
 
         const tenantMap: Record<string, string> = {};
         const userMap: Record<string, string> = {};
         const productMap: Record<string, string> = {};
-        const locationMap: Record<string, string> = {};
-
         (tenantsRes.data || []).forEach((t: any) => { tenantMap[t.id] = t.name; });
         (usersRes.data || []).forEach((u: any) => { userMap[u.id] = u.name; });
         (productsRes.data || []).forEach((p: any) => { productMap[p.id] = p.name; });
-        (locationsRes.data || []).forEach((l: any) => { locationMap[l.id] = l.name; });
 
-        const parsed = (movementsData || []).map((m: any) => ({
-          id: m.id,
-          tenant_id: m.tenant_id,
-          tenant_name: tenantMap[m.tenant_id] || "-",
-          user_name: userMap[m.user_id] || "-",
-          product_name: productMap[m.product_id] || "-",
-          movement_type: m.type,
-          quantity: m.quantity,
-          from_location: m.from_location_id ? locationMap[m.from_location_id] : undefined,
-          to_location: m.to_location_id ? locationMap[m.to_location_id] : undefined,
-          notes: m.notes,
-          created_at: m.created_at,
-        }));
+        const entries: AuditEntry[] = (movements || []).map((m: any) => {
+          const productName = productMap[m.product_id] || "Item desconhecido";
+          const userName = userMap[m.user_id] || "Sistema";
+          const tenantName = tenantMap[m.tenant_id] || "-";
 
-        if (!cancelled) setMovements(parsed);
+          let description = "";
+          let details = "";
+          switch (m.type) {
+            case "in":
+              description = `${userName} adicionou ${m.quantity}x ${productName}`;
+              details = m.notes || `Entrada de ${m.quantity} unidades`;
+              break;
+            case "out":
+              description = `${userName} removeu ${m.quantity}x ${productName}`;
+              details = m.notes || `Saida de ${m.quantity} unidades`;
+              break;
+            case "transfer":
+              description = `${userName} transferiu ${m.quantity}x ${productName}`;
+              details = m.notes || "Transferencia entre locais";
+              break;
+            case "adjustment":
+              description = `${userName} ajustou estoque de ${productName}`;
+              details = m.notes || `Ajuste de ${m.quantity} unidades`;
+              break;
+            case "count":
+              description = `${userName} contou ${m.quantity}x ${productName}`;
+              details = m.notes || "Contagem de inventario";
+              break;
+            default:
+              description = `${userName} realizou operacao em ${productName}`;
+              details = m.notes || "-";
+          }
+
+          return {
+            id: m.id,
+            type: m.type,
+            description,
+            tenant_name: tenantName,
+            user_name: userName,
+            details,
+            created_at: m.created_at,
+          };
+        });
+
+        if (!cancelled) setEntries(entries);
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : "Erro ao carregar atividade");
       } finally {
@@ -115,21 +127,19 @@ export default function AdminActivityPage() {
     return () => { cancelled = true; };
   }, []);
 
-  const filtered = filter === "all" ? movements : movements.filter((m) => m.movement_type === filter);
+  const filtered = filter === "all" ? entries : entries.filter((e) => e.type === filter);
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white tracking-tight">Atividade</h1>
+        <h1 className="text-2xl font-semibold text-white tracking-tight">Audit Log</h1>
         <p className="text-sm text-gray-500 mt-1">
-          {loading ? "Carregando..." : `${movements.length} movimentacoes no historico`}
+          {loading ? "Carregando..." : `${entries.length} movimentacoes no historico`}
         </p>
       </div>
 
       {error && (
-        <div className="rounded-[4px] border border-red-500/20 bg-red-500/5 p-3 text-sm text-red-400">
-          {error}
-        </div>
+        <div className="rounded-[6px] border border-red-500/20 bg-red-500/5 p-3 text-sm text-red-400">{error}</div>
       )}
 
       {/* Filters */}
@@ -140,14 +150,13 @@ export default function AdminActivityPage() {
           { value: "out", label: "Saidas" },
           { value: "transfer", label: "Transferencias" },
           { value: "adjustment", label: "Ajustes" },
-          { value: "count", label: "Contagens" },
         ].map((f) => (
           <button
             key={f.value}
             onClick={() => setFilter(f.value)}
             className={`px-3 py-1.5 text-xs rounded-[4px] border transition-colors ${
               filter === f.value
-                ? "bg-red-500/10 border-red-500/30 text-red-400"
+                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
                 : "border-border-default text-gray-400 hover:text-white hover:border-gray-600"
             }`}
           >
@@ -156,68 +165,49 @@ export default function AdminActivityPage() {
         ))}
       </div>
 
-      {/* Activity list */}
+      {/* Timeline */}
       <div className="rounded-[6px] border border-border-default overflow-hidden">
         {loading ? (
           <div className="py-12 text-center">
             <Loader2 className="h-6 w-6 text-gray-400 animate-spin mx-auto" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="py-12 text-center text-gray-500">
-            Nenhuma atividade encontrada
-          </div>
+          <div className="py-12 text-center text-gray-500">Nenhuma atividade encontrada</div>
         ) : (
           <div className="divide-y divide-border-default">
-            {filtered.map((m) => (
-              <div key={m.id} className="px-5 py-3 hover:bg-white/[0.02] transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-1.5 rounded-[4px] ${
-                      m.movement_type === "in" ? "bg-green-500/10" :
-                      m.movement_type === "out" ? "bg-red-500/10" :
-                      m.movement_type === "transfer" ? "bg-blue-500/10" :
+            {filtered.map((entry) => {
+              const config = typeConfig[entry.type] || { label: entry.type, color: "gray" as const, icon: <Activity className="h-3 w-3" /> };
+              return (
+                <div key={entry.id} className="px-5 py-3 hover:bg-white/[0.02] transition-colors">
+                  <div className="flex items-start gap-3">
+                    <div className={`p-1.5 rounded-[4px] mt-0.5 ${
+                      config.color === "green" ? "bg-emerald-500/10" :
+                      config.color === "red" ? "bg-red-500/10" :
+                      config.color === "blue" ? "bg-blue-500/10" :
+                      config.color === "yellow" ? "bg-amber-500/10" :
                       "bg-white/5"
                     }`}>
-                      <ArrowRightLeft className={`h-3.5 w-3.5 ${
-                        m.movement_type === "in" ? "text-green-400" :
-                        m.movement_type === "out" ? "text-red-400" :
-                        m.movement_type === "transfer" ? "text-blue-400" :
-                        "text-gray-400"
-                      }`} />
+                      {config.icon}
                     </div>
-                    <div>
-                      <p className="text-sm text-white">{m.product_name}</p>
-                      <p className="text-xs text-gray-500 flex items-center gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm text-white">{entry.description}</p>
+                        <TechBadge variant={config.color}>{config.label}</TechBadge>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1 text-[10px] text-gray-600">
                         <Building2 className="h-3 w-3" />
-                        {m.tenant_name}
-                        <span className="text-gray-600">·</span>
-                        {m.user_name}
-                      </p>
+                        {entry.tenant_name}
+                        <span>·</span>
+                        {entry.created_at ? new Date(entry.created_at).toLocaleString("pt-BR") : "-"}
+                      </div>
+                      {entry.details && entry.details !== entry.description && (
+                        <p className="text-xs text-gray-500 mt-1 italic">{entry.details}</p>
+                      )}
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-2">
-                      <TechBadge variant={typeColors[m.movement_type] || "gray"}>
-                        {typeLabels[m.movement_type] || m.movement_type}
-                      </TechBadge>
-                      <span className="text-sm text-gray-300 font-mono">x{m.quantity}</span>
-                    </div>
-                    <p className="text-[10px] text-gray-600 mt-1">
-                      {m.created_at ? new Date(m.created_at).toLocaleString("pt-BR") : "-"}
-                    </p>
                   </div>
                 </div>
-                {m.movement_type === "transfer" && m.from_location && m.to_location && (
-                  <div className="mt-1 ml-11 text-xs text-gray-500 flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    {m.from_location} → {m.to_location}
-                  </div>
-                )}
-                {m.notes && (
-                  <p className="mt-1 ml-11 text-xs text-gray-600 italic">{m.notes}</p>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
