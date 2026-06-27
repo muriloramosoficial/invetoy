@@ -137,6 +137,29 @@ export default function AdminUsersPage() {
         </p>
       </div>
 
+      {/* Legenda - no topo */}
+      <div className="rounded-[6px] border border-border-default bg-bg-card p-4">
+        <h3 className="text-xs font-medium text-text-muted uppercase tracking-wider mb-3">Legenda</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <TechBadge variant="gray">USUARIO</TechBadge>
+            <span className="text-text-muted">Acesso basico ao sistema</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <TechBadge variant="blue">GERENTE</TechBadge>
+            <span className="text-text-muted">Pode gerenciar equipe</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <TechBadge variant="green">ADMINISTRADOR</TechBadge>
+            <span className="text-text-muted">Admin do tenant</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <TechBadge variant="red">ADMIN DO SISTEMA</TechBadge>
+            <span className="text-text-muted">Admin do SaaS (area /admin)</span>
+          </div>
+        </div>
+      </div>
+
       {error && (
         <div className="rounded-[6px] border border-brand-danger-10 bg-brand-danger-dim p-3 text-sm text-brand-danger flex items-center justify-between">
           <span>{error}</span>
@@ -277,8 +300,8 @@ export default function AdminUsersPage() {
                         </Button>
                         {menuOpen === u.id && (
                           <>
-                            <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(null)} />
-                            <div className="absolute right-0 top-full mt-1 z-50 w-52 bg-bg-surface border border-border-default rounded-[6px] shadow-xl py-1">
+                            <div className="fixed inset-0 z-[60]" onClick={() => setMenuOpen(null)} />
+                            <div className="absolute right-0 top-full mt-1 z-[70] w-52 bg-bg-surface border border-border-default rounded-[6px] shadow-xl py-1">
                               <button
                                 className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-bg-surface flex items-center gap-2"
                                 onClick={() => toggleAdmin(u.id, u.is_system_admin)}
@@ -303,27 +326,6 @@ export default function AdminUsersPage() {
         </Table>
       </div>
 
-      <div className="rounded-[6px] border border-border-default bg-bg-card p-4">
-        <h3 className="text-xs font-medium text-text-muted uppercase tracking-wider mb-3">Legenda</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-          <div className="flex items-center gap-2">
-            <TechBadge variant="gray">USUARIO</TechBadge>
-            <span className="text-text-muted">Acesso basico ao sistema</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <TechBadge variant="blue">GERENTE</TechBadge>
-            <span className="text-text-muted">Pode gerenciar equipe</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <TechBadge variant="green">ADMINISTRADOR</TechBadge>
-            <span className="text-text-muted">Admin do tenant</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <TechBadge variant="red">ADMIN DO SISTEMA</TechBadge>
-            <span className="text-text-muted">Admin do SaaS (area /admin)</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

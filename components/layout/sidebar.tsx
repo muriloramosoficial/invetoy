@@ -50,8 +50,8 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
         collapsed ? "w-16" : "w-56"
       )}
     >
-      {/* Logo */}
-      <div className="flex items-center gap-3 h-14 px-4 border-b border-border-default shrink-0">
+      {/* Logo - click to go to landing page */}
+      <Link href="/" className="flex items-center gap-3 h-14 px-4 border-b border-border-default shrink-0 hover:bg-bg-surface-hover transition-colors">
         <div className="flex items-center justify-center w-8 h-8 rounded-[4px] bg-brand-10">
           <Box className="h-5 w-5 text-brand" />
         </div>
@@ -60,7 +60,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
             INVENTOY
           </span>
         )}
-      </div>
+      </Link>
 
       {/* Navigation */}
       <nav className="flex-1 p-2 space-y-1 overflow-y-auto">

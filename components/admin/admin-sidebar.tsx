@@ -17,6 +17,7 @@ import {
   Key,
   LogOut,
   Webhook,
+  CreditCard,
 } from "lucide-react";
 
 interface NavItem {
@@ -32,8 +33,9 @@ const adminNav: NavItem[] = [
   { label: "Financeiro", href: "/admin/billing", icon: <DollarSign className="h-4 w-4" /> },
   { label: "Relatorios", href: "/admin/reports", icon: <BarChart3 className="h-4 w-4" /> },
   { label: "Atividades", href: "/admin/activity", icon: <Activity className="h-4 w-4" /> },
+  { label: "Planos", href: "/admin/plans", icon: <CreditCard className="h-4 w-4" /> },
   { label: "Asaas", href: "/admin/asaas-config", icon: <Webhook className="h-4 w-4" /> },
-  { label: "Chaves", href: "/admin/api-keys", icon: <Key className="h-4 w-4" /> },
+  { label: "API Keys", href: "/admin/api-keys", icon: <Key className="h-4 w-4" /> },
 ];
 
 interface AdminSidebarProps {
@@ -58,8 +60,8 @@ export function AdminSidebar({ collapsed = false, onToggle }: AdminSidebarProps)
         collapsed ? "w-16" : "w-56"
       )}
     >
-      {/* Logo */}
-      <div className="flex items-center gap-3 h-14 px-4 border-b border-border-default shrink-0">
+      {/* Logo - click to go to landing page */}
+      <Link href="/" className="flex items-center gap-3 h-14 px-4 border-b border-border-default shrink-0 hover:bg-bg-surface-hover transition-colors">
         <div className="flex items-center justify-center w-8 h-8 rounded-[4px] bg-brand-10">
           <Shield className="h-5 w-5 text-brand" />
         </div>
@@ -69,7 +71,7 @@ export function AdminSidebar({ collapsed = false, onToggle }: AdminSidebarProps)
             <span className="text-[10px] text-brand font-medium uppercase tracking-wider">Admin</span>
           </div>
         )}
-      </div>
+      </Link>
 
       {/* Navigation */}
       <nav className="flex-1 p-2 space-y-1 overflow-y-auto">

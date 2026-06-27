@@ -15,6 +15,7 @@ import {
   AlertTriangle,
   UserPlus,
 } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface OverviewData {
   total_tenants: number;
@@ -127,8 +128,6 @@ export default function AdminDashboardPage() {
     ? ((data.active_tenants / data.total_tenants) * 100).toFixed(0)
     : "0";
 
-  const maxDaily = Math.max(...data.recent_activity.map((d) => d.signups), 1);
-
   return (
     <div className="space-y-8">
       <div>
@@ -178,7 +177,7 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      {/* Signup trend */}
+      {/* Signup trend - line chart */}
       <div className="rounded-[6px] border border-border-default bg-bg-card p-5">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
@@ -187,26 +186,38 @@ export default function AdminDashboardPage() {
           </div>
           <span className="text-xs text-text-muted">+{data.new_users_7d} esta semana</span>
         </div>
-        <div className="flex items-end gap-1 h-28">
-          {data.recent_activity.map((d) => {
-            const height = (d.signups / maxDaily) * 100;
-            return (
-              <div key={d.date} className="flex-1 flex flex-col items-center gap-1 group relative">
-                <div className="absolute -top-8 hidden group-hover:block bg-bg-surface text-text-primary text-[10px] px-2 py-1 rounded whitespace-nowrap z-10">
-                  {d.date.slice(5, 10)}: {d.signups} cadastro{d.signups !== 1 ? "s" : ""}
-                </div>
-                <div
-                  className="w-full bg-brand-info-20 hover:bg-brand-info-20 rounded-t-[2px] transition-colors cursor-default"
-                  style={{ height: `${Math.max(height, d.signups > 0 ? 8 : 2)}%` }}
+        <div className="h-40">
+          {data.recent_activity.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data.recent_activity} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="signupGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3ECF8E" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="#3ECF8E" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#2a2a2a" />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fill: "#52525B", fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={{ stroke: "#333" }}
+                  tickFormatter={(val: string) => val.slice(5, 10)}
                 />
-                {d.date.endsWith("-01") || d.date.endsWith("-08") || d.date.endsWith("-15") || d.date.endsWith("-22") ? (
-                  <span className="text-[9px] text-text-muted">{d.date.slice(5, 10)}</span>
-                ) : (
-                  <span className="text-[9px] text-text-muted">{d.date.slice(8, 10)}</span>
-                )}
-              </div>
-            );
-          })}
+                <YAxis tick={{ fill: "#52525B", fontSize: 11 }} tickLine={false} axisLine={false} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{ background: "#1a1a1a", border: "1px solid #333", borderRadius: "4px", fontSize: "12px" }}
+                  labelFormatter={(label) => `Data: ${String(label).slice(5, 10)}`}
+                  formatter={(value) => [`${Number(value)} cadastro${Number(value) !== 1 ? "s" : ""}`, "Cadastros"]}
+                />
+                <Area type="monotone" dataKey="signups" stroke="#3ECF8E" strokeWidth={2} fill="url(#signupGrad)" dot={{ r: 3, fill: "#3ECF8E", stroke: "#1a1a1a", strokeWidth: 2 }} activeDot={{ r: 5, fill: "#3ECF8E", stroke: "#121212", strokeWidth: 2 }} />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full flex items-center justify-center text-text-muted text-sm">
+              Nenhum cadastro nos ultimos 14 dias
+            </div>
+          )}
         </div>
       </div>
 

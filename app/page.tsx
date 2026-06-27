@@ -113,7 +113,7 @@ const features = [
   { icon: RefreshCw, title: "Tempo Real", desc: "Atualizacoes instantaneas em todos os dispositivos. Multiplos usuarios veem as mesmas informacoes simultaneamente, sem refresh." },
 ];
 
-const plans = [
+const defaultPlans = [
   { name: "Free", price: "R$ 0", period: "/mês", desc: "Para pequenas equipes começando", features: ["Ate 30 itens", "1 usuario", "Dashboard basico", "Movimentacoes manuais", "Suporte por email"], cta: "Comecar Gratis", highlighted: false },
   { name: "Starter", price: "R$ 49", period: "/mês", desc: "Para negocios em crescimento", features: ["Ate 500 itens", "3 usuarios", "Relatorios avancados", "Leitor de codigos", "Exportacao CSV", "API REST", "Suporte por email"], cta: "Testar Gratis", highlighted: true },
   { name: "Pro", price: "R$ 149", period: "/mês", desc: "Para operacoes em escala", features: ["Ate 3.000 itens", "10 usuarios", "API REST", "Leitor de codigos", "Relatorios customizados", "Exportacao CSV", "Multiplas filiais", "Suporte prioritario 24h"], cta: "Testar Gratis", highlighted: false },
@@ -140,6 +140,7 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [plans, setPlans] = useState(defaultPlans);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -153,7 +154,27 @@ export default function LandingPage() {
       const { data } = await supabase.auth.getUser();
       setIsLoggedIn(!!data.user);
     }
+    async function loadPlans() {
+      try {
+        const res = await fetch("/api/admin/plans");
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setPlans(data.map((p: any) => ({
+              name: p.name,
+              price: p.price,
+              period: p.period,
+              desc: p.description,
+              features: p.features || [],
+              cta: p.cta,
+              highlighted: p.highlighted,
+            })));
+          }
+        }
+      } catch {}
+    }
     check();
+    loadPlans();
   }, []);
 
   return (

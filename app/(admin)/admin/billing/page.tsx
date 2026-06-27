@@ -50,11 +50,16 @@ export default function AdminBillingPage() {
 
         const all = (tenants || []) as { id: string; plan: string; subscription_status: string }[];
 
+        // NOTA: Precos hardcoded como estimativa de MRR (faturamento recorrente).
+        // ATENCAO: Os precos reais cobrados no checkout sao:
+        //   Starter = R$ 49,00 | Pro = R$ 149,00 (definidos em lib/asaas.ts)
+        //   Enterprise = R$ 399,90 (NÃO é um plano real no Asaas - é um valor estimado)
+        // Os precos podem ser editados em /admin/plans (plan_configs)
         const planPrices: Record<string, number> = {
           free: 0,
-          starter: 49.90,
-          pro: 149.90,
-          enterprise: 399.90,
+          starter: 49,      // Preco real do Asaas
+          pro: 149,          // Preco real do Asaas
+          enterprise: 399.90, // Apenas estimativa - nao existe no Asaas
         };
 
         const planCounts: Record<string, number> = { free: 0, starter: 0, pro: 0, enterprise: 0 };

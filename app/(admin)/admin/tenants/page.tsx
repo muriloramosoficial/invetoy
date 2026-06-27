@@ -249,8 +249,8 @@ export default function AdminTenantsPage() {
                       </Button>
                       {menuOpen === t.id && (
                         <>
-                          <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(null)} />
-                          <div className="absolute right-0 top-full mt-1 z-50 w-48 bg-bg-surface border border-border-default rounded-[6px] shadow-xl py-1">
+                          <div className="fixed inset-0 z-[60]" onClick={() => setMenuOpen(null)} />
+                          <div className="absolute right-0 top-full mt-1 z-[70] w-48 bg-bg-surface border border-border-default rounded-[6px] shadow-xl py-1">
                             <button
                               className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-bg-surface flex items-center gap-2"
                               onClick={() => openEdit(t)}

@@ -140,6 +140,8 @@ export default function AsaasConfigPage() {
     );
   }
 
+  const webhookUrl = `${webhookBase}/api/webhooks/asaas`;
+
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
@@ -206,6 +208,61 @@ export default function AsaasConfigPage() {
         </CardContent>
       </Card>
 
+      {/* Webhook URLs - Card destacado com as URLs auto-geradas */}
+      <Card accent="brand">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Webhook className="h-4 w-4 text-brand" />
+            <CardTitle>URL do Webhook</CardTitle>
+          </div>
+          <CardDescription>
+            Copie esta URL e cadastre no painel do Asaas para receber notificacoes de pagamento
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="rounded-[6px] border border-brand-20 bg-brand-5 p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <TechBadge variant="green">URL UNICA</TechBadge>
+              <span className="text-xs text-text-muted">Funciona para Sandbox e Producao</span>
+            </div>
+            <div className="flex gap-2">
+              <code className="flex-1 text-xs text-brand bg-bg-surface p-2.5 rounded-[4px] border border-border-default break-all font-mono">
+                {webhookUrl}
+              </code>
+              <Button variant="secondary" size="icon-sm" onClick={() => copyText(webhookUrl)}>
+                <Copy className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+            <p className="text-[11px] text-text-muted mt-2 flex items-center gap-1">
+              <ExternalLink className="h-3 w-3 shrink-0" />
+              Acesse{" "}
+              <a href="https://sandbox.asaas.com/configuracoes/webhooks" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">
+                sandbox.asaas.com/configuracoes/webhooks
+              </a>{" "}
+              e cadastre esta URL. Selecione os eventos abaixo.
+            </p>
+          </div>
+
+          <div className="rounded-[4px] bg-bg-surface border border-border-default p-3">
+            <p className="text-[11px] text-text-muted">
+              <strong className="text-text-secondary">Eventos necessarios no Asaas:</strong>{" "}
+              <span className="text-text-secondary">payment.created</span>,{" "}
+              <span className="text-text-secondary">payment.updated</span>,{" "}
+              <span className="text-text-secondary">payment.confirmed</span>,{" "}
+              <span className="text-text-secondary">payment.deleted</span>,{" "}
+              <span className="text-text-secondary">subscription.updated</span>
+            </p>
+          </div>
+
+          <div className="rounded-[4px] bg-bg-surface border border-border-default p-3">
+            <p className="text-[11px] text-text-muted">
+              <strong className="text-text-secondary">Webhook Token:</strong>{" "}
+              Gere um token no painel do Asaas e adicione como <code className="bg-bg-surface px-1 rounded text-brand">ASAAS_WEBHOOK_TOKEN</code> no arquivo <code className="bg-bg-surface px-1 rounded text-brand">.env.local</code>.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Sandbox */}
       <Card>
         <CardHeader>
@@ -214,7 +271,7 @@ export default function AsaasConfigPage() {
             <CardTitle>Ambiente Sandbox</CardTitle>
             <TechBadge variant="yellow">Teste</TechBadge>
           </div>
-          <CardDescription>Chaves e webhooks para ambiente de testes</CardDescription>
+          <CardDescription>Chave de API para ambiente de testes</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
@@ -248,23 +305,6 @@ export default function AsaasConfigPage() {
 
           <div>
             <label className="block text-xs font-medium text-text-secondary mb-1.5 tracking-wide uppercase">
-              URL do Webhook (Sandbox)
-            </label>
-            <div className="flex gap-2">
-              <Input
-                value={config.asaas_webhook_url_sandbox}
-                onChange={(e) => setConfig({ ...config, asaas_webhook_url_sandbox: e.target.value })}
-                placeholder={`${webhookBase}/api/webhook/asaas/sandbox`}
-              />
-              <Button variant="secondary" size="icon-sm" onClick={() => copyText(config.asaas_webhook_url_sandbox || `${webhookBase}/api/webhook/asaas/sandbox`)}>
-                <Copy className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-            <p className="text-[10px] text-text-muted mt-1">Configure esta URL no painel do Asaas em Configuracoes &gt; Webhooks</p>
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1.5 tracking-wide uppercase">
               Secret do Webhook (Sandbox)
             </label>
             <Input
@@ -273,12 +313,6 @@ export default function AsaasConfigPage() {
               onChange={(e) => setConfig({ ...config, asaas_webhook_secret_sandbox: e.target.value })}
               placeholder="Secret para validar assinatura do webhook"
             />
-          </div>
-
-          <div className="rounded-[4px] bg-bg-surface border border-border-default p-3">
-            <p className="text-[11px] text-text-muted">
-              <strong className="text-text-secondary">Webhooks suportados:</strong> payment.created, payment.updated, payment.confirmed, payment.deleted, subscription.updated
-            </p>
           </div>
         </CardContent>
       </Card>
@@ -291,7 +325,7 @@ export default function AsaasConfigPage() {
             <CardTitle>Ambiente Producao</CardTitle>
             <TechBadge variant="green">Producao</TechBadge>
           </div>
-          <CardDescription>Chaves e webhooks para ambiente real</CardDescription>
+          <CardDescription>Chave de API para ambiente real</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
@@ -321,23 +355,6 @@ export default function AsaasConfigPage() {
                 </Button>
               )}
             </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1.5 tracking-wide uppercase">
-              URL do Webhook (Producao)
-            </label>
-            <div className="flex gap-2">
-              <Input
-                value={config.asaas_webhook_url_production}
-                onChange={(e) => setConfig({ ...config, asaas_webhook_url_production: e.target.value })}
-                placeholder={`${webhookBase}/api/webhook/asaas/production`}
-              />
-              <Button variant="secondary" size="icon-sm" onClick={() => copyText(config.asaas_webhook_url_production || `${webhookBase}/api/webhook/asaas/production`)}>
-                <Copy className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-            <p className="text-[10px] text-text-muted mt-1">Configure esta URL no painel do Asaas em Configuracoes &gt; Webhooks</p>
           </div>
 
           <div>

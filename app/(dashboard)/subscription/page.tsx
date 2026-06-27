@@ -111,6 +111,38 @@ export default function SubscriptionPage() {
   const [tenant, setTenant] = useState<TenantInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [dynamicPlans, setDynamicPlans] = useState<Plan[] | null>(null);
+
+  // Try to load dynamic plan configs from admin
+  useEffect(() => {
+    async function loadPlans() {
+      try {
+        const res = await fetch("/api/admin/plans");
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setDynamicPlans(data.map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              price: p.price,
+              period: p.period,
+              description: p.description,
+              features: p.features || [],
+              highlighted: p.highlighted,
+              cta: p.cta,
+              limits: {
+                products: p.limits_products,
+                users: p.limits_users,
+              },
+            })));
+          }
+        }
+      } catch {}
+    }
+    loadPlans();
+  }, []);
+
+  const plans = dynamicPlans || PLANS;
 
   useEffect(() => {
     async function loadTenant() {
@@ -204,7 +236,7 @@ export default function SubscriptionPage() {
                 </p>
               ) : currentPlanName === "free" ? (
                 <p className="text-sm text-text-secondary">
-                  Seu plano atual tem limites de {PLANS.find(p => p.id === "free")?.limits.products} produtos. Faça upgrade para desbloquear mais recursos.
+                  Seu plano atual tem limites de {plans.find(p => p.id === "free")?.limits.products} produtos. Faça upgrade para desbloquear mais recursos.
                 </p>
               ) : (
                 <p className="text-sm text-text-secondary">
@@ -231,7 +263,7 @@ export default function SubscriptionPage() {
 
       {/* Plans Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {PLANS.map((plan) => {
+        {plans.map((plan) => {
           const isCurrent = plan.id === currentPlanName;
           const isDisabled = isCurrent;
 
