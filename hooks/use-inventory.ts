@@ -44,7 +44,7 @@ export function useInventory(options: UseInventoryOptions = {}) {
           .or(`name.ilike.%${options.search}%,sku.ilike.%${options.search}%`);
 
         if (matchingProducts && matchingProducts.length > 0) {
-          query = query.in("product_id", matchingProducts.map(p => p.id));
+          query = query.in("product_id", matchingProducts.map((p: { id: string }) => p.id));
         } else {
           setData([]);
           setLoading(false);

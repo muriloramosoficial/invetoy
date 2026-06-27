@@ -18,7 +18,7 @@ const buttonVariants = cva(
         danger:
           "bg-brand-danger text-white hover:bg-[#d94449] active:scale-[0.98]",
         outline:
-          "border border-border-default bg-transparent text-text-primary hover:border-brand/30 hover:neon-glow-hover active:scale-[0.98]",
+          "border border-border-default bg-transparent text-text-primary hover:border-brand-30 hover:neon-glow-hover active:scale-[0.98]",
         link: "text-brand underline-offset-4 hover:underline",
       },
       size: {

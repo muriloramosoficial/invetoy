@@ -147,7 +147,7 @@ export default function DashboardPage() {
             total_products: Number(summary.total_products) || 0,
             total_sale_value: Number(summary.total_sale_value) || 0,
             low_stock_count: Number(summary.low_stock_count) || 0,
-            movements_today: movements?.filter(m =>
+            movements_today: movements?.filter((m: { created_at: string }) =>
               new Date(m.created_at).toDateString() === new Date().toDateString()
             ).length || 0,
           });

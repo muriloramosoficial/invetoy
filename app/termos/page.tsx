@@ -73,7 +73,7 @@ export default function TermosPage() {
         <div className="max-w-3xl mx-auto px-4 py-6 sm:py-8">
           <BackButton />
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-brand-10 flex items-center justify-center">
               <FileText className="h-5 w-5 text-brand" />
             </div>
             <div>
@@ -92,7 +92,7 @@ export default function TermosPage() {
           {sections.map((section) => (
             <section key={section.title} className="space-y-3">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-md bg-brand/[0.06] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-8 h-8 rounded-md bg-brand-6 flex items-center justify-center shrink-0 mt-0.5">
                   <section.icon className="h-4 w-4 text-brand" />
                 </div>
                 <h2 className="text-lg font-medium text-text-primary">{section.title}</h2>

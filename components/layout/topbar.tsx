@@ -96,7 +96,7 @@ export function Topbar({
           </button>
 
           {/* Tenant */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-[4px] bg-bg-surface/50 border border-border-default">
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-[4px] bg-bg-surface-50 border border-border-default">
             <Globe className="h-3.5 w-3.5 text-brand" />
             <span className="text-xs font-medium text-text-secondary">
               {tenantName}
@@ -141,7 +141,7 @@ export function Topbar({
                   <hr className="border-border-default my-1" />
                   <button
                     onClick={onLogout}
-                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-brand-danger hover:bg-brand-danger/[0.08] transition-colors"
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-brand-danger hover:bg-brand-danger-8 transition-colors"
                   >
                     <LogOut className="h-4 w-4" />
                     Logout

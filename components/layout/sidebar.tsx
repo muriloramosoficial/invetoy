@@ -54,7 +54,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 h-14 px-4 border-b border-border-default shrink-0">
-        <div className="flex items-center justify-center w-8 h-8 rounded-[4px] bg-brand/10">
+        <div className="flex items-center justify-center w-8 h-8 rounded-[4px] bg-brand-10">
           <Box className="h-5 w-5 text-brand" />
         </div>
         {!collapsed && (

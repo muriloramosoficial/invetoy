@@ -212,7 +212,7 @@ export default function ApiDocsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {showNewKey && (
-                <div className="p-4 rounded-[4px] border border-brand/30 bg-brand/[0.05] space-y-3">
+                <div className="p-4 rounded-[4px] border border-brand-30 bg-brand-5 space-y-3">
                   <div className="flex items-start gap-2">
                     <Key className="h-5 w-5 text-brand shrink-0 mt-0.5" />
                     <div>

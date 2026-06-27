@@ -80,7 +80,7 @@ export default function ProductsPage() {
         if (mounted) setCategories(categoriesResult.data || []);
 
         const stock: Record<string, number> = {};
-        (stockResult.data || []).forEach((item) => {
+        (stockResult.data || []).forEach((item: { product_id: string; quantity: number }) => {
           stock[item.product_id] = (stock[item.product_id] || 0) + item.quantity;
         });
         if (mounted) setStockMap(stock);
@@ -194,7 +194,7 @@ export default function ProductsPage() {
       </div>
 
       {error && (
-        <div className="rounded-[4px] border border-brand-danger/30 bg-brand-danger-dim p-3 text-sm text-brand-danger">
+        <div className="rounded-[4px] border border-brand-danger-30 bg-brand-danger-dim p-3 text-sm text-brand-danger">
           {error}
         </div>
       )}
@@ -206,7 +206,7 @@ export default function ProductsPage() {
           placeholder="Search by SKU, name, category..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full h-10 pl-10 pr-3 rounded-[4px] border border-border-default bg-bg-surface text-sm text-text-primary placeholder:text-text-muted/60 focus:border-brand/40 focus:ring-1 focus:ring-brand/20 transition-colors outline-none"
+          className="w-full h-10 pl-10 pr-3 rounded-[4px] border border-border-default bg-bg-surface text-sm text-text-primary placeholder:text-text-muted-60 focus:border-brand-40 focus:ring-1 focus:ring-brand-20 transition-colors outline-none"
         />
       </div>
 
@@ -325,7 +325,7 @@ export default function ProductsPage() {
               <select
                 value={formCategoryId}
                 onChange={(e) => setFormCategoryId(e.target.value)}
-                className="flex h-10 w-full rounded-[4px] border border-border-default bg-bg-surface px-3 py-2 text-sm text-text-primary appearance-none focus:border-brand/40 focus:ring-1 focus:ring-brand/20 transition-colors outline-none"
+                className="flex h-10 w-full rounded-[4px] border border-border-default bg-bg-surface px-3 py-2 text-sm text-text-primary appearance-none focus:border-brand-40 focus:ring-1 focus:ring-brand-20 transition-colors outline-none"
               >
                 <option value="">Select category...</option>
                 {categories.map((cat) => (
@@ -340,7 +340,7 @@ export default function ProductsPage() {
               <select
                 value={formUnit}
                 onChange={(e) => setFormUnit(e.target.value)}
-                className="flex h-10 w-full rounded-[4px] border border-border-default bg-bg-surface px-3 py-2 text-sm text-text-primary appearance-none focus:border-brand/40 focus:ring-1 focus:ring-brand/20 transition-colors outline-none"
+                className="flex h-10 w-full rounded-[4px] border border-border-default bg-bg-surface px-3 py-2 text-sm text-text-primary appearance-none focus:border-brand-40 focus:ring-1 focus:ring-brand-20 transition-colors outline-none"
               >
                 {units.map((u) => (
                   <option key={u.value} value={u.value}>{u.label}</option>

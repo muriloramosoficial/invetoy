@@ -91,7 +91,7 @@ export default function LoginPage() {
         <div className={`relative w-full max-w-sm transition-all duration-500 ${mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}>
           {/* Logo */}
           <div className="flex flex-col items-center mb-10">
-            <Link href="/" className="group flex items-center justify-center w-14 h-14 rounded-xl bg-brand/[0.08] mb-4 hover:bg-brand/[0.12] transition-all duration-300 hover:shadow-[0_0_30px_rgba(62,207,142,0.1)]" aria-label="Voltar para página inicial">
+            <Link href="/" className="group flex items-center justify-center w-14 h-14 rounded-xl bg-brand-8 mb-4 hover:bg-brand-12 transition-all duration-300 hover:shadow-[0_0_30px_rgba(62,207,142,0.1)]" aria-label="Voltar para página inicial">
               <Box className="h-7 w-7 text-brand transition-transform duration-300 group-hover:scale-110" />
             </Link>
             <h1 className="text-xl font-semibold text-text-primary tracking-tight">INVENTOY</h1>
@@ -119,7 +119,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {error && (<div className="text-sm p-3 rounded-[4px] border border-brand-danger/20 bg-brand-danger-dim text-brand-danger" role="alert">{error}</div>)}
+            {error && (<div className="text-sm p-3 rounded-[4px] border border-brand-danger-20 bg-brand-danger-dim text-brand-danger" role="alert">{error}</div>)}
 
             <Button type="submit" className="w-full h-11" loading={loading}>{loading ? "Entrando..." : "Entrar"}</Button>
 
@@ -155,11 +155,11 @@ export default function LoginPage() {
             backgroundSize: "32px 32px",
           }}
         />
-        <div className="absolute top-1/3 -left-32 w-96 h-96 rounded-full bg-brand/5 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 -right-32 w-80 h-80 rounded-full bg-brand/3 blur-3xl pointer-events-none" />
+        <div className="absolute top-1/3 -left-32 w-96 h-96 rounded-full bg-brand-5 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 -right-32 w-80 h-80 rounded-full bg-brand-3 blur-3xl pointer-events-none" />
 
         <div className="relative text-center max-w-md">
-          <div className="w-20 h-20 rounded-2xl bg-brand/[0.08] flex items-center justify-center mx-auto mb-8">
+          <div className="w-20 h-20 rounded-2xl bg-brand-8 flex items-center justify-center mx-auto mb-8">
             <Shield className="h-10 w-10 text-brand" />
           </div>
           <h2 className="text-2xl font-semibold text-text-primary tracking-tight mb-4">

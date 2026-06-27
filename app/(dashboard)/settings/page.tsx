@@ -128,7 +128,7 @@ export default function SettingsPage() {
       </div>
 
       {error && (
-        <div className="rounded-[4px] border border-brand-danger/30 bg-brand-danger-dim p-3 text-sm text-brand-danger">
+        <div className="rounded-[4px] border border-brand-danger-30 bg-brand-danger-dim p-3 text-sm text-brand-danger">
           {error}
         </div>
       )}
@@ -206,7 +206,7 @@ export default function SettingsPage() {
                   key={plan.id}
                   className={`p-4 rounded-[6px] border transition-all cursor-pointer ${
                     isCurrent
-                      ? "border-brand bg-brand/[0.05]"
+                      ? "border-brand bg-brand-5"
                       : "border-border-default bg-bg-surface hover:border-[#444]"
                   }`}
                 >

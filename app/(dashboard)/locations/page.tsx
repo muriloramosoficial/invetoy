@@ -48,7 +48,7 @@ export default function LocationsPage() {
         if (mounted) setLocations(locationsResult.data || []);
 
         const countMap: Record<string, number> = {};
-        (itemsResult.data || []).forEach((item) => {
+        (itemsResult.data || []).forEach((item: { location_id: string }) => {
           countMap[item.location_id] = (countMap[item.location_id] || 0) + 1;
         });
         if (mounted) setItemCountMap(countMap);
@@ -117,7 +117,7 @@ export default function LocationsPage() {
       </div>
 
       {error && (
-        <div className="rounded-[4px] border border-brand-danger/30 bg-brand-danger-dim p-3 text-sm text-brand-danger">
+        <div className="rounded-[4px] border border-brand-danger-30 bg-brand-danger-dim p-3 text-sm text-brand-danger">
           {error}
         </div>
       )}

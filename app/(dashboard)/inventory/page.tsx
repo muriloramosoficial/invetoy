@@ -123,7 +123,7 @@ export default function InventoryPage() {
       </div>
 
       {error && (
-        <div className="rounded-[4px] border border-brand-danger/30 bg-brand-danger-dim p-3 text-sm text-brand-danger">
+        <div className="rounded-[4px] border border-brand-danger-30 bg-brand-danger-dim p-3 text-sm text-brand-danger">
           {error}
         </div>
       )}
@@ -137,7 +137,7 @@ export default function InventoryPage() {
             placeholder="Search by SKU, name, category..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-10 pl-10 pr-3 rounded-[4px] border border-border-default bg-bg-surface text-sm text-text-primary placeholder:text-text-muted/60 focus:border-brand/40 focus:ring-1 focus:ring-brand/20 transition-colors outline-none"
+            className="w-full h-10 pl-10 pr-3 rounded-[4px] border border-border-default bg-bg-surface text-sm text-text-primary placeholder:text-text-muted-60 focus:border-brand-40 focus:ring-1 focus:ring-brand-20 transition-colors outline-none"
           />
         </div>
 
@@ -152,7 +152,7 @@ export default function InventoryPage() {
               onClick={() => setActiveFilter(chip.key)}
               className={`px-3 py-1.5 rounded-[4px] text-xs font-medium transition-colors ${
                 activeFilter === chip.key
-                  ? "bg-brand-dim text-brand border border-brand/30"
+                  ? "bg-brand-dim text-brand border border-brand-30"
                   : "bg-bg-surface text-text-secondary border border-border-default hover:border-[#444] hover:text-text-primary"
               }`}
             >
@@ -267,7 +267,7 @@ export default function InventoryPage() {
             ].map((opt) => (
               <label
                 key={opt.value}
-                className="flex-1 flex items-center justify-center gap-2 p-3 rounded-[4px] border border-border-default bg-bg-surface cursor-pointer hover:border-brand/30 hover:bg-brand-dim transition-colors has-[:checked]:border-brand has-[:checked]:bg-brand-dim"
+                className="flex-1 flex items-center justify-center gap-2 p-3 rounded-[4px] border border-border-default bg-bg-surface cursor-pointer hover:border-brand-30 hover:bg-brand-dim transition-colors has-[:checked]:border-brand has-[:checked]:bg-brand-dim"
               >
                 <input
                   type="radio"
@@ -290,7 +290,7 @@ export default function InventoryPage() {
               type="number"
               defaultValue={1}
               min={1}
-              className="w-full h-14 rounded-[4px] border border-border-default bg-bg-surface px-4 text-2xl font-mono text-text-primary text-center focus:border-brand/40 focus:ring-1 focus:ring-brand/20 transition-colors outline-none"
+              className="w-full h-14 rounded-[4px] border border-border-default bg-bg-surface px-4 text-2xl font-mono text-text-primary text-center focus:border-brand-40 focus:ring-1 focus:ring-brand-20 transition-colors outline-none"
             />
           </div>
 
@@ -301,7 +301,7 @@ export default function InventoryPage() {
             <textarea
               rows={2}
               placeholder="Reason for adjustment..."
-              className="w-full rounded-[4px] border border-border-default bg-bg-surface px-3 py-2 text-sm text-text-primary placeholder:text-text-muted/60 focus:border-brand/40 focus:ring-1 focus:ring-brand/20 transition-colors outline-none resize-none"
+              className="w-full rounded-[4px] border border-border-default bg-bg-surface px-3 py-2 text-sm text-text-primary placeholder:text-text-muted-60 focus:border-brand-40 focus:ring-1 focus:ring-brand-20 transition-colors outline-none resize-none"
             />
           </div>
 

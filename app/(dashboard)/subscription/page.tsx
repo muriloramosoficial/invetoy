@@ -180,7 +180,7 @@ export default function SubscriptionPage() {
 
       {/* Current Plan / Trial Banner */}
       {tenant && (
-        <div className="p-4 sm:p-6 rounded-lg border border-brand/20 bg-brand/[0.03]">
+        <div className="p-4 sm:p-6 rounded-lg border border-brand-20 bg-brand-3">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
@@ -224,7 +224,7 @@ export default function SubscriptionPage() {
 
       {/* Error */}
       {error && (
-        <div className="text-sm p-3 rounded-[4px] border border-brand-danger/20 bg-brand-danger-dim text-brand-danger" role="alert">
+        <div className="text-sm p-3 rounded-[4px] border border-brand-danger-20 bg-brand-danger-dim text-brand-danger" role="alert">
           {error}
         </div>
       )}
@@ -240,9 +240,9 @@ export default function SubscriptionPage() {
               key={plan.id}
               className={`relative p-6 rounded-lg border transition-all duration-300 ${
                 isCurrent
-                  ? "border-brand bg-brand/[0.03]"
+                  ? "border-brand bg-brand-3"
                   : plan.highlighted
-                  ? "border-brand/40 bg-brand/[0.02] hover:border-brand"
+                  ? "border-brand-40 bg-brand-2 hover:border-brand"
                   : "border-border-default bg-bg-surface hover:border-[#444]"
               }`}
             >
@@ -252,7 +252,7 @@ export default function SubscriptionPage() {
                 </div>
               )}
               {isCurrent && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-brand/20 text-brand text-xs font-medium border border-brand/30">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-brand-20 text-brand text-xs font-medium border border-brand-30">
                   Plano Atual
                 </div>
               )}

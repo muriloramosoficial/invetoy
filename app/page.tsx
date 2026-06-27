@@ -50,10 +50,10 @@ function FeatureCard({ icon: Icon, title, desc, gradient = false }: { icon: Reac
   return (
     <div className={`group p-6 rounded-lg border transition-all duration-300 ${
       gradient
-        ? "border-brand/20 bg-gradient-to-br from-brand/[0.03] to-transparent hover:border-brand/40"
-        : "border-border-default bg-bg-surface hover:border-brand/20"
+        ? "border-brand-20 bg-gradient-to-br from-brand/[0.03] to-transparent hover:border-brand-40"
+        : "border-border-default bg-bg-surface hover:border-brand-20"
     }`}>
-      <div className="w-10 h-10 rounded-md bg-brand/[0.08] flex items-center justify-center mb-4 group-hover:bg-brand/[0.12] group-hover:scale-110 transition-all duration-300">
+      <div className="w-10 h-10 rounded-md bg-brand-8 flex items-center justify-center mb-4 group-hover:bg-brand-12 group-hover:scale-110 transition-all duration-300">
         <Icon className="h-5 w-5 text-brand" />
       </div>
       <h3 className="text-base font-medium text-text-primary mb-2">{title}</h3>
@@ -70,7 +70,7 @@ function PricingCard({ name, price, period, desc, features, cta, highlighted, on
   return (
     <div className={`relative p-6 rounded-lg border transition-all duration-300 ${
       highlighted
-        ? "border-brand bg-brand/[0.03] scale-[1.02] shadow-[0_0_40px_rgba(62,207,142,0.08)]"
+        ? "border-brand bg-brand-3 scale-[1.02] shadow-[0_0_40px_rgba(62,207,142,0.08)]"
         : "border-border-default bg-bg-surface hover:border-[#444]"
     }`}>
       {highlighted && (
@@ -149,12 +149,12 @@ export default function LandingPage() {
     <div className="min-h-screen bg-bg-primary">
       {/* Navbar */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
-        scrolled ? "bg-bg-primary/90 backdrop-blur-md border-b border-border-default" : "bg-transparent"
+        scrolled ? "bg-bg-primary-90 backdrop-blur-md border-b border-border-default" : "bg-transparent"
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-md bg-brand/10 flex items-center justify-center group-hover:bg-brand/[0.15] transition-colors">
+              <div className="w-8 h-8 rounded-md bg-brand-10 flex items-center justify-center group-hover:bg-brand-15 transition-colors">
                 <Box className="h-5 w-5 text-brand" />
               </div>
               <span className="text-lg font-semibold text-text-primary tracking-tight">INVENTOY</span>
@@ -197,11 +197,11 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(62,207,142,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(62,207,142,0.03)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
-        <div className="absolute top-20 -left-40 w-80 h-80 rounded-full bg-brand/3 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-20 -right-40 w-96 h-96 rounded-full bg-brand/2 blur-3xl pointer-events-none" />
+        <div className="absolute top-20 -left-40 w-80 h-80 rounded-full bg-brand-3 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-20 -right-40 w-96 h-96 rounded-full bg-brand-2 blur-3xl pointer-events-none" />
 
         <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand/20 bg-brand/[0.06] mb-6 animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-20 bg-brand-6 mb-6 animate-fade-in">
             <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
             <span className="text-xs font-mono text-brand tracking-wide">Feito no Brasil 🇧🇷</span>
           </div>
@@ -299,7 +299,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="py-20 sm:py-28 px-4 border-t border-border-default bg-bg-secondary/50">
+      <section className="py-20 sm:py-28 px-4 border-t border-border-default bg-bg-secondary-50">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <TechBadge variant="blue" className="mb-4">Como Funciona</TechBadge>
@@ -318,8 +318,8 @@ export default function LandingPage() {
               { step: "03", icon: TrendingUp, title: "Gerencie em tempo real", desc: "Acompanhe movimentações, receba alertas de estoque baixo e gere relatórios." },
             ].map((item) => (
               <div key={item.step} className="relative p-6 rounded-lg border border-border-default bg-bg-surface">
-                <span className="text-5xl font-bold text-brand/[0.08] absolute top-3 right-4 select-none">{item.step}</span>
-                <div className="w-10 h-10 rounded-md bg-brand/[0.08] flex items-center justify-center mb-4">
+                <span className="text-5xl font-bold text-brand-8 absolute top-3 right-4 select-none">{item.step}</span>
+                <div className="w-10 h-10 rounded-md bg-brand-8 flex items-center justify-center mb-4">
                   <item.icon className="h-5 w-5 text-brand" />
                 </div>
                 <h3 className="text-base font-medium text-text-primary mb-2">{item.title}</h3>
@@ -393,8 +393,8 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto text-center">
           <div className="p-8 sm:p-12 rounded-xl border border-border-default bg-bg-surface relative overflow-hidden">
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand/50 to-transparent" />
-            <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-brand/5 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full bg-brand/3 blur-3xl pointer-events-none" />
+            <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-brand-5 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full bg-brand-3 blur-3xl pointer-events-none" />
 
             <Sparkles className="h-8 w-8 text-brand mx-auto mb-4" />
             <h2 className="text-3xl sm:text-4xl font-semibold text-text-primary tracking-tight mb-4">
@@ -503,9 +503,9 @@ export default function LandingPage() {
 
 function TechBadge({ variant = "green", className = "", children }: { variant?: string; className?: string; children: React.ReactNode }) {
   const colors: Record<string, string> = {
-    green: "bg-brand/[0.08] text-brand border-brand/20",
-    blue: "bg-brand-info/10 text-brand-info border-brand-info/20",
-    yellow: "bg-brand-warning/10 text-brand-warning border-brand-warning/20",
+    green: "bg-brand-8 text-brand border-brand-20",
+    blue: "bg-brand-info-10 text-brand-info border-brand-info-20",
+    yellow: "bg-brand-warning-10 text-brand-warning border-brand-warning-20",
   };
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium border ${colors[variant] || colors.green} ${className}`}>

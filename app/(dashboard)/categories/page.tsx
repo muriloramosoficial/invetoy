@@ -51,7 +51,7 @@ export default function CategoriesPage() {
         if (mounted) setCategories(categoriesResult.data || []);
 
         const countMap: Record<string, number> = {};
-        (productsResult.data || []).forEach((p) => {
+        (productsResult.data || []).forEach((p: { category_id: string | null }) => {
           if (p.category_id) {
             countMap[p.category_id] = (countMap[p.category_id] || 0) + 1;
           }
@@ -147,7 +147,7 @@ export default function CategoriesPage() {
       </div>
 
       {error && (
-        <div className="rounded-[4px] border border-brand-danger/30 bg-brand-danger-dim p-3 text-sm text-brand-danger">
+        <div className="rounded-[4px] border border-brand-danger-30 bg-brand-danger-dim p-3 text-sm text-brand-danger">
           {error}
         </div>
       )}
