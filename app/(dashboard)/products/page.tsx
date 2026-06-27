@@ -16,10 +16,13 @@ import { TechBadge } from "@/components/tech-badge";
 import {
   Plus,
   Edit3,
-  Trash2,
+  Archive,
+  RotateCcw,
   Search,
   Package,
   Loader2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Product, Category } from "@/types";
@@ -61,6 +64,7 @@ export default function ProductsPage() {
   const [editingProduct, setEditingProduct] = useState<ProductWithCategory | null>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(emptyForm);
+  const [showArchived, setShowArchived] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const set = (key: string, value: string) => setForm((f) => ({ ...f, [key]: value }));
@@ -72,8 +76,10 @@ export default function ProductsPage() {
       setError(null);
       try {
         const supabase = createClient();
+        const query = supabase.from("products").select("*, category:categories(*)");
+        if (!showArchived) query.is("archived_at", null);
         const [productsResult, categoriesResult] = await Promise.all([
-          supabase.from("products").select("*, category:categories(*)"),
+          query,
           supabase.from("categories").select("*"),
         ]);
 
@@ -90,7 +96,7 @@ export default function ProductsPage() {
     }
     load();
     return () => { mounted = false; };
-  }, [refreshKey]);
+  }, [refreshKey, showArchived]);
 
   const filtered = products.filter(
     (p) =>
@@ -173,15 +179,26 @@ export default function ProductsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir este item?")) return;
+  const handleArchive = async (id: string) => {
+    if (!confirm("Arquivar este item? Ele nao sera exibido nas listas padrao.")) return;
     try {
       const supabase = createClient();
-      const { error } = await supabase.from("products").delete().eq("id", id);
+      const { error } = await supabase.from("products").update({ archived_at: new Date().toISOString() }).eq("id", id);
       if (error) throw error;
       setRefreshKey((k) => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao excluir");
+      setError(err instanceof Error ? err.message : "Erro ao arquivar");
+    }
+  };
+
+  const handleUnarchive = async (id: string) => {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("products").update({ archived_at: null }).eq("id", id);
+      if (error) throw error;
+      setRefreshKey((k) => k + 1);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao desarquivar");
     }
   };
 
@@ -194,10 +211,16 @@ export default function ProductsPage() {
             {loading ? "Carregando..." : `${filtered.length} itens cadastrados`}
           </p>
         </div>
-        <Button onClick={openCreate}>
-          <Plus className="h-4 w-4" />
-          Novo Item
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" size="sm" onClick={() => setShowArchived(!showArchived)}>
+            {showArchived ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showArchived ? "Ocultar Arquivados" : "Mostrar Arquivados"}
+          </Button>
+          <Button onClick={openCreate}>
+            <Plus className="h-4 w-4" />
+            Novo Item
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -250,10 +273,15 @@ export default function ProductsPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((p) => (
-                <TableRow key={p.id}>
+              filtered.map((p) => {
+                const isArchived = !!p.archived_at;
+                return (
+                <TableRow key={p.id} className={isArchived ? "opacity-50" : ""}>
                   <TableCell>
                     <span className="font-mono text-xs text-brand font-semibold">{p.asset_tag || "-"}</span>
+                    {isArchived && (
+                      <span className="ml-1 text-[10px] font-medium text-text-muted bg-bg-surface px-1 py-0.5 rounded">ARQ</span>
+                    )}
                   </TableCell>
                   <TableCell className="font-medium">{p.name}</TableCell>
                   <TableCell>
@@ -282,16 +310,22 @@ export default function ProductsPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="icon-sm" onClick={() => openEdit(p)}>
+                      <Button variant="ghost" size="icon-sm" onClick={() => openEdit(p)} disabled={isArchived}>
                         <Edit3 className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon-sm" className="text-brand-danger hover:text-brand-danger" onClick={() => handleDelete(p.id)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      {isArchived ? (
+                        <Button variant="ghost" size="icon-sm" onClick={() => handleUnarchive(p.id)} title="Desarquivar">
+                          <RotateCcw className="h-3.5 w-3.5" />
+                        </Button>
+                      ) : (
+                        <Button variant="ghost" size="icon-sm" className="text-brand-danger hover:text-brand-danger" onClick={() => handleArchive(p.id)} title="Arquivar">
+                          <Archive className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
-              ))
+              )})
             )}
           </TableBody>
         </Table>

@@ -91,9 +91,10 @@ export async function DELETE(
     const { id } = await params;
     const adminClient = getAdminClient();
 
+    // Archive instead of hard-delete (soft delete)
     const { error } = await adminClient
       .from("products")
-      .delete()
+      .update({ archived_at: new Date().toISOString() })
       .eq("id", id)
       .eq("tenant_id", tenantId);
 
@@ -104,13 +105,13 @@ export async function DELETE(
       throw error;
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, message: "Product archived" });
   } catch (error: unknown) {
     if (error instanceof V1AuthError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
     return NextResponse.json(
-      { error: "Failed to delete product", message: error instanceof Error ? error.message : String(error) },
+      { error: "Failed to archive product", message: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

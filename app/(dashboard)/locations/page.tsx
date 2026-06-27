@@ -12,7 +12,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Dialog, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Trash2, Loader2, MapPin } from "lucide-react";
+import { Plus, Archive, RotateCcw, Loader2, MapPin, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Location } from "@/types";
 
@@ -28,6 +28,7 @@ export default function LocationsPage() {
   const [formAisle, setFormAisle] = useState("");
   const [formShelf, setFormShelf] = useState("");
   const [formDescription, setFormDescription] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -37,8 +38,10 @@ export default function LocationsPage() {
       setError(null);
       try {
         const supabase = createClient();
+        const query = supabase.from("locations").select("*");
+        if (!showArchived) query.is("archived_at", null);
         const [locationsResult, itemsResult] = await Promise.all([
-          supabase.from("locations").select("*"),
+          query,
           supabase.from("inventory_items").select("location_id"),
         ]);
 
@@ -60,7 +63,7 @@ export default function LocationsPage() {
     }
     load();
     return () => { mounted = false; };
-  }, [refreshKey]);
+  }, [refreshKey, showArchived]);
 
   const handleCreate = async () => {
     setSaving(true);
@@ -87,15 +90,26 @@ export default function LocationsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir este local?")) return;
+  const handleArchive = async (id: string) => {
+    if (!confirm("Arquivar este local? Ele nao sera exibido nas listas padrao.")) return;
     try {
       const supabase = createClient();
-      const { error } = await supabase.from("locations").delete().eq("id", id);
+      const { error } = await supabase.from("locations").update({ archived_at: new Date().toISOString() }).eq("id", id);
       if (error) throw error;
       setRefreshKey(k => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao excluir local");
+      setError(err instanceof Error ? err.message : "Erro ao arquivar local");
+    }
+  };
+
+  const handleUnarchive = async (id: string) => {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("locations").update({ archived_at: null }).eq("id", id);
+      if (error) throw error;
+      setRefreshKey(k => k + 1);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao desarquivar local");
     }
   };
 
@@ -110,10 +124,16 @@ export default function LocationsPage() {
             {loading ? "Carregando..." : `${locations.length} locais · Gerencie areas de armazenamento`}
           </p>
         </div>
-        <Button onClick={() => setModalOpen(true)}>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" size="sm" onClick={() => setShowArchived(!showArchived)}>
+            {showArchived ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showArchived ? "Ocultar Arquivados" : "Mostrar Arquivados"}
+          </Button>
+          <Button onClick={() => setModalOpen(true)}>
           <Plus className="h-4 w-4" />
           Adicionar Local
         </Button>
+        </div>
       </div>
 
       {error && (
@@ -154,9 +174,15 @@ export default function LocationsPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              locations.map((loc) => (
-                <TableRow key={loc.id}>
-                  <TableCell className="font-medium">{loc.name}</TableCell>
+              locations.map((loc) => {
+                const isArchived = !!loc.archived_at;
+                return (
+                <TableRow key={loc.id} className={isArchived ? "opacity-50" : ""}>
+                  <TableCell className="font-medium">{loc.name}
+                    {isArchived && (
+                      <span className="ml-1 text-[10px] font-medium text-text-muted bg-bg-surface px-1.5 py-0.5 rounded">ARQUIVADO</span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <span className="font-mono text-xs text-brand">{loc.aisle || "-"}</span>
                   </TableCell>
@@ -169,13 +195,19 @@ export default function LocationsPage() {
                   <TableCell className="text-right font-mono">{itemCountMap[loc.id] || 0}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="icon-sm" className="text-brand-danger hover:text-brand-danger" onClick={() => handleDelete(loc.id)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      {isArchived ? (
+                        <Button variant="ghost" size="icon-sm" onClick={() => handleUnarchive(loc.id)} title="Desarquivar">
+                          <RotateCcw className="h-3.5 w-3.5" />
+                        </Button>
+                      ) : (
+                        <Button variant="ghost" size="icon-sm" className="text-brand-danger hover:text-brand-danger" onClick={() => handleArchive(loc.id)} title="Arquivar">
+                          <Archive className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
-              ))
+              )})
             )}
           </TableBody>
         </Table>

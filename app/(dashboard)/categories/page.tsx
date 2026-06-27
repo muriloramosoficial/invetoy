@@ -12,7 +12,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Dialog, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Edit3, Trash2, Loader2, FolderOpen } from "lucide-react";
+import { Plus, Edit3, Archive, RotateCcw, Loader2, FolderOpen, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Category } from "@/types";
 
@@ -31,6 +31,7 @@ export default function CategoriesPage() {
   const [formDescription, setFormDescription] = useState("");
   const [formColor, setFormColor] = useState("#3ECF8E");
 
+  const [showArchived, setShowArchived] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -40,8 +41,10 @@ export default function CategoriesPage() {
       setError(null);
       try {
         const supabase = createClient();
+        const query = supabase.from("categories").select("*");
+        if (!showArchived) query.is("archived_at", null);
         const [categoriesResult, productsResult] = await Promise.all([
-          supabase.from("categories").select("*"),
+          query,
           supabase.from("products").select("category_id"),
         ]);
 
@@ -65,7 +68,7 @@ export default function CategoriesPage() {
     }
     load();
     return () => { mounted = false; };
-  }, [refreshKey]);
+  }, [refreshKey, showArchived]);
 
   const resetForm = () => {
     setFormName("");
@@ -117,15 +120,26 @@ export default function CategoriesPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir esta categoria?")) return;
+  const handleArchive = async (id: string) => {
+    if (!confirm("Arquivar esta categoria? Ela nao sera exibida nas listas padrao.")) return;
     try {
       const supabase = createClient();
-      const { error } = await supabase.from("categories").delete().eq("id", id);
+      const { error } = await supabase.from("categories").update({ archived_at: new Date().toISOString() }).eq("id", id);
       if (error) throw error;
       setRefreshKey(k => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao excluir categoria");
+      setError(err instanceof Error ? err.message : "Erro ao arquivar categoria");
+    }
+  };
+
+  const handleUnarchive = async (id: string) => {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("categories").update({ archived_at: null }).eq("id", id);
+      if (error) throw error;
+      setRefreshKey(k => k + 1);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao desarquivar categoria");
     }
   };
 
@@ -140,10 +154,16 @@ export default function CategoriesPage() {
             {loading ? "Carregando..." : `${categories.length} categorias · Organize seus produtos`}
           </p>
         </div>
-        <Button onClick={openCreate}>
-          <Plus className="h-4 w-4" />
-          Adicionar Categoria
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" size="sm" onClick={() => setShowArchived(!showArchived)}>
+            {showArchived ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showArchived ? "Ocultar Arquivados" : "Mostrar Arquivados"}
+          </Button>
+          <Button onClick={openCreate}>
+            <Plus className="h-4 w-4" />
+            Adicionar Categoria
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -182,8 +202,10 @@ export default function CategoriesPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              categories.map((cat) => (
-                <TableRow key={cat.id}>
+              categories.map((cat) => {
+                const isArchived = !!cat.archived_at;
+                return (
+                <TableRow key={cat.id} className={isArchived ? "opacity-50" : ""}>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <div
@@ -191,6 +213,9 @@ export default function CategoriesPage() {
                         style={{ backgroundColor: cat.color || "#A1A1AA" }}
                       />
                       <span className="font-medium">{cat.name}</span>
+                      {isArchived && (
+                        <span className="text-[10px] font-medium text-text-muted bg-bg-surface px-1.5 py-0.5 rounded">ARQUIVADO</span>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell className="text-text-muted text-sm">
@@ -201,16 +226,22 @@ export default function CategoriesPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="icon-sm" onClick={() => openEdit(cat)}>
+                      <Button variant="ghost" size="icon-sm" onClick={() => openEdit(cat)} disabled={isArchived}>
                         <Edit3 className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon-sm" className="text-brand-danger hover:text-brand-danger" onClick={() => handleDelete(cat.id)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      {isArchived ? (
+                        <Button variant="ghost" size="icon-sm" onClick={() => handleUnarchive(cat.id)} title="Desarquivar">
+                          <RotateCcw className="h-3.5 w-3.5" />
+                        </Button>
+                      ) : (
+                        <Button variant="ghost" size="icon-sm" className="text-brand-danger hover:text-brand-danger" onClick={() => handleArchive(cat.id)} title="Arquivar">
+                          <Archive className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
-              ))
+              )})
             )}
           </TableBody>
         </Table>
