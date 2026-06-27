@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Box, BarChart3, Package, ScanLine, CreditCard, Shield, ArrowRight, Check, Menu, X, QrCode, Barcode } from "lucide-react";
+import Link from "next/link";
 
 const features = [
   {
@@ -296,9 +297,10 @@ export default function LandingPage() {
             <span className="text-sm text-text-muted">INVENTOY © 2026 — Feito no Brasil 🇧🇷</span>
           </div>
           <div className="flex items-center gap-6">
+            <Link href="/termos" className="text-xs text-text-muted hover:text-text-primary transition-colors">Termos</Link>
+            <Link href="/privacidade" className="text-xs text-text-muted hover:text-text-primary transition-colors">Privacidade</Link>
             <span className="text-xs text-text-muted">ASAAS</span>
             <span className="text-xs text-text-muted">Supabase</span>
-            <span className="text-xs text-text-muted">Next.js</span>
           </div>
         </div>
       </footer>

@@ -162,8 +162,8 @@ export default function RegisterPage() {
 
           <p className="text-xs text-text-muted">
             Ao criar sua conta, você aceita nossos{" "}
-            <a href="#" className="text-brand hover:underline">Termos de Uso</a> e{" "}
-            <a href="#" className="text-brand hover:underline">Política de Privacidade</a>.
+            <Link href="/termos" className="text-brand hover:underline">Termos de Serviço</Link> e{" "}
+            <Link href="/privacidade" className="text-brand hover:underline">Política de Privacidade</Link>.
           </p>
 
           {error && (
