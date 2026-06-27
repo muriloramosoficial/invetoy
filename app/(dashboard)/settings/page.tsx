@@ -10,6 +10,7 @@ import { User, Building2, CreditCard, Bell, Check, ChevronRight, QrCode, Code2, 
 import { createClient } from "@/lib/supabase/client";
 import type { Profile, Tenant } from "@/types";
 import { useTheme } from "@/components/providers";
+import { useToast } from "@/components/ui/toast";
 
 const plans = [
   { id: "free", name: "Free", price: "R$ 0", description: "Ate 30 itens" },
@@ -22,8 +23,7 @@ export default function SettingsPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const { success: toastSuccess, error: toastError } = useToast();
 
   const [profileName, setProfileName] = useState("");
   const [profileEmail, setProfileEmail] = useState("");
@@ -48,7 +48,6 @@ export default function SettingsPage() {
     let mounted = true;
     async function load() {
       setLoading(true);
-      setError(null);
       try {
         const supabase = createClient();
         const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -79,7 +78,7 @@ export default function SettingsPage() {
           setTenantSlug(tenantData.slug);
         }
       } catch (err) {
-        if (mounted) setError(err instanceof Error ? err.message : "Erro ao carregar configuracoes");
+        if (mounted) toastError(err instanceof Error ? err.message : "Erro ao carregar configuracoes");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -88,25 +87,19 @@ export default function SettingsPage() {
     return () => { mounted = false; };
   }, []);
 
-  const showSuccess = (msg: string) => {
-    setSuccess(msg);
-    setTimeout(() => setSuccess(null), 4000);
-  };
-
   const handleProfileSave = async () => {
     if (!profile) return;
     setProfileSaving(true);
-    setError(null);
     try {
       const supabase = createClient();
-      const { error } = await supabase
+      const { error: supabaseError } = await supabase
         .from("profiles")
         .update({ name: profileName })
         .eq("id", profile.id);
-      if (error) throw error;
-      showSuccess("Perfil atualizado com sucesso");
+      if (supabaseError) throw supabaseError;
+      toastSuccess("Perfil atualizado com sucesso");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao atualizar perfil");
+      toastError(err instanceof Error ? err.message : "Erro ao atualizar perfil");
     } finally {
       setProfileSaving(false);
     }
@@ -115,15 +108,14 @@ export default function SettingsPage() {
   const handleEmailChange = async () => {
     if (!newEmail.trim() || newEmail === profileEmail) return;
     setEmailSaving(true);
-    setError(null);
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.updateUser({ email: newEmail.trim() });
-      if (error) throw error;
-      showSuccess("Email de alteracao enviado. Verifique sua caixa de entrada.");
+      const { error: supabaseError } = await supabase.auth.updateUser({ email: newEmail.trim() });
+      if (supabaseError) throw supabaseError;
+      toastSuccess("Email de alteracao enviado. Verifique sua caixa de entrada.");
       setProfileEmail(newEmail.trim());
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao atualizar email");
+      toastError(err instanceof Error ? err.message : "Erro ao atualizar email");
       setNewEmail(profileEmail);
     } finally {
       setEmailSaving(false);
@@ -132,29 +124,28 @@ export default function SettingsPage() {
 
   const handlePasswordChange = async () => {
     if (!currentPassword || !newPassword) {
-      setError("Preencha todos os campos de senha");
+      toastError("Preencha todos os campos de senha");
       return;
     }
     if (newPassword.length < 6) {
-      setError("A nova senha deve ter no minimo 6 caracteres");
+      toastError("A nova senha deve ter no minimo 6 caracteres");
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError("As senhas nao conferem");
+      toastError("As senhas nao conferem");
       return;
     }
     setPasswordSaving(true);
-    setError(null);
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) throw error;
-      showSuccess("Senha atualizada com sucesso");
+      const { error: supabaseError } = await supabase.auth.updateUser({ password: newPassword });
+      if (supabaseError) throw supabaseError;
+      toastSuccess("Senha atualizada com sucesso");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao atualizar senha");
+      toastError(err instanceof Error ? err.message : "Erro ao atualizar senha");
     } finally {
       setPasswordSaving(false);
     }
@@ -163,17 +154,16 @@ export default function SettingsPage() {
   const handleTenantSave = async () => {
     if (!tenant) return;
     setTenantSaving(true);
-    setError(null);
     try {
       const supabase = createClient();
-      const { error } = await supabase
+      const { error: supabaseError } = await supabase
         .from("tenants")
         .update({ name: tenantName })
         .eq("id", tenant.id);
-      if (error) throw error;
-      showSuccess("Organizacao atualizada com sucesso");
+      if (supabaseError) throw supabaseError;
+      toastSuccess("Organizacao atualizada com sucesso");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao atualizar organizacao");
+      toastError(err instanceof Error ? err.message : "Erro ao atualizar organizacao");
     } finally {
       setTenantSaving(false);
     }
@@ -198,20 +188,6 @@ export default function SettingsPage() {
           Gerencie sua conta, empresa e seguranca
         </p>
       </div>
-
-      {error && (
-        <div className="rounded-[4px] border border-brand-danger-30 bg-brand-danger-dim p-3 text-sm text-brand-danger flex items-center justify-between">
-          <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-brand-danger hover:text-brand-danger font-bold ml-2 shrink-0">&times;</button>
-        </div>
-      )}
-
-      {success && (
-        <div className="rounded-[4px] border border-brand-20 bg-brand-dim p-3 text-sm text-brand flex items-center gap-2">
-          <Check className="h-4 w-4 shrink-0" />
-          {success}
-        </div>
-      )}
 
       {/* Perfil */}
       <Card>

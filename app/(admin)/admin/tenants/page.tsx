@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { TechBadge } from "@/components/tech-badge";
+import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -47,6 +48,7 @@ export default function AdminTenantsPage() {
   const [tenants, setTenants] = useState<TenantRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { error: toastError } = useToast();
   const [search, setSearch] = useState("");
   const menu = useDropdownMenu();
   const [editModal, setEditModal] = useState<TenantRow | null>(null);
@@ -133,7 +135,7 @@ export default function AdminTenantsPage() {
       setEditModal(null);
       load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao salvar");
+      toastError(err instanceof Error ? err.message : "Erro ao salvar");
     } finally {
       setSaving(false);
     }
@@ -151,7 +153,7 @@ export default function AdminTenantsPage() {
       if (error) throw error;
       load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao alterar status");
+      toastError(err instanceof Error ? err.message : "Erro ao alterar status");
     }
   };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { ToastProvider } from "@/components/ui/toast";
 
 type Theme = "dark" | "light";
 
@@ -54,7 +55,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
-      {children}
+      <ToastProvider>{children}</ToastProvider>
     </ThemeContext.Provider>
   );
 }

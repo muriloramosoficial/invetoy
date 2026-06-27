@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { TechBadge } from "@/components/tech-badge";
-import { Loader2, Check, Save, Plus, X, GripVertical } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
+import { Loader2, Save, Plus, X, GripVertical } from "lucide-react";
 
 interface PlanConfig {
   id: string;
@@ -34,7 +35,7 @@ export default function AdminPlansPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const { success: toastSuccess, error: toastError } = useToast();
 
   useEffect(() => {
     load();
@@ -70,10 +71,9 @@ export default function AdminPlansPage() {
         body: JSON.stringify(plan),
       });
       if (!res.ok) throw new Error("Erro ao salvar");
-      setSuccess(`Plano "${plan.name}" salvo com sucesso!`);
-      setTimeout(() => setSuccess(null), 3000);
+      toastSuccess(`Plano "${plan.name}" salvo com sucesso!`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao salvar plano");
+      toastError(err instanceof Error ? err.message : "Erro ao salvar plano");
     } finally {
       setSaving(null);
     }
@@ -112,20 +112,6 @@ export default function AdminPlansPage() {
           <TechBadge variant="blue">Planos</TechBadge>
         </div>
       </div>
-
-      {error && (
-        <div className="rounded-[6px] border border-brand-danger-10 bg-brand-danger-dim p-3 text-sm text-brand-danger flex items-center justify-between">
-          <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-brand-danger font-bold ml-2">&times;</button>
-        </div>
-      )}
-
-      {success && (
-        <div className="rounded-[6px] border border-brand-20 bg-brand-dim p-3 text-sm text-brand flex items-center gap-2">
-          <Check className="h-4 w-4" />
-          {success}
-        </div>
-      )}
 
       <div className="space-y-6">
         {plans

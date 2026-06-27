@@ -4,16 +4,16 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { User, Shield, Check, Loader2, Eye, EyeOff, X, Sun, Moon } from "lucide-react";
+import { User, Shield, Loader2, Eye, EyeOff, Sun, Moon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useTheme } from "@/components/providers";
+import { useToast } from "@/components/ui/toast";
 
 export default function AdminSettingsPage() {
   const { theme, setTheme } = useTheme();
+  const { success: toastSuccess, error: toastError } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
@@ -47,7 +47,7 @@ export default function AdminSettingsPage() {
           setNewEmail(user.email || profile.email || "");
         }
       } catch (err) {
-        if (mounted) setError(err instanceof Error ? err.message : "Erro ao carregar dados");
+        if (mounted) toastError(err instanceof Error ? err.message : "Erro ao carregar dados");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -56,28 +56,22 @@ export default function AdminSettingsPage() {
     return () => { mounted = false; };
   }, []);
 
-  const showSuccess = (msg: string) => {
-    setSuccess(msg);
-    setTimeout(() => setSuccess(null), 4000);
-  };
-
   const handleProfileSave = async () => {
     if (!userName.trim()) return;
     setSaving(true);
-    setError(null);
     try {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Nao autenticado");
 
-      const { error } = await supabase
+      const { error: supabaseError } = await supabase
         .from("profiles")
         .update({ name: userName.trim() })
         .eq("id", user.id);
-      if (error) throw error;
-      showSuccess("Perfil atualizado com sucesso");
+      if (supabaseError) throw supabaseError;
+      toastSuccess("Perfil atualizado com sucesso");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao atualizar perfil");
+      toastError(err instanceof Error ? err.message : "Erro ao atualizar perfil");
     } finally {
       setSaving(false);
     }
@@ -86,15 +80,14 @@ export default function AdminSettingsPage() {
   const handleEmailChange = async () => {
     if (!newEmail.trim() || newEmail === userEmail) return;
     setEmailSaving(true);
-    setError(null);
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.updateUser({ email: newEmail.trim() });
-      if (error) throw error;
-      showSuccess("Email de alteracao enviado. Verifique sua caixa de entrada.");
+      const { error: supabaseError } = await supabase.auth.updateUser({ email: newEmail.trim() });
+      if (supabaseError) throw supabaseError;
+      toastSuccess("Email de alteracao enviado. Verifique sua caixa de entrada.");
       setUserEmail(newEmail.trim());
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao atualizar email");
+      toastError(err instanceof Error ? err.message : "Erro ao atualizar email");
       setNewEmail(userEmail);
     } finally {
       setEmailSaving(false);
@@ -103,28 +96,27 @@ export default function AdminSettingsPage() {
 
   const handlePasswordChange = async () => {
     if (!newPassword || !confirmPassword) {
-      setError("Preencha todos os campos de senha");
+      toastError("Preencha todos os campos de senha");
       return;
     }
     if (newPassword.length < 6) {
-      setError("A nova senha deve ter no minimo 6 caracteres");
+      toastError("A nova senha deve ter no minimo 6 caracteres");
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError("As senhas nao conferem");
+      toastError("As senhas nao conferem");
       return;
     }
     setPasswordSaving(true);
-    setError(null);
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) throw error;
-      showSuccess("Senha atualizada com sucesso");
+      const { error: supabaseError } = await supabase.auth.updateUser({ password: newPassword });
+      if (supabaseError) throw supabaseError;
+      toastSuccess("Senha atualizada com sucesso");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao atualizar senha");
+      toastError(err instanceof Error ? err.message : "Erro ao atualizar senha");
     } finally {
       setPasswordSaving(false);
     }
@@ -146,22 +138,6 @@ export default function AdminSettingsPage() {
           Gerencie seus dados de acesso ao painel administrativo
         </p>
       </div>
-
-      {error && (
-        <div className="rounded-[6px] border border-brand-danger-10 bg-brand-danger-dim p-3 text-sm text-brand-danger flex items-center justify-between">
-          <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-brand-danger hover:text-brand-danger">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
-      {success && (
-        <div className="rounded-[6px] border border-brand-10 bg-brand-dim p-3 text-sm text-brand flex items-center gap-2">
-          <Check className="h-4 w-4" />
-          {success}
-        </div>
-      )}
 
       {/* Perfil */}
       <Card>

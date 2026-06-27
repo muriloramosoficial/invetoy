@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { TechBadge } from "@/components/tech-badge";
+import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -45,7 +46,7 @@ export default function AdminApiKeysPage() {
   const [keys, setKeys] = useState<ApiKeyRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const { success: toastSuccess, error: toastError } = useToast();
   const [createModal, setCreateModal] = useState(false);
   const [newKeyName, setNewKeyName] = useState("");
   const [newKeyPerms, setNewKeyPerms] = useState<string[]>(["read"]);
@@ -101,13 +102,12 @@ export default function AdminApiKeysPage() {
       if (!res.ok) throw new Error(data.error || "Erro ao criar chave");
 
       setCreatedKey(data.key);
-      setSuccess("Chave de API criada com sucesso");
-      setTimeout(() => setSuccess(null), 5000);
+      toastSuccess("Chave de API criada com sucesso");
       setNewKeyName("");
       setNewKeyPerms(["read"]);
       load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao criar chave de API");
+      toastError(err instanceof Error ? err.message : "Erro ao criar chave de API");
     } finally {
       setCreating(false);
     }
@@ -120,11 +120,10 @@ export default function AdminApiKeysPage() {
       const supabase = createClient();
       const { error } = await supabase.from("api_keys").delete().eq("id", id);
       if (error) throw error;
-      setSuccess("Chave de API removida");
-      setTimeout(() => setSuccess(null), 3000);
+      toastSuccess("Chave de API removida");
       load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao deletar");
+      toastError(err instanceof Error ? err.message : "Erro ao deletar");
     } finally {
       setDeleting(null);
     }
@@ -140,14 +139,13 @@ export default function AdminApiKeysPage() {
       if (error) throw error;
       load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao atualizar");
+      toastError(err instanceof Error ? err.message : "Erro ao atualizar");
     }
   };
 
   const copyKey = (key: string) => {
     navigator.clipboard.writeText(key);
-    setSuccess("Copiado!");
-    setTimeout(() => setSuccess(null), 2000);
+    toastSuccess("Copiado!");
   };
 
   return (
@@ -164,20 +162,6 @@ export default function AdminApiKeysPage() {
           Nova Chave de API
         </Button>
       </div>
-
-      {error && (
-        <div className="rounded-[6px] border border-brand-danger-10 bg-brand-danger-dim p-3 text-sm text-brand-danger flex items-center justify-between">
-          <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-brand-danger hover:text-brand-danger font-bold">×</button>
-        </div>
-      )}
-
-      {success && (
-        <div className="rounded-[6px] border border-brand-20 bg-brand-dim p-3 text-sm text-brand flex items-center gap-2">
-          <Check className="h-4 w-4" />
-          {success}
-        </div>
-      )}
 
       {tableMissing && (
         <div className="rounded-[6px] border border-brand-warning bg-brand-warning-dim p-5 text-sm space-y-4">

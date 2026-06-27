@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { TechBadge } from "@/components/tech-badge";
+import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -54,7 +55,7 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const { success: toastSuccess, error: toastError } = useToast();
   const [search, setSearch] = useState("");
   const [updating, setUpdating] = useState<string | null>(null);
   const [editingRole, setEditingRole] = useState<string | null>(null);
@@ -95,13 +96,12 @@ export default function AdminUsersPage() {
         .update({ is_system_admin: !currentValue })
         .eq("id", userId);
       if (error) throw error;
-      setSuccess(`Admin do sistema ${!currentValue ? "adicionado" : "removido"} com sucesso`);
-      setTimeout(() => setSuccess(null), 3000);
+      toastSuccess(`Admin do sistema ${!currentValue ? "adicionado" : "removido"} com sucesso`);
       setUsers((prev) =>
         prev.map((u) => u.id === userId ? { ...u, is_system_admin: !currentValue } : u)
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao atualizar");
+      toastError(err instanceof Error ? err.message : "Erro ao atualizar");
     } finally {
       setUpdating(null);
       menu.close();
@@ -117,13 +117,12 @@ export default function AdminUsersPage() {
         .update({ is_staff: !currentValue })
         .eq("id", userId);
       if (error) throw error;
-      setSuccess(`Funcionario ${!currentValue ? "adicionado" : "removido"} com sucesso`);
-      setTimeout(() => setSuccess(null), 3000);
+      toastSuccess(`Funcionario ${!currentValue ? "adicionado" : "removido"} com sucesso`);
       setUsers((prev) =>
         prev.map((u) => u.id === userId ? { ...u, is_staff: !currentValue } : u)
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao atualizar");
+      toastError(err instanceof Error ? err.message : "Erro ao atualizar");
     } finally {
       setUpdating(null);
       menu.close();
@@ -139,14 +138,13 @@ export default function AdminUsersPage() {
         .update({ role })
         .eq("id", userId);
       if (error) throw error;
-      setSuccess(`Funcao alterada para "${role}" com sucesso`);
-      setTimeout(() => setSuccess(null), 3000);
+      toastSuccess(`Funcao alterada para "${role}" com sucesso`);
       setUsers((prev) =>
         prev.map((u) => u.id === userId ? { ...u, role } : u)
       );
       setEditingRole(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao alterar funcao");
+      toastError(err instanceof Error ? err.message : "Erro ao alterar funcao");
     } finally {
       setUpdating(null);
     }
@@ -179,13 +177,12 @@ export default function AdminUsersPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      setSuccess(data.message);
-      setTimeout(() => setSuccess(null), 4000);
+      toastSuccess(data.message);
       setModalType(null);
       setModalUser(null);
       load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao executar acao");
+      toastError(err instanceof Error ? err.message : "Erro ao executar acao");
     } finally {
       setUpdating(null);
     }
@@ -252,22 +249,6 @@ export default function AdminUsersPage() {
           </div>
         </div>
       </div>
-
-      {error && (
-        <div className="rounded-[6px] border border-brand-danger-10 bg-brand-danger-dim p-3 text-sm text-brand-danger flex items-center justify-between">
-          <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-brand-danger hover:text-brand-danger">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
-      {success && (
-        <div className="rounded-[6px] border border-brand-10 bg-brand-dim p-3 text-sm text-brand flex items-center gap-2">
-          <Check className="h-4 w-4" />
-          {success}
-        </div>
-      )}
 
       <div className="flex items-center gap-4">
         <div className="relative max-w-sm flex-1">

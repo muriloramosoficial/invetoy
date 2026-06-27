@@ -25,6 +25,7 @@ import {
   EyeOff,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useToast } from "@/components/ui/toast";
 import type { Product, Category } from "@/types";
 
 const conditions = [
@@ -59,6 +60,7 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { error: toastError } = useToast();
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductWithCategory | null>(null);
@@ -173,7 +175,7 @@ export default function ProductsPage() {
       setModalOpen(false);
       setRefreshKey((k) => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao salvar");
+      toastError(err instanceof Error ? err.message : "Erro ao salvar");
     } finally {
       setSaving(false);
     }
@@ -187,7 +189,7 @@ export default function ProductsPage() {
       if (error) throw error;
       setRefreshKey((k) => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao arquivar");
+      toastError(err instanceof Error ? err.message : "Erro ao arquivar");
     }
   };
 
@@ -198,7 +200,7 @@ export default function ProductsPage() {
       if (error) throw error;
       setRefreshKey((k) => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao desarquivar");
+      toastError(err instanceof Error ? err.message : "Erro ao desarquivar");
     }
   };
 

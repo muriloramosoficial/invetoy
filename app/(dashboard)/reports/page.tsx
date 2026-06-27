@@ -15,11 +15,10 @@ import {
   FileSpreadsheet,
   FileDown,
   FileCode2,
-  Check,
-  X,
 } from "lucide-react";
 import { exportData, type ExportFormat } from "@/lib/export-utils";
 import { createClient } from "@/lib/supabase/client";
+import { useToast } from "@/components/ui/toast";
 
 interface Report {
   id: string;
@@ -70,18 +69,11 @@ const exportFormats: { value: ExportFormat; label: string; icon: React.Component
 export default function ReportsPage() {
   const [generating, setGenerating] = useState<string | null>(null);
   const [exporting, setExporting] = useState<{ reportId: string; format: ExportFormat } | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  const showSuccess = useCallback((msg: string) => {
-    setSuccessMsg(msg);
-    setTimeout(() => setSuccessMsg(null), 4000);
-  }, []);
+  const { success: toastSuccess, error: toastError } = useToast();
 
   const showError = useCallback((msg: string) => {
-    setErrorMsg(msg);
-    setTimeout(() => setErrorMsg(null), 5000);
-  }, []);
+    toastError(msg);
+  }, [toastError]);
 
   const fetchReportData = async (reportId: string): Promise<Record<string, unknown>[]> => {
     const supabase = createClient();
@@ -178,7 +170,6 @@ export default function ReportsPage() {
 
   const handleGenerate = async (report: Report) => {
     setGenerating(report.id);
-    setErrorMsg(null);
     try {
       const data = await fetchReportData(report.id);
       if (data.length === 0) {
@@ -189,7 +180,7 @@ export default function ReportsPage() {
       const columns = Object.keys(data[0]).map((key) => ({ header: key, key }));
       const fileName = `${report.title.replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}`;
       exportData(data, columns, fileName, "csv", report.title);
-      showSuccess(`Relatorio "${report.title}" gerado com sucesso!`);
+      toastSuccess(`Relatorio "${report.title}" gerado com sucesso!`);
     } catch (err) {
       showError(err instanceof Error ? err.message : "Erro ao gerar relatorio");
     } finally {
@@ -199,7 +190,6 @@ export default function ReportsPage() {
 
   const handleExport = async (report: Report, format: ExportFormat) => {
     setExporting({ reportId: report.id, format });
-    setErrorMsg(null);
     try {
       const data = await fetchReportData(report.id);
       if (data.length === 0) {
@@ -209,7 +199,7 @@ export default function ReportsPage() {
       const columns = Object.keys(data[0]).map((key) => ({ header: key, key }));
       const fileName = `${report.title.replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}`;
       exportData(data, columns, fileName, format, report.title);
-      showSuccess(`Relatorio exportado como ${format.toUpperCase()}!`);
+      toastSuccess(`Relatorio exportado como ${format.toUpperCase()}!`);
     } catch (err) {
       showError(err instanceof Error ? err.message : "Erro ao exportar relatorio");
     } finally {
@@ -225,22 +215,6 @@ export default function ReportsPage() {
           Gere e exporte relatorios de inventario nos formatos CSV, Excel, PDF ou XML
         </p>
       </div>
-
-      {errorMsg && (
-        <div className="rounded-[6px] border border-brand-danger-10 bg-brand-danger-dim p-3 text-sm text-brand-danger flex items-center justify-between">
-          <span>{errorMsg}</span>
-          <button onClick={() => setErrorMsg(null)} className="text-brand-danger hover:text-brand-danger">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
-      {successMsg && (
-        <div className="rounded-[6px] border border-brand-10 bg-brand-dim p-3 text-sm text-brand flex items-center gap-2">
-          <Check className="h-4 w-4" />
-          {successMsg}
-        </div>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {reports.map((report) => {

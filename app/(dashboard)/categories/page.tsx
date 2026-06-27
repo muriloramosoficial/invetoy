@@ -14,6 +14,7 @@ import {
 import { Dialog, DialogFooter } from "@/components/ui/dialog";
 import { Plus, Edit3, Archive, RotateCcw, Loader2, FolderOpen, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useToast } from "@/components/ui/toast";
 import type { Category } from "@/types";
 
 const colorOptions = ["#3ECF8E", "#53B1E5", "#F5A623", "#E5484D", "#8B5CF6", "#06B6D4", "#F472B6", "#A1A1AA"];
@@ -23,6 +24,7 @@ export default function CategoriesPage() {
   const [productCountMap, setProductCountMap] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { error: toastError } = useToast();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [saving, setSaving] = useState(false);
@@ -114,7 +116,7 @@ export default function CategoriesPage() {
       setModalOpen(false);
       setRefreshKey(k => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao salvar categoria");
+      toastError(err instanceof Error ? err.message : "Erro ao salvar categoria");
     } finally {
       setSaving(false);
     }
@@ -128,7 +130,7 @@ export default function CategoriesPage() {
       if (error) throw error;
       setRefreshKey(k => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao arquivar categoria");
+      toastError(err instanceof Error ? err.message : "Erro ao arquivar categoria");
     }
   };
 
@@ -139,7 +141,7 @@ export default function CategoriesPage() {
       if (error) throw error;
       setRefreshKey(k => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao desarquivar categoria");
+      toastError(err instanceof Error ? err.message : "Erro ao desarquivar categoria");
     }
   };
 

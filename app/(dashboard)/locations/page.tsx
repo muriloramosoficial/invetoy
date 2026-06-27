@@ -14,6 +14,7 @@ import {
 import { Dialog, DialogFooter } from "@/components/ui/dialog";
 import { Plus, Archive, RotateCcw, Loader2, MapPin, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useToast } from "@/components/ui/toast";
 import type { Location } from "@/types";
 
 export default function LocationsPage() {
@@ -21,6 +22,7 @@ export default function LocationsPage() {
   const [itemCountMap, setItemCountMap] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { error: toastError } = useToast();
   const [modalOpen, setModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -84,7 +86,7 @@ export default function LocationsPage() {
       setFormDescription("");
       setRefreshKey(k => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao criar local");
+      toastError(err instanceof Error ? err.message : "Erro ao criar local");
     } finally {
       setSaving(false);
     }
@@ -98,7 +100,7 @@ export default function LocationsPage() {
       if (error) throw error;
       setRefreshKey(k => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao arquivar local");
+      toastError(err instanceof Error ? err.message : "Erro ao arquivar local");
     }
   };
 
@@ -109,7 +111,7 @@ export default function LocationsPage() {
       if (error) throw error;
       setRefreshKey(k => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao desarquivar local");
+      toastError(err instanceof Error ? err.message : "Erro ao desarquivar local");
     }
   };
 

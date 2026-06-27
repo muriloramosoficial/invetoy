@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { TechBadge } from "@/components/tech-badge";
 import {
@@ -40,6 +41,7 @@ export default function AdminSubscriptionsPage() {
   const [data, setData] = useState<SubscriptionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { error: toastError } = useToast();
   const [search, setSearch] = useState("");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
@@ -97,7 +99,7 @@ export default function AdminSubscriptionsPage() {
       if (error) throw error;
       load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao alterar status");
+      toastError(err instanceof Error ? err.message : "Erro ao alterar status");
     } finally {
       setActionLoading(null);
     }

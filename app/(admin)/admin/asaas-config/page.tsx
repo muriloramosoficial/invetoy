@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { TechBadge } from "@/components/tech-badge";
-import { Loader2, Check, ExternalLink, Eye, EyeOff, Copy, AlertTriangle, Webhook, Key, Globe } from "lucide-react";
+import { Loader2, ExternalLink, Eye, EyeOff, Copy, AlertTriangle, Webhook, Key, Globe, Check } from "lucide-react";
 
 interface AsaasConfig {
   asaas_api_key_sandbox: string;
@@ -31,7 +32,7 @@ export default function AsaasConfigPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const { success: toastSuccess, error: toastError } = useToast();
   const [showSandboxKey, setShowSandboxKey] = useState(false);
   const [showProdKey, setShowProdKey] = useState(false);
 
@@ -117,10 +118,9 @@ export default function AsaasConfigPage() {
         .eq("id", profile.tenant_id);
 
       if (error) throw error;
-      setSuccess("Configuracoes do Asaas salvas com sucesso");
-      setTimeout(() => setSuccess(null), 4000);
+      toastSuccess("Configuracoes do Asaas salvas com sucesso");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao salvar");
+      toastError(err instanceof Error ? err.message : "Erro ao salvar");
     } finally {
       setSaving(false);
     }
@@ -128,8 +128,7 @@ export default function AsaasConfigPage() {
 
   function copyText(text: string) {
     navigator.clipboard.writeText(text);
-    setSuccess("Copiado!");
-    setTimeout(() => setSuccess(null), 2000);
+    toastSuccess("Copiado!");
   }
 
   if (loading) {
@@ -150,20 +149,6 @@ export default function AsaasConfigPage() {
           Configure as chaves de API e webhooks do Asaas para processamento de pagamentos
         </p>
       </div>
-
-      {error && (
-        <div className="rounded-[4px] border border-brand-danger-30 bg-brand-danger-dim p-3 text-sm text-brand-danger flex items-center justify-between">
-          <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-brand-danger font-bold ml-2 shrink-0">&times;</button>
-        </div>
-      )}
-
-      {success && (
-        <div className="rounded-[4px] border border-brand-20 bg-brand-dim p-3 text-sm text-brand flex items-center gap-2">
-          <Check className="h-4 w-4 shrink-0" />
-          {success}
-        </div>
-      )}
 
       {/* Ambiente ativo */}
       <Card>

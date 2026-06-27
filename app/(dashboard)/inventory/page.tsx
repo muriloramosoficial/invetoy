@@ -23,6 +23,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useToast } from "@/components/ui/toast";
 import type { InventoryItem, Product, Location, Category } from "@/types";
 
 interface InventoryWithRelations extends InventoryItem {
@@ -53,6 +54,7 @@ export default function InventoryPage() {
   const [items, setItems] = useState<InventoryWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { error: toastError } = useToast();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterChip>("all");
   const [adjustModalOpen, setAdjustModalOpen] = useState(false);
