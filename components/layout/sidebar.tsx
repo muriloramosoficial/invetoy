@@ -27,7 +27,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
   { label: "Products", href: "/products", icon: <Box className="h-4 w-4" /> },
-  { label: "Inventário", href: "/inventory", icon: <Package className="h-4 w-4" /> },
+  { label: "Estoque", href: "/inventory", icon: <Package className="h-4 w-4" /> },
   { label: "Movimentações", href: "/movements", icon: <ArrowRightLeft className="h-4 w-4" /> },
   { label: "Scanner", href: "/scanner", icon: <ScanLine className="h-4 w-4" /> },
   { label: "Categorias", href: "/categories", icon: <Tags className="h-4 w-4" /> },

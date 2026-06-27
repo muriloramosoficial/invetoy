@@ -125,24 +125,44 @@ const endpoints: Endpoint[] = [
   {
     method: "GET",
     path: "/inventory",
-    title: "Consultar Inventário",
-    description: "Retorna itens em estoque com produto e localização.",
+    title: "Consultar Inventario",
+    description: "Retorna itens em estoque com produto e localizacao.",
     auth: true,
     params: [
-      { name: "page", type: "integer", required: false, description: "Número da página" },
-      { name: "page_size", type: "integer", required: false, description: "Itens por página" },
+      { name: "page", type: "integer", required: false, description: "Numero da pagina" },
+      { name: "page_size", type: "integer", required: false, description: "Itens por pagina" },
     ],
     response: `{
   "data": [
     {
       "product_id": "uuid",
       "product": { "name": "Produto", "sku": "SKU-001" },
-      "location": { "name": "Estoque A", "aisle": "A1" },
-      "quantity": 50,
-      "min_stock": 10
+      "quantity": 100
     }
   ],
-  "pagination": { ... }
+  "pagination": { "total": 500, "page": 1 }
+}`,
+  },
+  {
+    method: "GET",
+    path: "/stock",
+    title: "Consultar Saldo em Tempo Real",
+    description: "Retorna saldo atual por produto e/ou localizacao, com status (ok, low, excess).",
+    auth: true,
+    params: [
+      { name: "product_id", type: "uuid", required: false, description: "Filtrar por produto" },
+      { name: "location_id", type: "uuid", required: false, description: "Filtrar por localizacao" },
+    ],
+    response: `{
+  "data": [
+    {
+      "product_id": "uuid",
+      "product_name": "Produto",
+      "quantity": 100,
+      "min_stock": 10,
+      "status": "ok"
+    }
+  ]
 }`,
   },
   {

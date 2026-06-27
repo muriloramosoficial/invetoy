@@ -50,9 +50,10 @@ const ENDPOINTS = [
   { method: "GET", path: "/api/v1/products/{id}", params: "", desc: "Buscar produto por ID", auth: "API Key" },
   { method: "PATCH", path: "/api/v1/products/{id}", params: "", desc: "Atualizar parcialmente um produto", auth: "API Key" },
   { method: "DELETE", path: "/api/v1/products/{id}", params: "", desc: "Excluir um produto", auth: "API Key" },
-  { method: "GET", path: "/api/v1/inventory", params: "?location_id=uuid&status=low", desc: "Consultar inventário com produto e localização", auth: "API Key" },
-  { method: "GET", path: "/api/v1/movements", params: "?product_id=uuid&type=in&page=1&limit=50", desc: "Histórico de movimentações", auth: "API Key" },
-  { method: "POST", path: "/api/v1/movements", params: "", desc: "Registrar entrada ou saída", auth: "API Key" },
+  { method: "GET", path: "/api/v1/inventory", params: "?location_id=uuid&status=low", desc: "Consultar inventario com produto e localizacao", auth: "API Key" },
+  { method: "GET", path: "/api/v1/stock", params: "?product_id=uuid&location_id=uuid", desc: "Consultar saldo em tempo real por produto/localizacao", auth: "API Key" },
+  { method: "GET", path: "/api/v1/movements", params: "?product_id=uuid&type=in&page=1&limit=50", desc: "Historico de movimentacoes", auth: "API Key" },
+  { method: "POST", path: "/api/v1/movements", params: "", desc: "Registrar entrada ou saida", auth: "API Key" },
 ];
 
 const LANGUAGES = [

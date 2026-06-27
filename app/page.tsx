@@ -107,7 +107,7 @@ const features = [
   { icon: Users, title: "Controle por Papéis", desc: "Administradores, gerentes e operadores com permissões granulares. Cada usuário vê exatamente o que precisa para seu trabalho." },
   { icon: CreditCard, title: "Assinatura Mensal Flexível", desc: "Planos a partir de R$ 49/mês com pagamento via PIX, Boleto ou Cartão. Sem taxa de setup. Cancele quando quiser, sem multas.", gradient: true },
   { icon: Cloud, title: "API REST Integrada", desc: "Integre com seu ERP, site ou sistemas internos via API REST /api/v1. Documentação interativa disponível nos planos Starter e Pro." },
-  { icon: Shield, title: "Segurança Empresarial", desc: "Dados criptografados em trânsito e em repouso. Row Level Security do Supabase garante isolamento total entre empresas (multi-tenancy)." },
+  { icon: Shield, title: "Segurança Empresarial", desc: "Dados criptografados em trânsito e em repouso. Todas as politicas de acesso sao gerenciadas diretamente pelo banco de dados, com isolamento total entre empresas (multi-tenancy)." },
   { icon: Layers, title: "Múltiplos Depósitos", desc: "Organize seu estoque por filiais, almoxarifados, prateleiras e lotes. Controle granular de localização de cada item." },
   { icon: RefreshCw, title: "Tempo Real", desc: "Atualizações instantâneas via Supabase Realtime. Múltiplos usuários veem as mesmas informações simultaneamente, sem refresh." },
 ];
@@ -129,7 +129,7 @@ const faqItems = [
   { q: "Precisa de cartão de crédito para testar?", a: "Não! São 14 dias de teste grátis sem cartão de crédito. Cancele quando quiser." },
   { q: "Posso migrar meus dados de outro sistema?", a: "Sim! Oferecemos suporte na migração via CSV. Nossa equipe ajuda com a importação dos seus produtos e inventário." },
   { q: "O scanner de código de barras funciona em qualquer celular?", a: "Sim. O scanner usa a câmera do celular e funciona em qualquer dispositivo com navegador moderno (Chrome, Safari, Edge)." },
-  { q: "Como funciona a segurança dos meus dados?", a: "Utilizamos Supabase com Row Level Security. Cada empresa tem isolamento total de dados. Criptografia em trânsito (TLS 1.3) e em repouso (AES-256)." },
+  { q: "Como funciona a segurança dos meus dados?", a: "Cada empresa tem isolamento total de dados. Criptografia em transito (TLS 1.3) e em repouso (AES-256)." },
   { q: "Posso cancelar minha assinatura a qualquer momento?", a: "Sim! Não temos fidelidade. Você pode cancelar sua assinatura no painel de configurações. O acesso continua até o fim do período já pago." },
   { q: "A API tem limite de requisições?", a: "Sim, para garantir estabilidade para todos os clientes. O plano Starter tem 60 req/min e o Pro tem 120 req/min." },
 ];
@@ -213,8 +213,8 @@ export default function LandingPage() {
           </h1>
 
           <p className="mt-6 text-lg sm:text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed">
-            Do almoxarifado ao boardroom — uma plataforma completa para 
-            controlar, analisar e otimizar seu inventário em tempo real.
+            Do almoxarifado a diretoria - uma plataforma completa para 
+            controlar, analisar e otimizar seu estoque em tempo real.
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -252,7 +252,7 @@ export default function LandingPage() {
       <section className="py-12 px-4 border-t border-border-default">
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard value={500} suffix="+" label="Empresas Ativas" />
+            <StatCard value={300} suffix="+" label="Empresas Ativas" />
             <StatCard value={50000} suffix="+" label="Produtos Gerenciados" />
             <StatCard value={99.9} suffix="%" label="Uptime" />
             <StatCard value={15} suffix="min" label="Tempo de Setup" />
@@ -265,7 +265,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto text-center">
           <p className="text-xs text-text-muted uppercase tracking-widest mb-6">Construído com tecnologia enterprise-grade</p>
           <div className="flex flex-wrap items-center justify-center gap-8 text-text-muted">
-            <span className="flex items-center gap-2 text-sm"><Shield className="h-4 w-4 text-brand" /> Supabase RLS</span>
+            <span className="flex items-center gap-2 text-sm"><Shield className="h-4 w-4 text-brand" /> RLS Nativo</span>
             <span className="flex items-center gap-2 text-sm"><Lock className="h-4 w-4 text-brand" /> TLS 1.3</span>
             <span className="flex items-center gap-2 text-sm"><Activity className="h-4 w-4 text-brand" /> 99.9% Uptime</span>
             <span className="flex items-center gap-2 text-sm"><Cloud className="h-4 w-4 text-brand" /> Next.js 16</span>
@@ -285,8 +285,8 @@ export default function LandingPage() {
               <span className="text-brand">gerenciar seu estoque</span>
             </h2>
             <p className="mt-4 text-text-secondary max-w-xl mx-auto">
-              Do almoxarifado à diretoria — ferramentas para cada área da sua empresa, 
-              com dados em tempo real e segurança enterprise.
+              Do almoxarifado a diretoria - ferramentas para cada area da sua empresa, 
+              com dados em tempo real e seguranca enterprise.
             </p>
           </div>
 
@@ -404,7 +404,7 @@ export default function LandingPage() {
             </h2>
             <p className="text-text-secondary mb-8 max-w-lg mx-auto">
               Junte-se a centenas de empresas que já usam o INVENTOY para controlar seu inventário 
-              em tempo real. Comece grátis — sem cartão de crédito.
+              em tempo real. Comece gratis - sem cartao de credito.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button size="lg" onClick={() => router.push("/register")}>

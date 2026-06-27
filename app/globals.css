@@ -1,4 +1,5 @@
-@import "tailwindcss";
+/* Load Tailwind v4 CSS files directly (bypasses PostCSS import resolution issue with Turbopack) */
+@import "../node_modules/tailwindcss/index.css";
 
 /* ─── INVENTOY Design System ─────────────────────────────── *
  *  Dark mode nativo · Verde Supabase · Cinzas frios profundos *
@@ -113,250 +114,250 @@ body {
 
 /* ── Custom Utility Definitions ── */
 /* Background utilities */
-@utility bg-bg-primary {
+.bg-bg-primary {
   background-color: var(--color-bg-primary);
 }
-@utility bg-bg-secondary {
+.bg-bg-secondary {
   background-color: var(--color-bg-secondary);
 }
-@utility bg-bg-surface {
+.bg-bg-surface {
   background-color: var(--color-bg-surface);
 }
-@utility bg-bg-surface-hover {
+.bg-bg-surface-hover {
   background-color: var(--color-bg-surface-hover);
 }
-@utility bg-bg-elevated {
+.bg-bg-elevated {
   background-color: var(--color-bg-elevated);
 }
-@utility bg-brand {
+.bg-brand {
   background-color: var(--color-brand);
 }
-@utility bg-brand-dim {
+.bg-brand-dim {
   background-color: var(--color-brand-dim);
 }
-@utility bg-brand-hover {
+.bg-brand-hover {
   background-color: var(--color-brand-hover);
 }
-@utility bg-brand-danger {
+.bg-brand-danger {
   background-color: var(--color-brand-danger);
 }
-@utility bg-brand-danger-dim {
+.bg-brand-danger-dim {
   background-color: var(--color-brand-danger-dim);
 }
-@utility bg-brand-info {
+.bg-brand-info {
   background-color: var(--color-brand-info);
 }
-@utility bg-brand-warning {
+.bg-brand-warning {
   background-color: var(--color-brand-warning);
 }
 
 /* Text utilities */
-@utility text-text-primary {
+.text-text-primary {
   color: var(--color-text-primary);
 }
-@utility text-text-secondary {
+.text-text-secondary {
   color: var(--color-text-secondary);
 }
-@utility text-text-muted {
+.text-text-muted {
   color: var(--color-text-muted);
 }
-@utility text-text-brand {
+.text-text-brand {
   color: var(--color-text-brand);
 }
-@utility text-brand {
+.text-brand {
   color: var(--color-brand);
 }
-@utility text-brand-hover {
+.text-brand-hover {
   color: var(--color-brand-hover);
 }
-@utility text-brand-danger {
+.text-brand-danger {
   color: var(--color-brand-danger);
 }
-@utility text-brand-info {
+.text-brand-info {
   color: var(--color-brand-info);
 }
-@utility text-brand-warning {
+.text-brand-warning {
   color: var(--color-brand-warning);
 }
 
 /* Border utilities */
-@utility border-border-default {
+.border-border-default {
   border-color: var(--color-border-default);
 }
-@utility border-border-muted {
+.border-border-muted {
   border-color: var(--color-border-muted);
 }
-@utility border-brand {
+.border-brand {
   border-color: var(--color-brand);
 }
-@utility border-brand-danger {
+.border-brand-danger {
   border-color: var(--color-brand-danger);
 }
-@utility border-brand-info {
+.border-brand-info {
   border-color: var(--color-brand-info);
 }
-@utility border-brand-warning {
+.border-brand-warning {
   border-color: var(--color-brand-warning);
 }
 
 /* Ring utilities */
-@utility ring-brand {
+.ring-brand {
   --tw-ring-color: var(--color-brand);
 }
-@utility ring-brand-danger {
+.ring-brand-danger {
   --tw-ring-color: var(--color-brand-danger);
 }
 
 /* Fill utilities */
-@utility fill-brand {
+.fill-brand {
   fill: var(--color-brand);
 }
 
 /* Opacity variants using color-mix */
-@utility bg-brand-2 {
+.bg-brand-2 {
   background-color: color-mix(in srgb, var(--color-brand) 2%, transparent);
 }
-@utility bg-brand-3 {
+.bg-brand-3 {
   background-color: color-mix(in srgb, var(--color-brand) 3%, transparent);
 }
-@utility bg-brand-5 {
+.bg-brand-5 {
   background-color: color-mix(in srgb, var(--color-brand) 5%, transparent);
 }
-@utility bg-brand-6 {
+.bg-brand-6 {
   background-color: color-mix(in srgb, var(--color-brand) 6%, transparent);
 }
-@utility bg-brand-8 {
+.bg-brand-8 {
   background-color: color-mix(in srgb, var(--color-brand) 8%, transparent);
 }
-@utility bg-brand-10 {
+.bg-brand-10 {
   background-color: color-mix(in srgb, var(--color-brand) 10%, transparent);
 }
-@utility bg-brand-12 {
+.bg-brand-12 {
   background-color: color-mix(in srgb, var(--color-brand) 12%, transparent);
 }
-@utility bg-brand-15 {
+.bg-brand-15 {
   background-color: color-mix(in srgb, var(--color-brand) 15%, transparent);
 }
-@utility bg-brand-20 {
+.bg-brand-20 {
   background-color: color-mix(in srgb, var(--color-brand) 20%, transparent);
 }
-@utility bg-brand-30 {
+.bg-brand-30 {
   background-color: color-mix(in srgb, var(--color-brand) 30%, transparent);
 }
-@utility bg-brand-50 {
+.bg-brand-50 {
   background-color: color-mix(in srgb, var(--color-brand) 50%, transparent);
 }
 
-@utility bg-brand-danger-8 {
+.bg-brand-danger-8 {
   background-color: color-mix(in srgb, var(--color-brand-danger) 8%, transparent);
 }
-@utility bg-brand-danger-10 {
+.bg-brand-danger-10 {
   background-color: color-mix(in srgb, var(--color-brand-danger) 10%, transparent);
 }
-@utility bg-brand-info-8 {
+.bg-brand-info-8 {
   background-color: color-mix(in srgb, var(--color-brand-info) 8%, transparent);
 }
-@utility bg-brand-info-10 {
+.bg-brand-info-10 {
   background-color: color-mix(in srgb, var(--color-brand-info) 10%, transparent);
 }
-@utility bg-brand-warning-8 {
+.bg-brand-warning-8 {
   background-color: color-mix(in srgb, var(--color-brand-warning) 8%, transparent);
 }
-@utility bg-brand-warning-10 {
+.bg-brand-warning-10 {
   background-color: color-mix(in srgb, var(--color-brand-warning) 10%, transparent);
 }
 
-@utility text-brand-8 {
+.text-brand-8 {
   color: color-mix(in srgb, var(--color-brand) 8%, transparent);
 }
-@utility text-brand-60 {
+.text-brand-60 {
   color: color-mix(in srgb, var(--color-brand) 60%, transparent);
 }
-@utility text-brand-danger-20 {
+.text-brand-danger-20 {
   color: color-mix(in srgb, var(--color-brand-danger) 20%, transparent);
 }
-@utility text-brand-danger-30 {
+.text-brand-danger-30 {
   color: color-mix(in srgb, var(--color-brand-danger) 30%, transparent);
 }
-@utility text-text-muted-40 {
+.text-text-muted-40 {
   color: color-mix(in srgb, var(--color-text-muted) 40%, transparent);
 }
-@utility text-text-muted-60 {
+.text-text-muted-60 {
   color: color-mix(in srgb, var(--color-text-muted) 60%, transparent);
 }
 
-@utility border-brand-20 {
+.border-brand-20 {
   border-color: color-mix(in srgb, var(--color-brand) 20%, transparent);
 }
-@utility border-brand-30 {
+.border-brand-30 {
   border-color: color-mix(in srgb, var(--color-brand) 30%, transparent);
 }
-@utility border-brand-40 {
+.border-brand-40 {
   border-color: color-mix(in srgb, var(--color-brand) 40%, transparent);
 }
-@utility border-brand-danger-20 {
+.border-brand-danger-20 {
   border-color: color-mix(in srgb, var(--color-brand-danger) 20%, transparent);
 }
-@utility border-brand-danger-30 {
+.border-brand-danger-30 {
   border-color: color-mix(in srgb, var(--color-brand-danger) 30%, transparent);
 }
-@utility border-brand-info-20 {
+.border-brand-info-20 {
   border-color: color-mix(in srgb, var(--color-brand-info) 20%, transparent);
 }
-@utility border-brand-warning-20 {
+.border-brand-warning-20 {
   border-color: color-mix(in srgb, var(--color-brand-warning) 20%, transparent);
 }
 
-@utility ring-brand-20 {
+.ring-brand-20 {
   --tw-ring-color: color-mix(in srgb, var(--color-brand) 20%, transparent);
 }
-@utility ring-brand-danger-20 {
+.ring-brand-danger-20 {
   --tw-ring-color: color-mix(in srgb, var(--color-brand-danger) 20%, transparent);
 }
 
-@utility bg-bg-primary-50 {
+.bg-bg-primary-50 {
   background-color: color-mix(in srgb, var(--color-bg-primary) 50%, transparent);
 }
-@utility bg-bg-primary-90 {
+.bg-bg-primary-90 {
   background-color: color-mix(in srgb, var(--color-bg-primary) 90%, transparent);
 }
-@utility bg-bg-secondary-50 {
+.bg-bg-secondary-50 {
   background-color: color-mix(in srgb, var(--color-bg-secondary) 50%, transparent);
 }
-@utility bg-bg-surface-50 {
+.bg-bg-surface-50 {
   background-color: color-mix(in srgb, var(--color-bg-surface) 50%, transparent);
 }
 
 /* Font utilities */
-@utility font-sans {
+.font-sans {
   font-family: var(--font-sans);
 }
-@utility font-mono {
+.font-mono {
   font-family: var(--font-mono);
 }
 
 /* Existing custom utilities */
-@utility neon-glow {
+.neon-glow {
   box-shadow: 0 0 0 1px rgba(62, 207, 142, 0.15), 0 0 20px rgba(62, 207, 142, 0.05);
 }
 
-@utility neon-glow-hover {
+.neon-glow-hover {
   transition: box-shadow 0.2s ease;
   &:hover {
     box-shadow: 0 0 0 1px rgba(62, 207, 142, 0.3), 0 0 20px rgba(62, 207, 142, 0.1);
   }
 }
 
-@utility terminal-divider {
+.terminal-divider {
   border-bottom: 1px solid #333333;
 }
 
-@utility mono {
+.mono {
   font-family: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
   letter-spacing: -0.02em;
 }
 
-@utility command-overlay {
+.command-overlay {
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(4px);
 }

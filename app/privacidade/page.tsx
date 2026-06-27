@@ -36,7 +36,7 @@ const sections = [
     icon: RefreshCw,
     title: "5. Compartilhamento de dados",
     content:
-      "Compartilhamos seus dados apenas com:\n\n• Gateway de pagamentos: processamento de assinaturas (PIX, Boleto, Cartão)\n• Supabase: hospedagem do banco de dados (Provedor nos EUA — safeguards contratuais)\n• Vercel: hospedagem da aplicação\n\nNão vendemos seus dados pessoais para terceiros. Todos os provedores contratados possuem conformidade com a LGPD.",
+      "Compartilhamos seus dados apenas com:\n\n\u2022 Gateway de pagamentos: processamento de assinaturas\n\u2022 Banco de dados gerenciado (Provedor nos EUA)\n\u2022 Vercel: hospedagem da aplicacao\n\nNao vendemos seus dados pessoais para terceiros. Todos os provedores contratados possuem conformidade com a LGPD.",
   },
   {
     icon: Trash2,
