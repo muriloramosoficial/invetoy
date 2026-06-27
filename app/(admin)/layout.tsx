@@ -49,10 +49,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center bg-[#0a0a0a]">
+      <div className="h-full flex items-center justify-center bg-bg-primary">
         <div className="flex flex-col items-center gap-3">
-          <Shield className="h-8 w-8 text-emerald-500 animate-pulse" />
-          <p className="text-sm text-gray-500">Verificando acesso...</p>
+          <Shield className="h-8 w-8 text-brand animate-pulse" />
+          <p className="text-sm text-text-muted">Verificando acesso...</p>
         </div>
       </div>
     );
@@ -63,7 +63,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="h-full flex bg-[#0a0a0a]">
+    <div className="h-full flex">
       {mobileOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden"
@@ -90,22 +90,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           collapsed ? "lg:ml-16" : "lg:ml-56"
         )}
       >
-        {/* Top bar */}
         <header className="h-14 border-b border-border-default flex items-center justify-between px-4 shrink-0">
           <button
-            className="lg:hidden p-1.5 rounded-[4px] text-gray-400 hover:text-white hover:bg-white/5"
+            className="lg:hidden p-1.5 rounded-[4px] text-text-muted hover:text-text-primary hover:bg-bg-surface-hover"
             onClick={() => setMobileOpen(true)}
           >
             <Menu className="h-5 w-5" />
           </button>
-          <div className="flex items-center gap-2 text-sm text-gray-400">
-            <Shield className="h-4 w-4 text-emerald-400" />
-            <span>SaaS Admin</span>
+          <div className="flex items-center gap-2 text-sm text-text-muted">
+            <Shield className="h-4 w-4 text-brand" />
+            <span>Admin Panel</span>
           </div>
           <div className="w-8" />
         </header>
 
-        {/* Content */}
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>

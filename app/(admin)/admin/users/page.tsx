@@ -131,23 +131,23 @@ export default function AdminUsersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white tracking-tight">Usuarios</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-2xl font-semibold text-text-primary tracking-tight">Usuarios</h1>
+        <p className="text-sm text-text-muted mt-1">
           {loading ? "Carregando..." : `${users.length} usuarios · ${adminCount} system admins`}
         </p>
       </div>
 
       {error && (
-        <div className="rounded-[6px] border border-red-500/20 bg-red-500/5 p-3 text-sm text-red-400 flex items-center justify-between">
+        <div className="rounded-[6px] border border-brand-danger-10 bg-brand-danger-dim p-3 text-sm text-brand-danger flex items-center justify-between">
           <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-red-400 hover:text-red-300">
+          <button onClick={() => setError(null)} className="text-brand-danger hover:text-brand-danger">
             <X className="h-4 w-4" />
           </button>
         </div>
       )}
 
       {success && (
-        <div className="rounded-[6px] border border-emerald-500/20 bg-emerald-500/5 p-3 text-sm text-emerald-400 flex items-center gap-2">
+        <div className="rounded-[6px] border border-brand-10 bg-brand-dim p-3 text-sm text-brand flex items-center gap-2">
           <Check className="h-4 w-4" />
           {success}
         </div>
@@ -155,13 +155,13 @@ export default function AdminUsersPage() {
 
       <div className="flex items-center gap-4">
         <div className="relative max-w-sm flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
           <input
             type="text"
             placeholder="Buscar por nome, email, empresa..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-10 pl-10 pr-3 rounded-[6px] border border-border-default bg-bg-surface text-sm text-white placeholder:text-gray-500 focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20 transition-colors outline-none"
+            className="w-full h-10 pl-10 pr-3 rounded-[6px] border border-border-default bg-bg-surface text-sm text-text-primary placeholder:text-text-muted focus:border-brand-20 focus:ring-1 focus:ring-brand-dim transition-colors outline-none"
           />
         </div>
         <Button variant="secondary" onClick={load} disabled={loading}>
@@ -186,12 +186,12 @@ export default function AdminUsersPage() {
             {loading ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-12">
-                  <Loader2 className="h-6 w-6 text-gray-400 animate-spin mx-auto" />
+                  <Loader2 className="h-6 w-6 text-text-muted animate-spin mx-auto" />
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12 text-gray-500">
+                <TableCell colSpan={7} className="text-center py-12 text-text-muted">
                   Nenhum usuario encontrado
                 </TableCell>
               </TableRow>
@@ -202,12 +202,12 @@ export default function AdminUsersPage() {
                   <TableRow key={u.id}>
                     <TableCell>
                       <div>
-                        <p className="font-medium text-white">{u.name || "-"}</p>
-                        <p className="text-[10px] text-gray-600">{u.email}</p>
+                        <p className="font-medium text-text-primary">{u.name || "-"}</p>
+                        <p className="text-[10px] text-text-muted">{u.email}</p>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="text-xs text-gray-400 flex items-center gap-1">
+                      <span className="text-xs text-text-muted flex items-center gap-1">
                         <Building2 className="h-3 w-3" />
                         {tenant.name}
                       </span>
@@ -223,7 +223,7 @@ export default function AdminUsersPage() {
                           <select
                             value={newRole}
                             onChange={(e) => setNewRole(e.target.value)}
-                            className="h-8 px-2 rounded-[4px] border border-border-default bg-bg-surface text-xs text-white outline-none focus:border-emerald-500/40"
+                            className="h-8 px-2 rounded-[4px] border border-border-default bg-bg-surface text-xs text-text-primary outline-none focus:border-brand-20"
                           >
                             <option value="user">User</option>
                             <option value="admin">Admin</option>
@@ -233,13 +233,13 @@ export default function AdminUsersPage() {
                           <button
                             onClick={() => changeRole(u.id, newRole)}
                             disabled={updating === u.id}
-                            className="p-1 rounded text-emerald-400 hover:bg-emerald-500/10"
+                            className="p-1 rounded text-brand hover:bg-brand-8"
                           >
                             <Check className="h-3.5 w-3.5" />
                           </button>
                           <button
                             onClick={() => setEditingRole(null)}
-                            className="p-1 rounded text-gray-500 hover:bg-white/5"
+                            className="p-1 rounded text-text-muted hover:bg-bg-surface"
                           >
                             <X className="h-3.5 w-3.5" />
                           </button>
@@ -247,12 +247,12 @@ export default function AdminUsersPage() {
                       ) : (
                         <button
                           onClick={() => { setEditingRole(u.id); setNewRole(u.role || "user"); }}
-                          className="group flex items-center gap-1.5 hover:bg-white/5 rounded px-2 py-1 -mx-2 transition-colors"
+                          className="group flex items-center gap-1.5 hover:bg-bg-surface rounded px-2 py-1 -mx-2 transition-colors"
                         >
                           <TechBadge variant={u.role === "admin" ? "green" : u.role === "manager" ? "blue" : "gray"}>
                             {u.role?.toUpperCase() || "USER"}
                           </TechBadge>
-                          <span className="text-[10px] text-gray-600 group-hover:text-gray-400">editar</span>
+                          <span className="text-[10px] text-text-muted group-hover:text-text-muted">editar</span>
                         </button>
                       )}
                     </TableCell>
@@ -260,10 +260,10 @@ export default function AdminUsersPage() {
                       {u.is_system_admin ? (
                         <TechBadge variant="red">SYS ADMIN</TechBadge>
                       ) : (
-                        <span className="text-[10px] text-gray-600">-</span>
+                        <span className="text-[10px] text-text-muted">-</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-xs text-gray-500">
+                    <TableCell className="text-xs text-text-muted">
                       {u.created_at ? new Date(u.created_at).toLocaleDateString("pt-BR") : "-"}
                     </TableCell>
                     <TableCell>
@@ -278,9 +278,9 @@ export default function AdminUsersPage() {
                         {menuOpen === u.id && (
                           <>
                             <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(null)} />
-                            <div className="absolute right-0 top-full mt-1 z-50 w-52 bg-gray-900 border border-border-default rounded-[6px] shadow-xl py-1">
+                            <div className="absolute right-0 top-full mt-1 z-50 w-52 bg-bg-surface border border-border-default rounded-[6px] shadow-xl py-1">
                               <button
-                                className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 flex items-center gap-2"
+                                className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-bg-surface flex items-center gap-2"
                                 onClick={() => toggleAdmin(u.id, u.is_system_admin)}
                                 disabled={updating === u.id}
                               >
@@ -304,23 +304,23 @@ export default function AdminUsersPage() {
       </div>
 
       <div className="rounded-[6px] border border-border-default bg-bg-card p-4">
-        <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Legenda</h3>
+        <h3 className="text-xs font-medium text-text-muted uppercase tracking-wider mb-3">Legenda</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
           <div className="flex items-center gap-2">
             <TechBadge variant="gray">USER</TechBadge>
-            <span className="text-gray-500">Acesso basico ao sistema</span>
+            <span className="text-text-muted">Acesso basico ao sistema</span>
           </div>
           <div className="flex items-center gap-2">
             <TechBadge variant="blue">MANAGER</TechBadge>
-            <span className="text-gray-500">Pode gerenciar equipe</span>
+            <span className="text-text-muted">Pode gerenciar equipe</span>
           </div>
           <div className="flex items-center gap-2">
             <TechBadge variant="green">ADMIN</TechBadge>
-            <span className="text-gray-500">Admin do tenant</span>
+            <span className="text-text-muted">Admin do tenant</span>
           </div>
           <div className="flex items-center gap-2">
             <TechBadge variant="red">SYS ADMIN</TechBadge>
-            <span className="text-gray-500">Admin do SaaS (area /admin)</span>
+            <span className="text-text-muted">Admin do SaaS (area /admin)</span>
           </div>
         </div>
       </div>

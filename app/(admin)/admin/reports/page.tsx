@@ -99,14 +99,14 @@ export default function AdminReportsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 text-gray-400 animate-spin" />
+        <Loader2 className="h-6 w-6 text-text-muted animate-spin" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-[6px] border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-400">{error}</div>
+      <div className="rounded-[6px] border border-brand-danger-10 bg-brand-danger-dim p-4 text-sm text-brand-danger">{error}</div>
     );
   }
 
@@ -122,40 +122,40 @@ export default function AdminReportsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-white tracking-tight">Relatorios</h1>
-        <p className="text-sm text-gray-500 mt-1">Uso do SaaS por empresa</p>
+        <h1 className="text-2xl font-semibold text-text-primary tracking-tight">Relatorios</h1>
+        <p className="text-sm text-text-muted mt-1">Uso do SaaS por empresa</p>
       </div>
 
       {error && (
-        <div className="rounded-[6px] border border-red-500/20 bg-red-500/5 p-3 text-sm text-red-400">{error}</div>
+        <div className="rounded-[6px] border border-brand-danger-10 bg-brand-danger-dim p-3 text-sm text-brand-danger">{error}</div>
       )}
 
       {/* Growth chart */}
       <div className="rounded-[6px] border border-border-default bg-bg-card p-5">
         <div className="flex items-center gap-2 mb-5">
-          <TrendingUp className="h-4 w-4 text-gray-400" />
-          <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider">Crescimento (6 meses)</h2>
+          <TrendingUp className="h-4 w-4 text-text-muted" />
+          <h2 className="text-sm font-medium text-text-muted uppercase tracking-wider">Crescimento (6 meses)</h2>
         </div>
         <div className="grid grid-cols-6 gap-3 h-32">
           {growth.map((g) => {
             const h = (g.tenants / maxTenants) * 100;
             return (
               <div key={g.month} className="flex flex-col items-center justify-end h-full">
-                <span className="text-[10px] text-gray-500 mb-1">{g.tenants}</span>
+                <span className="text-[10px] text-text-muted mb-1">{g.tenants}</span>
                 <div
-                  className="w-full bg-emerald-500/30 rounded-t-[2px]"
+                  className="w-full bg-brand-20 rounded-t-[2px]"
                   style={{ height: `${Math.max(h, 4)}%` }}
                 />
-                <span className="text-[10px] text-gray-600 mt-1.5">
+                <span className="text-[10px] text-text-muted mt-1.5">
                   {g.month.slice(5)}
                 </span>
               </div>
             );
           })}
         </div>
-        <div className="flex items-center gap-4 mt-4 text-[10px] text-gray-600">
+        <div className="flex items-center gap-4 mt-4 text-[10px] text-text-muted">
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-500/40" /> Tenants
+            <span className="w-2 h-2 rounded-full bg-brand-20" /> Tenants
           </span>
           <span>Crescimento mensal acumulado</span>
         </div>
@@ -164,26 +164,26 @@ export default function AdminReportsPage() {
       {/* Plan distribution + tenant leaderboard */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="rounded-[6px] border border-border-default bg-bg-card p-5">
-          <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">Planos</h2>
+          <h2 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">Planos</h2>
           <div className="space-y-3">
             {Object.entries(planCounts)
               .sort(([, a], [, b]) => b - a)
               .map(([plan, count]) => {
                 const pct = tenants.length > 0 ? (count / tenants.length) * 100 : 0;
                 const colors: Record<string, string> = {
-                  free: "bg-gray-500",
-                  starter: "bg-blue-500",
-                  pro: "bg-emerald-500",
-                  enterprise: "bg-amber-500",
+                  free: "bg-border-default",
+                  starter: "bg-brand-info",
+                  pro: "bg-brand",
+                  enterprise: "bg-brand-warning",
                 };
                 return (
                   <div key={plan}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-white capitalize">{plan}</span>
-                      <span className="text-xs text-gray-400">{count} ({pct.toFixed(0)}%)</span>
+                      <span className="text-sm text-text-primary capitalize">{plan}</span>
+                      <span className="text-xs text-text-muted">{count} ({pct.toFixed(0)}%)</span>
                     </div>
-                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full ${colors[plan] || "bg-gray-500"}`} style={{ width: `${pct}%` }} />
+                    <div className="h-1.5 bg-bg-surface rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${colors[plan] || "bg-border-default"}`} style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 );
@@ -194,26 +194,26 @@ export default function AdminReportsPage() {
         {/* Top tenants by activity */}
         <div className="lg:col-span-2 rounded-[6px] border border-border-default bg-bg-card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="h-4 w-4 text-gray-400" />
-            <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider">Empresas Mais Ativas</h2>
+            <BarChart3 className="h-4 w-4 text-text-muted" />
+            <h2 className="text-sm font-medium text-text-muted uppercase tracking-wider">Empresas Mais Ativas</h2>
           </div>
           <div className="space-y-3">
             {tenants.slice(0, 8).map((t, i) => (
               <div key={t.tenant_id}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm text-white">
-                    <span className="text-gray-600 mr-2 text-xs">#{i + 1}</span>
+                  <span className="text-sm text-text-primary">
+                    <span className="text-text-muted mr-2 text-xs">#{i + 1}</span>
                     {t.tenant_name}
                   </span>
-                  <div className="flex items-center gap-3 text-xs text-gray-500">
+                  <div className="flex items-center gap-3 text-xs text-text-muted">
                     <span>{t.user_count} users</span>
                     <span>{t.product_count} prod</span>
-                    <span className="text-emerald-400 font-mono">{t.movement_count} movs</span>
+                    <span className="text-brand font-mono">{t.movement_count} movs</span>
                   </div>
                 </div>
-                <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-bg-surface rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-emerald-500/30 rounded-full"
+                    className="h-full bg-brand-20 rounded-full"
                     style={{ width: `${(t.movement_count / maxMovement) * 100}%` }}
                   />
                 </div>
@@ -225,30 +225,30 @@ export default function AdminReportsPage() {
 
       {/* Full tenant table */}
       <div className="rounded-[6px] border border-border-default bg-bg-card p-5">
-        <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">Todas as Empresas</h2>
+        <h2 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">Todas as Empresas</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border-default">
-                <th className="text-left py-2 text-gray-500 font-medium text-xs">Empresa</th>
-                <th className="text-left py-2 text-gray-500 font-medium text-xs">Plano</th>
-                <th className="text-right py-2 text-gray-500 font-medium text-xs">Users</th>
-                <th className="text-right py-2 text-gray-500 font-medium text-xs">Produtos</th>
-                <th className="text-right py-2 text-gray-500 font-medium text-xs">Locais</th>
-                <th className="text-right py-2 text-gray-500 font-medium text-xs">Movimentacoes</th>
+                <th className="text-left py-2 text-text-muted font-medium text-xs">Empresa</th>
+                <th className="text-left py-2 text-text-muted font-medium text-xs">Plano</th>
+                <th className="text-right py-2 text-text-muted font-medium text-xs">Users</th>
+                <th className="text-right py-2 text-text-muted font-medium text-xs">Produtos</th>
+                <th className="text-right py-2 text-text-muted font-medium text-xs">Locais</th>
+                <th className="text-right py-2 text-text-muted font-medium text-xs">Movimentacoes</th>
               </tr>
             </thead>
             <tbody>
               {tenants.map((t) => (
-                <tr key={t.tenant_id} className="border-b border-border-default last:border-0 hover:bg-white/[0.02]">
-                  <td className="py-2 text-white">{t.tenant_name}</td>
+                <tr key={t.tenant_id} className="border-b border-border-default last:border-0 hover:bg-bg-surface/[0.02]">
+                  <td className="py-2 text-text-primary">{t.tenant_name}</td>
                   <td className="py-2">
-                    <span className="text-[10px] text-gray-400 uppercase">{t.plan}</span>
+                    <span className="text-[10px] text-text-muted uppercase">{t.plan}</span>
                   </td>
-                  <td className="py-2 text-right text-gray-300 font-mono">{t.user_count}</td>
-                  <td className="py-2 text-right text-gray-300 font-mono">{t.product_count}</td>
-                  <td className="py-2 text-right text-gray-300 font-mono">{t.location_count}</td>
-                  <td className="py-2 text-right text-gray-300 font-mono">{t.movement_count}</td>
+                  <td className="py-2 text-right text-text-secondary font-mono">{t.user_count}</td>
+                  <td className="py-2 text-right text-text-secondary font-mono">{t.product_count}</td>
+                  <td className="py-2 text-right text-text-secondary font-mono">{t.location_count}</td>
+                  <td className="py-2 text-right text-text-secondary font-mono">{t.movement_count}</td>
                 </tr>
               ))}
             </tbody>

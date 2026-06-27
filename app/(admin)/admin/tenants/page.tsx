@@ -157,26 +157,26 @@ export default function AdminTenantsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white tracking-tight">Empresas</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-2xl font-semibold text-text-primary tracking-tight">Empresas</h1>
+        <p className="text-sm text-text-muted mt-1">
           {loading ? "Carregando..." : `${tenants.length} tenants · ${tenants.filter((t) => t.subscription_status === "active").length} ativos`}
         </p>
       </div>
 
       {error && (
-        <div className="rounded-[6px] border border-red-500/20 bg-red-500/5 p-3 text-sm text-red-400">
+        <div className="rounded-[6px] border border-brand-danger-10 bg-brand-danger-dim p-3 text-sm text-brand-danger">
           {error}
         </div>
       )}
 
       <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
         <input
           type="text"
           placeholder="Buscar empresa..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full h-10 pl-10 pr-3 rounded-[6px] border border-border-default bg-bg-surface text-sm text-white placeholder:text-gray-500 focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20 transition-colors outline-none"
+          className="w-full h-10 pl-10 pr-3 rounded-[6px] border border-border-default bg-bg-surface text-sm text-text-primary placeholder:text-text-muted focus:border-brand-20 focus:ring-1 focus:ring-brand-dim transition-colors outline-none"
         />
       </div>
 
@@ -198,12 +198,12 @@ export default function AdminTenantsPage() {
             {loading ? (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-12">
-                  <Loader2 className="h-6 w-6 text-gray-400 animate-spin mx-auto" />
+                  <Loader2 className="h-6 w-6 text-text-muted animate-spin mx-auto" />
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-12 text-gray-500">
+                <TableCell colSpan={8} className="text-center py-12 text-text-muted">
                   Nenhuma empresa encontrada
                 </TableCell>
               </TableRow>
@@ -212,8 +212,8 @@ export default function AdminTenantsPage() {
                 <TableRow key={t.id}>
                   <TableCell>
                     <div>
-                      <p className="font-medium text-white">{t.name}</p>
-                      <p className="text-[10px] text-gray-600">{t.slug}</p>
+                      <p className="font-medium text-text-primary">{t.name}</p>
+                      <p className="text-[10px] text-text-muted">{t.slug}</p>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -232,10 +232,10 @@ export default function AdminTenantsPage() {
                       {t.subscription_status?.toUpperCase()}
                     </TechBadge>
                   </TableCell>
-                  <TableCell className="text-center font-mono text-sm text-gray-300">{t.user_count || 0}</TableCell>
-                  <TableCell className="text-center font-mono text-sm text-gray-300">{t.product_count || 0}</TableCell>
-                  <TableCell className="text-center font-mono text-sm text-gray-300">{t.movement_count || 0}</TableCell>
-                  <TableCell className="text-xs text-gray-500">
+                  <TableCell className="text-center font-mono text-sm text-text-secondary">{t.user_count || 0}</TableCell>
+                  <TableCell className="text-center font-mono text-sm text-text-secondary">{t.product_count || 0}</TableCell>
+                  <TableCell className="text-center font-mono text-sm text-text-secondary">{t.movement_count || 0}</TableCell>
+                  <TableCell className="text-xs text-text-muted">
                     {t.created_at ? new Date(t.created_at).toLocaleDateString("pt-BR") : "-"}
                   </TableCell>
                   <TableCell>
@@ -250,9 +250,9 @@ export default function AdminTenantsPage() {
                       {menuOpen === t.id && (
                         <>
                           <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(null)} />
-                          <div className="absolute right-0 top-full mt-1 z-50 w-48 bg-gray-900 border border-border-default rounded-[6px] shadow-xl py-1">
+                          <div className="absolute right-0 top-full mt-1 z-50 w-48 bg-bg-surface border border-border-default rounded-[6px] shadow-xl py-1">
                             <button
-                              className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 flex items-center gap-2"
+                              className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-bg-surface flex items-center gap-2"
                               onClick={() => openEdit(t)}
                             >
                               <Shield className="h-3.5 w-3.5" />
@@ -261,8 +261,8 @@ export default function AdminTenantsPage() {
                             <button
                               className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
                                 t.subscription_status === "active"
-                                  ? "text-red-400 hover:bg-red-500/5"
-                                  : "text-emerald-400 hover:bg-emerald-500/5"
+                                  ? "text-brand-danger hover:bg-brand-danger-dim"
+                                  : "text-brand hover:bg-brand-dim"
                               }`}
                               onClick={() => toggleStatus(t)}
                             >
@@ -293,11 +293,11 @@ export default function AdminTenantsPage() {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider">Plano</label>
+            <label className="block text-xs font-medium text-text-muted mb-1.5 uppercase tracking-wider">Plano</label>
             <select
               value={editPlan}
               onChange={(e) => setEditPlan(e.target.value)}
-              className="flex h-10 w-full rounded-[6px] border border-border-default bg-bg-surface px-3 py-2 text-sm text-white appearance-none focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20 transition-colors outline-none"
+              className="flex h-10 w-full rounded-[6px] border border-border-default bg-bg-surface px-3 py-2 text-sm text-text-primary appearance-none focus:border-brand-20 focus:ring-1 focus:ring-brand-dim transition-colors outline-none"
             >
               <option value="free">Free</option>
               <option value="starter">Starter</option>
@@ -306,11 +306,11 @@ export default function AdminTenantsPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider">Status</label>
+            <label className="block text-xs font-medium text-text-muted mb-1.5 uppercase tracking-wider">Status</label>
             <select
               value={editStatus}
               onChange={(e) => setEditStatus(e.target.value)}
-              className="flex h-10 w-full rounded-[6px] border border-border-default bg-bg-surface px-3 py-2 text-sm text-white appearance-none focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20 transition-colors outline-none"
+              className="flex h-10 w-full rounded-[6px] border border-border-default bg-bg-surface px-3 py-2 text-sm text-text-primary appearance-none focus:border-brand-20 focus:ring-1 focus:ring-brand-dim transition-colors outline-none"
             >
               <option value="active">Ativo</option>
               <option value="trialing">Trial</option>

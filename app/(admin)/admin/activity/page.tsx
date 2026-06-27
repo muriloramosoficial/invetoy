@@ -132,14 +132,14 @@ export default function AdminActivityPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white tracking-tight">Audit Log</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-2xl font-semibold text-text-primary tracking-tight">Audit Log</h1>
+        <p className="text-sm text-text-muted mt-1">
           {loading ? "Carregando..." : `${entries.length} movimentacoes no historico`}
         </p>
       </div>
 
       {error && (
-        <div className="rounded-[6px] border border-red-500/20 bg-red-500/5 p-3 text-sm text-red-400">{error}</div>
+        <div className="rounded-[6px] border border-brand-danger-10 bg-brand-danger-dim p-3 text-sm text-brand-danger">{error}</div>
       )}
 
       {/* Filters */}
@@ -156,8 +156,8 @@ export default function AdminActivityPage() {
             onClick={() => setFilter(f.value)}
             className={`px-3 py-1.5 text-xs rounded-[4px] border transition-colors ${
               filter === f.value
-                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-                : "border-border-default text-gray-400 hover:text-white hover:border-gray-600"
+                ? "bg-brand-dim border-brand-20 text-brand"
+                : "border-border-default text-text-muted hover:text-text-primary hover:border-border-default"
             }`}
           >
             {f.label}
@@ -169,39 +169,39 @@ export default function AdminActivityPage() {
       <div className="rounded-[6px] border border-border-default overflow-hidden">
         {loading ? (
           <div className="py-12 text-center">
-            <Loader2 className="h-6 w-6 text-gray-400 animate-spin mx-auto" />
+            <Loader2 className="h-6 w-6 text-text-muted animate-spin mx-auto" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="py-12 text-center text-gray-500">Nenhuma atividade encontrada</div>
+          <div className="py-12 text-center text-text-muted">Nenhuma atividade encontrada</div>
         ) : (
           <div className="divide-y divide-border-default">
             {filtered.map((entry) => {
               const config = typeConfig[entry.type] || { label: entry.type, color: "gray" as const, icon: <Activity className="h-3 w-3" /> };
               return (
-                <div key={entry.id} className="px-5 py-3 hover:bg-white/[0.02] transition-colors">
+                <div key={entry.id} className="px-5 py-3 hover:bg-bg-surface/[0.02] transition-colors">
                   <div className="flex items-start gap-3">
                     <div className={`p-1.5 rounded-[4px] mt-0.5 ${
-                      config.color === "green" ? "bg-emerald-500/10" :
-                      config.color === "red" ? "bg-red-500/10" :
-                      config.color === "blue" ? "bg-blue-500/10" :
-                      config.color === "yellow" ? "bg-amber-500/10" :
-                      "bg-white/5"
+                      config.color === "green" ? "bg-brand-8" :
+                      config.color === "red" ? "bg-brand-danger-10" :
+                      config.color === "blue" ? "bg-brand-info-8" :
+                      config.color === "yellow" ? "bg-brand-warning-8" :
+                      "bg-bg-surface"
                     }`}>
                       {config.icon}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm text-white">{entry.description}</p>
+                        <p className="text-sm text-text-primary">{entry.description}</p>
                         <TechBadge variant={config.color}>{config.label}</TechBadge>
                       </div>
-                      <div className="flex items-center gap-2 mt-1 text-[10px] text-gray-600">
+                      <div className="flex items-center gap-2 mt-1 text-[10px] text-text-muted">
                         <Building2 className="h-3 w-3" />
                         {entry.tenant_name}
                         <span>·</span>
                         {entry.created_at ? new Date(entry.created_at).toLocaleString("pt-BR") : "-"}
                       </div>
                       {entry.details && entry.details !== entry.description && (
-                        <p className="text-xs text-gray-500 mt-1 italic">{entry.details}</p>
+                        <p className="text-xs text-text-muted mt-1 italic">{entry.details}</p>
                       )}
                     </div>
                   </div>

@@ -104,14 +104,14 @@ export default function AdminDashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 text-gray-400 animate-spin" />
+        <Loader2 className="h-6 w-6 text-text-muted animate-spin" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-[6px] border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-400">
+      <div className="rounded-[6px] border border-brand-danger-10 bg-brand-danger-dim p-4 text-sm text-brand-danger">
         {error}
       </div>
     );
@@ -132,8 +132,8 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-white tracking-tight">Overview</h1>
-        <p className="text-sm text-gray-500 mt-1">Health do SaaS em tempo real</p>
+        <h1 className="text-2xl font-semibold text-text-primary tracking-tight">Overview</h1>
+        <p className="text-sm text-text-muted mt-1">Health do SaaS em tempo real</p>
       </div>
 
       {/* North star metrics */}
@@ -144,16 +144,16 @@ export default function AdminDashboardPage() {
           total={data.total_tenants}
           suffix={`de ${data.total_tenants}`}
           icon={<Building2 className="h-4 w-4" />}
-          color="text-emerald-400"
-          bg="bg-emerald-500/10"
+          color="text-brand"
+          bg="bg-brand-8"
         />
         <MetricCard
           label="Usuarios Totais"
           value={data.total_users}
           suffix={`+${data.new_users_30d} mes`}
           icon={<Users className="h-4 w-4" />}
-          color="text-blue-400"
-          bg="bg-blue-500/10"
+          color="text-brand-info"
+          bg="bg-brand-info-8"
           trend={data.new_users_7d > 0 ? "up" : "down"}
           trendValue={`+${data.new_users_7d} sem`}
         />
@@ -163,8 +163,8 @@ export default function AdminDashboardPage() {
           suffix="%"
           suffixLabel="trial → active"
           icon={<TrendingUp className="h-4 w-4" />}
-          color="text-violet-400"
-          bg="bg-violet-500/10"
+          color="text-brand"
+          bg="bg-brand-8"
         />
         <MetricCard
           label="Churn"
@@ -172,8 +172,8 @@ export default function AdminDashboardPage() {
           suffix="%"
           suffixLabel="cancelados"
           icon={<AlertTriangle className="h-4 w-4" />}
-          color="text-amber-400"
-          bg="bg-amber-500/10"
+          color="text-brand-warning"
+          bg="bg-brand-warning-8"
           trend={parseFloat(churnRate) > 10 ? "down" : "up"}
         />
       </div>
@@ -182,27 +182,27 @@ export default function AdminDashboardPage() {
       <div className="rounded-[6px] border border-border-default bg-bg-card p-5">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
-            <Activity className="h-4 w-4 text-gray-400" />
-            <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider">Cadastros (14 dias)</h2>
+            <Activity className="h-4 w-4 text-text-muted" />
+            <h2 className="text-sm font-medium text-text-muted uppercase tracking-wider">Cadastros (14 dias)</h2>
           </div>
-          <span className="text-xs text-gray-500">+{data.new_users_7d} esta semana</span>
+          <span className="text-xs text-text-muted">+{data.new_users_7d} esta semana</span>
         </div>
         <div className="flex items-end gap-1 h-28">
           {data.recent_activity.map((d) => {
             const height = (d.signups / maxDaily) * 100;
             return (
               <div key={d.date} className="flex-1 flex flex-col items-center gap-1 group relative">
-                <div className="absolute -top-8 hidden group-hover:block bg-gray-800 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap z-10">
+                <div className="absolute -top-8 hidden group-hover:block bg-bg-surface text-text-primary text-[10px] px-2 py-1 rounded whitespace-nowrap z-10">
                   {d.date.slice(5, 10)}: {d.signups} cadastro{d.signups !== 1 ? "s" : ""}
                 </div>
                 <div
-                  className="w-full bg-blue-500/30 hover:bg-blue-500/50 rounded-t-[2px] transition-colors cursor-default"
+                  className="w-full bg-brand-info-20 hover:bg-brand-info-20 rounded-t-[2px] transition-colors cursor-default"
                   style={{ height: `${Math.max(height, d.signups > 0 ? 8 : 2)}%` }}
                 />
                 {d.date.endsWith("-01") || d.date.endsWith("-08") || d.date.endsWith("-15") || d.date.endsWith("-22") ? (
-                  <span className="text-[9px] text-gray-600">{d.date.slice(5, 10)}</span>
+                  <span className="text-[9px] text-text-muted">{d.date.slice(5, 10)}</span>
                 ) : (
-                  <span className="text-[9px] text-gray-700">{d.date.slice(8, 10)}</span>
+                  <span className="text-[9px] text-text-muted">{d.date.slice(8, 10)}</span>
                 )}
               </div>
             );
@@ -214,39 +214,39 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="rounded-[6px] border border-border-default bg-bg-card p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-[4px] bg-emerald-500/10">
-              <DollarSign className="h-4 w-4 text-emerald-400" />
+            <div className="p-2 rounded-[4px] bg-brand-8">
+              <DollarSign className="h-4 w-4 text-brand" />
             </div>
             <div>
-              <p className="text-xs text-gray-500">Trial</p>
-              <p className="text-xl font-bold text-white">{data.trial_tenants}</p>
+              <p className="text-xs text-text-muted">Trial</p>
+              <p className="text-xl font-bold text-text-primary">{data.trial_tenants}</p>
             </div>
           </div>
-          <p className="text-[10px] text-gray-600 mt-2">Empresas em periodo de teste</p>
+          <p className="text-[10px] text-text-muted mt-2">Empresas em periodo de teste</p>
         </div>
         <div className="rounded-[6px] border border-border-default bg-bg-card p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-[4px] bg-blue-500/10">
-              <UserPlus className="h-4 w-4 text-blue-400" />
+            <div className="p-2 rounded-[4px] bg-brand-info-8">
+              <UserPlus className="h-4 w-4 text-brand-info" />
             </div>
             <div>
-              <p className="text-xs text-gray-500">Produtos Total</p>
-              <p className="text-xl font-bold text-white">{data.total_products.toLocaleString("pt-BR")}</p>
+              <p className="text-xs text-text-muted">Produtos Total</p>
+              <p className="text-xl font-bold text-text-primary">{data.total_products.toLocaleString("pt-BR")}</p>
             </div>
           </div>
-          <p className="text-[10px] text-gray-600 mt-2">Itens cadastrados no sistema</p>
+          <p className="text-[10px] text-text-muted mt-2">Itens cadastrados no sistema</p>
         </div>
         <div className="rounded-[6px] border border-border-default bg-bg-card p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-[4px] bg-violet-500/10">
-              <Activity className="h-4 w-4 text-violet-400" />
+            <div className="p-2 rounded-[4px] bg-brand-8">
+              <Activity className="h-4 w-4 text-brand" />
             </div>
             <div>
-              <p className="text-xs text-gray-500">Movimentacoes</p>
-              <p className="text-xl font-bold text-white">{data.total_movements.toLocaleString("pt-BR")}</p>
+              <p className="text-xs text-text-muted">Movimentacoes</p>
+              <p className="text-xl font-bold text-text-primary">{data.total_movements.toLocaleString("pt-BR")}</p>
             </div>
           </div>
-          <p className="text-[10px] text-gray-600 mt-2">Total de operacoes registradas</p>
+          <p className="text-[10px] text-text-muted mt-2">Total de operacoes registradas</p>
         </div>
       </div>
     </div>
@@ -279,21 +279,21 @@ function MetricCard({
   return (
     <div className="rounded-[6px] border border-border-default bg-bg-card p-4">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">{label}</span>
+        <span className="text-xs font-medium text-text-muted uppercase tracking-wider">{label}</span>
         <div className={`p-1.5 rounded-[4px] ${bg}`}>{icon}</div>
       </div>
       <div className="flex items-baseline gap-2">
-        <span className={`text-2xl font-bold text-white`}>{typeof value === "number" && value % 1 !== 0 ? value.toFixed(1) : value}</span>
-        {suffix && <span className="text-sm text-gray-500">{suffix}</span>}
+        <span className={`text-2xl font-bold text-text-primary`}>{typeof value === "number" && value % 1 !== 0 ? value.toFixed(1) : value}</span>
+        {suffix && <span className="text-sm text-text-muted">{suffix}</span>}
       </div>
       <div className="flex items-center gap-2 mt-2">
         {trend && (
-          <span className={`flex items-center gap-0.5 text-[10px] font-medium ${trend === "up" ? "text-emerald-400" : "text-red-400"}`}>
+          <span className={`flex items-center gap-0.5 text-[10px] font-medium ${trend === "up" ? "text-brand" : "text-brand-danger"}`}>
             {trend === "up" ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
             {trendValue}
           </span>
         )}
-        {suffixLabel && <span className="text-[10px] text-gray-600">{suffixLabel}</span>}
+        {suffixLabel && <span className="text-[10px] text-text-muted">{suffixLabel}</span>}
       </div>
     </div>
   );
