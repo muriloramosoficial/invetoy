@@ -41,7 +41,23 @@ export default function LoginPage() {
           setError(result.error || "Erro ao fazer login");
         }
       } else {
-        router.push("/dashboard");
+        const { createClient } = await import("@/lib/supabase/client");
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("is_system_admin")
+            .eq("id", user.id)
+            .single();
+          if (profile?.is_system_admin) {
+            router.push("/admin");
+          } else {
+            router.push("/dashboard");
+          }
+        } else {
+          router.push("/dashboard");
+        }
       }
     } catch {
       setError("Erro de conexao. Tente novamente.");

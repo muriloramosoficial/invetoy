@@ -31,11 +31,15 @@ export default function DashboardLayout({
 
         const { data: profile } = await supabase
           .from("profiles")
-          .select("name, tenants(name)")
+          .select("name, is_system_admin, tenants(name)")
           .eq("id", user.id)
           .single();
 
         if (!cancelled && profile) {
+          if (profile.is_system_admin) {
+            router.push("/admin");
+            return;
+          }
           setUserName(profile.name);
           if (profile.tenants && typeof profile.tenants === 'object' && 'name' in profile.tenants) {
             setTenantName((profile.tenants as { name: string }).name);
