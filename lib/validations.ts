@@ -27,11 +27,8 @@ export const registerSchema = z.object({
     .transform((v) => v.toLowerCase().trim()),
   password: z
     .string()
-    .min(8, "Senha deve ter no mínimo 8 caracteres")
-    .max(128, "Senha muito longa")
-    .regex(/[A-Z]/, "Senha deve conter pelo menos uma letra maiúscula")
-    .regex(/[a-z]/, "Senha deve conter pelo menos uma letra minúscula")
-    .regex(/[0-9]/, "Senha deve conter pelo menos um número"),
+    .min(6, "Senha deve ter no mínimo 6 caracteres")
+    .max(128, "Senha muito longa"),
   companyName: z
     .string()
     .min(2, "Nome da empresa deve ter no mínimo 2 caracteres")
@@ -42,13 +39,15 @@ export const registerSchema = z.object({
     .regex(/^\d{11}$/, "CPF deve ter 11 dígitos")
     .optional()
     .nullable()
-    .transform((v) => v || null),
+    .or(z.literal(""))
+    .transform((v) => (v && v !== "" ? v : null)),
   cnpj: z
     .string()
     .regex(/^\d{14}$/, "CNPJ deve ter 14 dígitos")
     .optional()
     .nullable()
-    .transform((v) => v || null),
+    .or(z.literal(""))
+    .transform((v) => (v && v !== "" ? v : null)),
 });
 
 // ─── V1 API Products ───
