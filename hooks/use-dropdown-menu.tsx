@@ -7,15 +7,19 @@ interface MenuPosition {
   right: number;
 }
 
+type MenuDirection = "down" | "up";
+
 /**
  * Hook gerenciador de dropdown menus com:
  * - Posicionamento fixed para evitar overflow clipping
+ * - Abre para cima se nao houver espaco suficiente abaixo
  * - Fechamento automático ao scrollar a página
  * - Fechamento ao clicar fora (backdrop)
  */
-export function useDropdownMenu() {
+export function useDropdownMenu(menuHeight: number = 300) {
   const [openId, setOpenId] = useState<string | null>(null);
   const [menuPos, setMenuPos] = useState<MenuPosition | null>(null);
+  const [direction, setDirection] = useState<MenuDirection>("down");
 
   // Close menu on scroll
   useEffect(() => {
@@ -34,10 +38,21 @@ export function useDropdownMenu() {
       setMenuPos(null);
     } else {
       const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-      setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+
+      if (spaceBelow >= menuHeight + 8 || spaceBelow >= spaceAbove) {
+        // Abre para baixo
+        setDirection("down");
+        setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+      } else {
+        // Abre para cima
+        setDirection("up");
+        setMenuPos({ top: rect.top - 4, right: window.innerWidth - rect.right });
+      }
       setOpenId(id);
     }
-  }, [openId]);
+  }, [openId, menuHeight]);
 
   const close = useCallback(() => {
     setOpenId(null);
@@ -47,6 +62,7 @@ export function useDropdownMenu() {
   return {
     openId,
     menuPos,
+    direction,
     toggle,
     close,
     isOpen: (id: string) => openId === id,
@@ -71,19 +87,34 @@ interface MenuPanelProps {
   width?: string;
 }
 
+interface MenuPanelProps {
+  children: React.ReactNode;
+  menuPos: MenuPosition;
+  direction: MenuDirection;
+  width?: string;
+}
+
 /**
  * Componente do painel do menu dropdown com posicionamento fixed.
+ * - Abre para baixo: top = bottom do botao, bordas arredondadas normais
+ * - Abre para cima: top = top do botao - altura, bordas invertidas
  */
-export function MenuPanel({ children, menuPos, width = "w-52" }: MenuPanelProps) {
+export function MenuPanel({ children, menuPos, direction, width = "w-52" }: MenuPanelProps) {
   return (
     <div
       className={`fixed z-[70] ${width} bg-bg-surface border border-border-default rounded-[6px] shadow-xl py-1`}
-      style={{ top: menuPos.top, right: menuPos.right }}
+      style={{
+        top: direction === "down" ? menuPos.top : menuPos.top,
+        right: menuPos.right,
+        transform: direction === "up" ? "translateY(-100%)" : undefined,
+      }}
     >
       {children}
     </div>
   );
 }
+
+export type { MenuPosition, MenuDirection };
 
 export interface MenuItemProps {
   onClick: () => void;

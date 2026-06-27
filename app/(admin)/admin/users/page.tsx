@@ -422,7 +422,7 @@ export default function AdminUsersPage() {
         return (
           <>
             <MenuBackdrop onClick={menu.close} />
-            <MenuPanel menuPos={menu.menuPos} width="w-56">
+            <MenuPanel menuPos={menu.menuPos} direction={menu.direction} width="w-56">
               {/* Toggle system admin */}
               <MenuItem
                 onClick={() => { menu.close(); toggleAdmin(u.id, u.is_system_admin); }}

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { cn } from "@/lib/utils";
-import { Shield, Menu, User, Settings, LogOut, Search } from "lucide-react";
+import { Shield, Menu, User, Settings, LogOut, Search, LayoutDashboard } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -144,11 +144,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   />
                   <div className="absolute right-0 top-full mt-1 z-20 w-48 rounded-[6px] border border-border-default bg-bg-secondary shadow-xl py-1">
                     <Link
-                      href="/admin"
+                      href="/settings"
                       onClick={() => setUserMenuOpen(false)}
                       className="flex items-center gap-2 w-full px-3 py-2 text-sm text-text-secondary hover:bg-bg-surface-hover hover:text-text-primary transition-colors"
                     >
                       <Settings className="h-4 w-4" />
+                      Configuracoes
+                    </Link>
+                    <Link
+                      href="/admin"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-text-secondary hover:bg-bg-surface-hover hover:text-text-primary transition-colors"
+                    >
+                      <LayoutDashboard className="h-4 w-4" />
                       Painel Administrativo
                     </Link>
                     <hr className="border-border-default my-1" />

@@ -307,7 +307,7 @@ export default function AdminTenantsPage() {
         return (
           <>
             <MenuBackdrop onClick={menu.close} />
-            <MenuPanel menuPos={menu.menuPos} width="w-48">
+            <MenuPanel menuPos={menu.menuPos} direction={menu.direction} width="w-48">
               <MenuItem
                 onClick={() => { menu.close(); openEdit(t); }}
               >
