@@ -7,15 +7,16 @@
  * ─────────────────────────────────────────────────────────── */
 
 /* ── CSS Custom Properties (replacing @theme which doesn't generate utilities in Turbopack) ── */
-:root {
-  /* Backgrounds */
+
+/* ── Dark mode (default) ── */
+:root,
+[data-theme="dark"] {
   --color-bg-primary: #121212;
   --color-bg-secondary: #1c1c1c;
   --color-bg-surface: #242424;
   --color-bg-surface-hover: #2a2a2a;
   --color-bg-elevated: #2e2e2e;
 
-  /* Brand */
   --color-brand: #3ECF8E;
   --color-brand-hover: #45d99a;
   --color-brand-dim: rgba(62, 207, 142, 0.12);
@@ -24,38 +25,68 @@
   --color-brand-danger: #E5484D;
   --color-brand-danger-dim: rgba(229, 72, 77, 0.12);
 
-  /* Borders */
   --color-border-default: #333333;
   --color-border-muted: #2a2a2a;
   --color-border-brand: rgba(62, 207, 142, 0.3);
 
-  /* Text */
   --color-text-primary: #EDEDED;
   --color-text-secondary: #A1A1AA;
   --color-text-muted: #52525B;
   --color-text-brand: #3ECF8E;
 
-  /* Badges */
   --color-badge-bg: rgba(62, 207, 142, 0.08);
   --color-badge-border: rgba(62, 207, 142, 0.2);
 
-  /* Chart */
   --color-chart-line: #3ECF8E;
   --color-chart-area: rgba(62, 207, 142, 0.08);
   --color-chart-grid: #2a2a2a;
+}
 
-  /* Fonts */
+/* ── Light mode ── */
+[data-theme="light"] {
+  --color-bg-primary: #FFFFFF;
+  --color-bg-secondary: #F5F5F5;
+  --color-bg-surface: #EDEDED;
+  --color-bg-surface-hover: #E5E5E5;
+  --color-bg-elevated: #E0E0E0;
+
+  --color-brand: #059669;
+  --color-brand-hover: #047857;
+  --color-brand-dim: rgba(5, 150, 105, 0.08);
+  --color-brand-info: #2563EB;
+  --color-brand-warning: #D97706;
+  --color-brand-danger: #DC2626;
+  --color-brand-danger-dim: rgba(220, 38, 38, 0.08);
+
+  --color-border-default: #D4D4D4;
+  --color-border-muted: #E5E5E5;
+  --color-border-brand: rgba(5, 150, 105, 0.2);
+
+  --color-text-primary: #171717;
+  --color-text-secondary: #52525B;
+  --color-text-muted: #A1A1AA;
+  --color-text-brand: #059669;
+
+  --color-badge-bg: rgba(5, 150, 105, 0.06);
+  --color-badge-border: rgba(5, 150, 105, 0.15);
+
+  --color-chart-line: #059669;
+  --color-chart-area: rgba(5, 150, 105, 0.06);
+  --color-chart-grid: #E5E5E5;
+}
+
+/* Shared */
+:root {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
 
-  /* Radius */
   --radius-button: 4px;
   --radius-card: 6px;
   --radius-modal: 8px;
 }
 
-/* ── Noise Texture (SVG data URI overlay) ── */
-body::before {
+/* ── Noise Texture (SVG data URI overlay) - dark only ── */
+[data-theme="dark"] body::before {
   content: "";
   position: fixed;
   inset: 0;

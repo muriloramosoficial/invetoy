@@ -43,6 +43,9 @@ export default function RootLayout({
     >
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <script dangerouslySetInnerHTML={{
+          __html: `(function(){try{var t=localStorage.getItem("invetoy-theme")||(matchMedia("(prefers-color-scheme:light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t)}catch(e){}})()`
+        }} />
       </head>
       <body className="h-full bg-bg-primary text-text-primary font-sans antialiased">
           {children}

@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { User, Shield, Check, Loader2, Eye, EyeOff, X } from "lucide-react";
+import { User, Shield, Check, Loader2, Eye, EyeOff, X, Sun, Moon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useTheme } from "@/components/providers";
 
 export default function AdminSettingsPage() {
+  const { theme, setTheme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -202,6 +204,47 @@ export default function AdminSettingsPage() {
           <Button onClick={handleProfileSave} disabled={saving}>
             {saving ? "Salvando..." : "Salvar Perfil"}
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Aparencia - Tema */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            {theme === "dark" ? <Moon className="h-4 w-4 text-text-muted" /> : <Sun className="h-4 w-4 text-text-muted" />}
+            <CardTitle>Aparencia</CardTitle>
+          </div>
+          <CardDescription>Escolha entre tema claro e escuro</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setTheme("dark")}
+              className={`flex-1 p-4 rounded-[6px] border-2 transition-all ${
+                theme === "dark"
+                  ? "border-brand bg-brand-5"
+                  : "border-border-default bg-bg-surface hover:border-[#444]"
+              }`}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <Moon className={`h-6 w-6 ${theme === "dark" ? "text-brand" : "text-text-muted"}`} />
+                <span className={`text-sm font-medium ${theme === "dark" ? "text-brand" : "text-text-secondary"}`}>Escuro</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setTheme("light")}
+              className={`flex-1 p-4 rounded-[6px] border-2 transition-all ${
+                theme === "light"
+                  ? "border-brand bg-brand-5"
+                  : "border-border-default bg-bg-surface hover:border-[#444]"
+              }`}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <Sun className={`h-6 w-6 ${theme === "light" ? "text-brand" : "text-text-muted"}`} />
+                <span className={`text-sm font-medium ${theme === "light" ? "text-brand" : "text-text-secondary"}`}>Claro</span>
+              </div>
+            </button>
+          </div>
         </CardContent>
       </Card>
 

@@ -2,17 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { authenticateV1Request, V1AuthError } from "@/lib/api/v1-auth";
 import { createMovementSchema } from "@/lib/validations";
-import { v1ApiRatelimit, v1ApiWriteRatelimit } from "@/lib/upstash-ratelimit";
 
 export async function GET(req: NextRequest) {
   try {
-    // Rate limiting
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "127.0.0.1";
-    const { success } = await v1ApiRatelimit.limit(ip);
-    if (!success) {
-      return NextResponse.json({ error: "Muitas requisicoes. Tente novamente mais tarde." }, { status: 429 });
-    }
-
     const { tenantId } = await authenticateV1Request(req);
 
     const adminClient = createClient(
@@ -71,13 +63,6 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    // Rate limiting for writes
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "127.0.0.1";
-    const { success } = await v1ApiWriteRatelimit.limit(ip);
-    if (!success) {
-      return NextResponse.json({ error: "Muitas requisicoes. Tente novamente mais tarde." }, { status: 429 });
-    }
-
     const { tenantId } = await authenticateV1Request(req);
 
     const adminClient = createClient(
