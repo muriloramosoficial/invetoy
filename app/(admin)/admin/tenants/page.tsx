@@ -27,6 +27,7 @@ import {
   Play,
   ExternalLink,
 } from "lucide-react";
+import { useDropdownMenu, MenuBackdrop, MenuPanel, MenuItem } from "@/hooks/use-dropdown-menu";
 
 interface TenantRow {
   id: string;
@@ -47,8 +48,7 @@ export default function AdminTenantsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [menuOpen, setMenuOpen] = useState<string | null>(null);
-  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
+  const menu = useDropdownMenu();
   const [editModal, setEditModal] = useState<TenantRow | null>(null);
   const [editPlan, setEditPlan] = useState("free");
   const [editStatus, setEditStatus] = useState("active");
@@ -117,7 +117,7 @@ export default function AdminTenantsPage() {
     setEditModal(t);
     setEditPlan(t.plan);
     setEditStatus(t.subscription_status);
-    setMenuOpen(null);
+    menu.close();
   };
 
   const handleSaveTenant = async () => {
@@ -140,7 +140,7 @@ export default function AdminTenantsPage() {
   };
 
   const toggleStatus = async (t: TenantRow) => {
-    setMenuOpen(null);
+    menu.close();
     const newStatus = t.subscription_status === "active" ? "canceled" : "active";
     try {
       const supabase = createClient();
@@ -243,16 +243,7 @@ export default function AdminTenantsPage() {
                         <Button
                           variant="ghost"
                           size="icon-sm"
-                          onClick={(e) => {
-                            if (menuOpen === t.id) {
-                              setMenuOpen(null);
-                              setMenuPos(null);
-                            } else {
-                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                              setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
-                              setMenuOpen(t.id);
-                            }
-                          }}
+                          onClick={(e) => menu.toggle(t.id, e)}
                         >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
@@ -309,39 +300,34 @@ export default function AdminTenantsPage() {
           </DialogFooter>
         </div>
       </Dialog>
-      {/* Dropdown menu (fixed position - always above overflow containers) */}
-      {menuOpen && menuPos && (() => {
-        const t = tenants.find((x) => x.id === menuOpen);
+      {/* Dropdown menu using useDropdownMenu hook */}
+      {menu.openId && menu.menuPos && (() => {
+        const t = tenants.find((x) => x.id === menu.openId);
         if (!t) return null;
         return (
           <>
-            <div className="fixed inset-0 z-[60]" onClick={() => { setMenuOpen(null); setMenuPos(null); }} />
-            <div
-              className="fixed z-[70] w-48 bg-bg-surface border border-border-default rounded-[6px] shadow-xl py-1"
-              style={{ top: menuPos.top, right: menuPos.right }}
-            >
-              <button
-                className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-bg-surface flex items-center gap-2"
-                onClick={() => { setMenuOpen(null); setMenuPos(null); openEdit(t); }}
+            <MenuBackdrop onClick={menu.close} />
+            <MenuPanel menuPos={menu.menuPos} width="w-48">
+              <MenuItem
+                onClick={() => { menu.close(); openEdit(t); }}
               >
                 <Shield className="h-3.5 w-3.5" />
                 Gerenciar plano
-              </button>
-              <button
-                className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
-                  t.subscription_status === "active"
-                    ? "text-brand-danger hover:bg-brand-danger-dim"
-                    : "text-brand hover:bg-brand-dim"
-                }`}
-                onClick={() => { setMenuOpen(null); setMenuPos(null); toggleStatus(t); }}
+              </MenuItem>
+              <MenuItem
+                onClick={() => { menu.close(); toggleStatus(t); }}
+                className={t.subscription_status === "active"
+                  ? "text-brand-danger hover:bg-brand-danger-dim"
+                  : "text-brand hover:bg-brand-dim"
+                }
               >
                 {t.subscription_status === "active" ? (
                   <><Ban className="h-3.5 w-3.5" /> Suspender</>
                 ) : (
                   <><Play className="h-3.5 w-3.5" /> Ativar</>
                 )}
-              </button>
-            </div>
+              </MenuItem>
+            </MenuPanel>
           </>
         );
       })()}

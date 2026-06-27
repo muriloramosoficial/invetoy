@@ -1,17 +1,96 @@
 // ─── ASAAS - Brazilian Payment Gateway Integration ───
 // Sandbox: https://sandbox.asaas.com
 // Docs: https://docs.asaas.com
+//
+// CRITICAL: API keys should be fetched from the database (tenants table)
+// and passed as parameters. Do NOT rely on process.env.ASAAS_API_KEY.
 
-const ASAAS_API_URL = process.env.ASAAS_SANDBOX
-  ? "https://api-sandbox.asaas.com/v3"
-  : "https://api.asaas.com/v3";
+import { createClient } from "@supabase/supabase-js";
 
-function getHeaders() {
+const ASAAS_SANDBOX_URL = "https://api-sandbox.asaas.com/v3";
+const ASAAS_PRODUCTION_URL = "https://api.asaas.com/v3";
+
+// ─── Fetch Asaas config from the tenant's database record ───
+
+export interface AsaasTenantConfig {
+  apiKey: string;
+  baseUrl: string;
+  env: "sandbox" | "production";
+  webhookUrl?: string;
+  webhookSecret?: string;
+}
+
+/**
+ * Fetch the Asaas configuration for a given tenant from the database.
+ * Uses SERVICE_ROLE to bypass RLS.
+ */
+export async function getAsaasConfig(tenantId: string): Promise<AsaasTenantConfig> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+
+  const { data: tenant, error } = await supabase
+    .from("tenants")
+    .select("asaas_api_key_sandbox, asaas_api_key_production, asaas_env")
+    .eq("id", tenantId)
+    .single();
+
+  if (error || !tenant) {
+    throw new Error("Tenant not found or Asaas config unavailable");
+  }
+
+  const env = (tenant.asaas_env || "sandbox") as "sandbox" | "production";
+  const apiKey = env === "production"
+    ? tenant.asaas_api_key_production
+    : tenant.asaas_api_key_sandbox;
+
+  if (!apiKey) {
+    throw new Error(
+      `Asaas API key not configured for ${env} environment. ` +
+      `Go to /admin/asaas-config to set it up.`
+    );
+  }
+
+  return {
+    apiKey,
+    baseUrl: env === "production" ? ASAAS_PRODUCTION_URL : ASAAS_SANDBOX_URL,
+    env,
+  };
+}
+
+/**
+ * Get Asaas config using the user's auth session (profiles -> tenant_id).
+ */
+export async function getAsaasConfigForUser(userId: string): Promise<AsaasTenantConfig> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("tenant_id")
+    .eq("id", userId)
+    .single();
+
+  if (!profile?.tenant_id) {
+    throw new Error("Profile not found");
+  }
+
+  return getAsaasConfig(profile.tenant_id);
+}
+
+// ─── HTTP helpers ───
+
+function getHeaders(apiKey: string) {
   return {
     "Content-Type": "application/json",
-    "access_token": process.env.ASAAS_API_KEY!,
+    "access_token": apiKey,
     "User-Agent": "INVENTOY/1.0.0",
-  };
+  } as const;
 }
 
 // ─── Customers ───
@@ -31,15 +110,19 @@ export interface AsaasCustomer {
   notificationDisabled?: boolean;
 }
 
-export async function createAsaasCustomer(data: {
-  name: string;
-  email: string;
-  cpfCnpj?: string;
-  phone?: string;
-}): Promise<AsaasCustomer> {
-  const res = await fetch(`${ASAAS_API_URL}/customers`, {
+export async function createAsaasCustomer(
+  apiKey: string,
+  baseUrl: string,
+  data: {
+    name: string;
+    email: string;
+    cpfCnpj?: string;
+    phone?: string;
+  }
+): Promise<AsaasCustomer> {
+  const res = await fetch(`${baseUrl}/customers`, {
     method: "POST",
-    headers: getHeaders(),
+    headers: getHeaders(apiKey),
     body: JSON.stringify(data),
   });
 
@@ -51,9 +134,13 @@ export async function createAsaasCustomer(data: {
   return res.json();
 }
 
-export async function getAsaasCustomer(id: string): Promise<AsaasCustomer> {
-  const res = await fetch(`${ASAAS_API_URL}/customers/${id}`, {
-    headers: getHeaders(),
+export async function getAsaasCustomer(
+  apiKey: string,
+  baseUrl: string,
+  id: string
+): Promise<AsaasCustomer> {
+  const res = await fetch(`${baseUrl}/customers/${id}`, {
+    headers: getHeaders(apiKey),
   });
 
   if (!res.ok) throw new Error("Failed to fetch ASAAS customer");
@@ -95,11 +182,13 @@ export interface CreateSubscriptionData {
 }
 
 export async function createAsaasSubscription(
+  apiKey: string,
+  baseUrl: string,
   data: CreateSubscriptionData
 ): Promise<AsaasSubscription> {
-  const res = await fetch(`${ASAAS_API_URL}/subscriptions`, {
+  const res = await fetch(`${baseUrl}/subscriptions`, {
     method: "POST",
-    headers: getHeaders(),
+    headers: getHeaders(apiKey),
     body: JSON.stringify(data),
   });
 
@@ -111,10 +200,14 @@ export async function createAsaasSubscription(
   return res.json();
 }
 
-export async function cancelAsaasSubscription(id: string): Promise<void> {
-  const res = await fetch(`${ASAAS_API_URL}/subscriptions/${id}`, {
+export async function cancelAsaasSubscription(
+  apiKey: string,
+  baseUrl: string,
+  id: string
+): Promise<void> {
+  const res = await fetch(`${baseUrl}/subscriptions/${id}`, {
     method: "DELETE",
-    headers: getHeaders(),
+    headers: getHeaders(apiKey),
   });
 
   if (!res.ok) throw new Error("Failed to cancel ASAAS subscription");
@@ -137,19 +230,27 @@ export interface AsaasPayment {
   pixCopiaECola?: string;
 }
 
-export async function getAsaasPayment(id: string): Promise<AsaasPayment> {
-  const res = await fetch(`${ASAAS_API_URL}/payments/${id}`, {
-    headers: getHeaders(),
+export async function getAsaasPayment(
+  apiKey: string,
+  baseUrl: string,
+  id: string
+): Promise<AsaasPayment> {
+  const res = await fetch(`${baseUrl}/payments/${id}`, {
+    headers: getHeaders(apiKey),
   });
 
   if (!res.ok) throw new Error("Failed to fetch ASAAS payment");
   return res.json();
 }
 
-export async function listAsaasPayments(subscriptionId: string): Promise<AsaasPayment[]> {
+export async function listAsaasPayments(
+  apiKey: string,
+  baseUrl: string,
+  subscriptionId: string
+): Promise<AsaasPayment[]> {
   const res = await fetch(
-    `${ASAAS_API_URL}/payments?subscription=${subscriptionId}`,
-    { headers: getHeaders() }
+    `${baseUrl}/payments?subscription=${subscriptionId}`,
+    { headers: getHeaders(apiKey) }
   );
 
   if (!res.ok) throw new Error("Failed to list ASAAS payments");
@@ -165,10 +266,14 @@ export interface PixQrCode {
   expirationDate: string;
 }
 
-export async function getPixQrCode(paymentId: string): Promise<PixQrCode> {
+export async function getPixQrCode(
+  apiKey: string,
+  baseUrl: string,
+  paymentId: string
+): Promise<PixQrCode> {
   const res = await fetch(
-    `${ASAAS_API_URL}/payments/${paymentId}/pixQrCode`,
-    { headers: getHeaders() }
+    `${baseUrl}/payments/${paymentId}/pixQrCode`,
+    { headers: getHeaders(apiKey) }
   );
 
   if (!res.ok) throw new Error("Failed to generate PIX QR Code");
@@ -181,19 +286,23 @@ export interface CreditCardToken {
   creditCardToken: string;
 }
 
-export async function tokenizeCreditCard(cardData: {
-  customer: string;
-  creditCard: {
-    holderName: string;
-    number: string;
-    expiryMonth: string;
-    expiryYear: string;
-    ccv: string;
-  };
-}): Promise<CreditCardToken> {
-  const res = await fetch(`${ASAAS_API_URL}/creditCard/tokenize`, {
+export async function tokenizeCreditCard(
+  apiKey: string,
+  baseUrl: string,
+  cardData: {
+    customer: string;
+    creditCard: {
+      holderName: string;
+      number: string;
+      expiryMonth: string;
+      expiryYear: string;
+      ccv: string;
+    };
+  }
+): Promise<CreditCardToken> {
+  const res = await fetch(`${baseUrl}/creditCard/tokenize`, {
     method: "POST",
-    headers: getHeaders(),
+    headers: getHeaders(apiKey),
     body: JSON.stringify({
       customer: cardData.customer,
       creditCard: cardData.creditCard,

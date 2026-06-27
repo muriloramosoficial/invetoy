@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   createAsaasCustomer,
   createAsaasSubscription,
+  getAsaasConfig,
   ASAAS_PLANS,
 } from "@/lib/asaas";
 
@@ -58,13 +59,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Fetch Asaas API credentials from the tenant's database config
+    const asaasConfig = await getAsaasConfig(profile.tenant_id);
+
     // Create ASAAS customer if doesn't exist
     let asaasCustomerId = tenant.payment_customer_id;
     if (!asaasCustomerId) {
-      const customer = await createAsaasCustomer({
-        name: profile.name,
-        email: profile.email,
-      });
+      const customer = await createAsaasCustomer(
+        asaasConfig.apiKey,
+        asaasConfig.baseUrl,
+        {
+          name: profile.name,
+          email: profile.email,
+        }
+      );
       asaasCustomerId = customer.id;
 
       await supabase
@@ -77,18 +85,21 @@ export async function GET(request: NextRequest) {
     }
 
     // Create subscription with UNDEFINED billing type
-    // The customer chooses payment method (PIX/Boleto/Cartão) at ASAAS checkout
     const nextDueDate = new Date();
     nextDueDate.setDate(nextDueDate.getDate() + 1);
 
-    const subscription = await createAsaasSubscription({
-      customer: asaasCustomerId,
-      billingType: "UNDEFINED",
-      value: planConfig.value,
-      nextDueDate: nextDueDate.toISOString().split("T")[0],
-      cycle: "MONTHLY",
-      description: planConfig.description,
-    });
+    const subscription = await createAsaasSubscription(
+      asaasConfig.apiKey,
+      asaasConfig.baseUrl,
+      {
+        customer: asaasCustomerId,
+        billingType: "UNDEFINED",
+        value: planConfig.value,
+        nextDueDate: nextDueDate.toISOString().split("T")[0],
+        cycle: "MONTHLY",
+        description: planConfig.description,
+      }
+    );
 
     // Save subscription info — status stays "incomplete" until webhook confirms payment
     await supabase
@@ -100,12 +111,9 @@ export async function GET(request: NextRequest) {
       })
       .eq("id", tenant.id);
 
-    // Use paymentLink from ASAAS API response, or fallback to constructed URL
-    const asaasBaseUrl = process.env.ASAAS_SANDBOX
-      ? "https://sandbox.asaas.com"
-      : "https://asaas.com";
+    // Redirect to ASAAS checkout
     const checkoutUrl = subscription.paymentLink ||
-      `${asaasBaseUrl}/subscription/${subscription.id}/checkout`;
+      `${asaasConfig.env === "sandbox" ? "https://sandbox.asaas.com" : "https://asaas.com"}/subscription/${subscription.id}/checkout`;
 
     return NextResponse.redirect(checkoutUrl);
   } catch (error: unknown) {
@@ -116,3 +124,5 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+

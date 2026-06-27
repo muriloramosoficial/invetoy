@@ -7,8 +7,9 @@ import { createClient } from "@supabase/supabase-js";
 // To configure in ASAAS Sandbox:
 // 1. Go to https://sandbox.asaas.com/configuracoes/webhooks
 // 2. Add webhook URL: https://www.invetoy.com.br/api/webhooks/asaas
-// 3. Select events: PAYMENT_RECEIVED, PAYMENT_OVERDUE, PAYMENT_REFUNDED,
-//    PAYMENT_FAILED, SUBSCRIPTION_CANCELED, SUBSCRIPTION_UPDATED
+// 3. Select events: PAYMENT_CREATED, PAYMENT_CONFIRMED, PAYMENT_RECEIVED,
+//    PAYMENT_OVERDUE, PAYMENT_REFUNDED, PAYMENT_FAILED, PAYMENT_DELETED,
+//    SUBSCRIPTION_CANCELED, SUBSCRIPTION_UPDATED
 // 4. Generate a webhook token and set as ASAAS_WEBHOOK_TOKEN in .env.local
 
 interface AsaasPayment {
@@ -72,6 +73,8 @@ export async function POST(req: NextRequest) {
     const supabase = getAdminClient();
 
     switch (event) {
+      // Payment confirmed/received - activate subscription
+      case "PAYMENT_CONFIRMED":
       case "PAYMENT_RECEIVED": {
         if (payment?.subscription) {
           const tenant = await findTenantBySubscriptionId(payment.subscription);
@@ -80,12 +83,31 @@ export async function POST(req: NextRequest) {
               .from("tenants")
               .update({ subscription_status: "active" })
               .eq("id", tenant.id);
-            console.log(`[ASAAS] Tenant ${tenant.id} subscription activated`);
+            console.log(`[ASAAS] Tenant ${tenant.id} subscription activated (${event})`);
           }
         }
         break;
       }
 
+      // Payment created - first event when payment is generated
+      case "PAYMENT_CREATED": {
+        if (payment?.subscription) {
+          const tenant = await findTenantBySubscriptionId(payment.subscription);
+          if (tenant) {
+            // Only update if currently incomplete (first payment)
+            if (tenant.subscription_status === "incomplete" || !tenant.subscription_status) {
+              await supabase
+                .from("tenants")
+                .update({ subscription_status: "active" })
+                .eq("id", tenant.id);
+              console.log(`[ASAAS] Tenant ${tenant.id} subscription activated via PAYMENT_CREATED`);
+            }
+          }
+        }
+        break;
+      }
+
+      // Payment overdue
       case "PAYMENT_OVERDUE": {
         if (payment?.subscription) {
           const tenant = await findTenantBySubscriptionId(payment.subscription);
@@ -100,6 +122,7 @@ export async function POST(req: NextRequest) {
         break;
       }
 
+      // Payment failed or refunded
       case "PAYMENT_REFUNDED":
       case "PAYMENT_FAILED": {
         if (payment?.subscription) {
@@ -115,6 +138,22 @@ export async function POST(req: NextRequest) {
         break;
       }
 
+      // Payment deleted
+      case "PAYMENT_DELETED": {
+        if (payment?.subscription) {
+          const tenant = await findTenantBySubscriptionId(payment.subscription);
+          if (tenant) {
+            await supabase
+              .from("tenants")
+              .update({ subscription_status: "canceled" })
+              .eq("id", tenant.id);
+            console.log(`[ASAAS] Tenant ${tenant.id} payment deleted, subscription canceled`);
+          }
+        }
+        break;
+      }
+
+      // Subscription canceled
       case "SUBSCRIPTION_CANCELED": {
         if (subscription?.id) {
           const tenant = await findTenantBySubscriptionId(subscription.id);
@@ -129,6 +168,7 @@ export async function POST(req: NextRequest) {
         break;
       }
 
+      // Subscription updated (status changes)
       case "SUBSCRIPTION_UPDATED": {
         if (subscription?.id) {
           const tenant = await findTenantBySubscriptionId(subscription.id);
