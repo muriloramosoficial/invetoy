@@ -128,7 +128,7 @@ export default function SubscriptionPage() {
   const handlePlanSelect = (planId: string) => {
     if (planId === currentPlanName) return;
     if (tenant) {
-      router.push(`/api/payments/asaas/checkout?plan=${planId}&tenant=${tenant.id}`);
+      router.push(`/api/payments/asaas/checkout?plan=${planId}`);
     }
   };
 

@@ -3,13 +3,14 @@
 // Docs: https://docs.asaas.com
 
 const ASAAS_API_URL = process.env.ASAAS_SANDBOX
-  ? "https://sandbox.asaas.com/api/v3"
-  : "https://www.asaas.com/api/v3";
+  ? "https://api-sandbox.asaas.com/v3"
+  : "https://api.asaas.com/v3";
 
 function getHeaders() {
   return {
     "Content-Type": "application/json",
-    access_token: process.env.ASAAS_API_KEY!,
+    "access_token": process.env.ASAAS_API_KEY!,
+    "User-Agent": "INVENTOY/1.0.0",
   };
 }
 
@@ -61,7 +62,7 @@ export async function getAsaasCustomer(id: string): Promise<AsaasCustomer> {
 
 // ─── Subscriptions ───
 
-export type BillingType = "PIX" | "BOLETO" | "CREDIT_CARD";
+export type BillingType = "PIX" | "BOLETO" | "CREDIT_CARD" | "UNDEFINED";
 export type SubscriptionCycle = "WEEKLY" | "BIWEEKLY" | "MONTHLY" | "BIMONTHLY" | "QUARTERLY" | "SEMIANNUALLY" | "YEARLY";
 
 export interface AsaasSubscription {
@@ -73,6 +74,7 @@ export interface AsaasSubscription {
   cycle: SubscriptionCycle;
   description?: string;
   status: "ACTIVE" | "INACTIVE" | "EXPIRED" | "CANCELED";
+  paymentLink?: string;
 }
 
 export interface CreateSubscriptionData {
@@ -207,14 +209,10 @@ export async function tokenizeCreditCard(cardData: {
 export const ASAAS_PLANS = {
   starter: {
     value: 49.0,
-    description: "INVENTOY Starter - Até 1.000 produtos",
+    description: "INVENTOY Starter - Até 500 produtos",
   },
   pro: {
     value: 149.0,
-    description: "INVENTOY Professional - Até 10.000 produtos",
-  },
-  enterprise: {
-    value: 499.0,
-    description: "INVENTOY Enterprise - Produtos ilimitados",
+    description: "INVENTOY Professional - Até 3.000 produtos",
   },
 } as const;
