@@ -132,7 +132,7 @@ export default function AdminDashboardPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold text-text-primary tracking-tight">Visao Geral</h1>
-        <p className="text-sm text-text-muted mt-1">Health do SaaS em tempo real</p>
+        <p className="text-sm text-text-muted mt-1">Saude do SaaS em tempo real</p>
       </div>
 
       {/* North star metrics */}
@@ -160,7 +160,7 @@ export default function AdminDashboardPage() {
           label="Conversao"
           value={parseInt(conversionRate)}
           suffix="%"
-          suffixLabel="trial → active"
+          suffixLabel="trial → ativo"
           icon={<TrendingUp className="h-4 w-4" />}
           color="text-brand"
           bg="bg-brand-8"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { TechBadge } from "@/components/tech-badge";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import {
   Check,
   Shield,
   AlertTriangle,
+  BookOpen,
 } from "lucide-react";
 
 interface ApiKeyRow {
@@ -214,14 +216,80 @@ CREATE POLICY "Admins can manage API keys"
         </div>
       )}
 
-      {/* Info */}
-      <div className="rounded-[6px] border border-border-default bg-bg-card p-4">
-        <div className="flex items-start gap-3">
-          <Shield className="h-4 w-4 text-brand mt-0.5 shrink-0" />
-          <div className="text-xs text-text-muted space-y-1">
-            <p><strong className="text-text-secondary">Como usar:</strong> Inclua a API key no header <code className="bg-bg-surface px-1 rounded text-brand">Authorization: Bearer {'<sua_key>'}</code> nas requisicoes.</p>
-            <p><strong className="text-text-secondary">Permissoes:</strong> <code className="bg-bg-surface px-1 rounded">read</code> (leitura), <code className="bg-bg-surface px-1 rounded">write</code> (escrita), <code className="bg-bg-surface px-1 rounded">admin</code> (total).</p>
-            <p><strong className="text-brand-warning flex items-center gap-1"><AlertTriangle className="h-3 w-3" /> Atencao:</strong> A key completa so e exibida uma vez. Salve em local seguro.</p>
+      {/* Documentation */}
+      <div className="rounded-[6px] border border-border-default bg-bg-card overflow-hidden">
+        <div className="p-4 border-b border-border-default bg-bg-surface">
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-brand" />
+            <h2 className="text-sm font-medium text-text-primary">Documentacao — API REST</h2>
+          </div>
+        </div>
+        <div className="p-4 space-y-4 text-xs text-text-muted">
+          <div>
+            <h3 className="text-sm font-medium text-text-primary mb-2">O que sao Chaves de API?</h3>
+            <p className="leading-relaxed">
+              Chaves de API sao tokens de acesso que permitem que sistemas externos (ERP, sites, aplicativos mobile) 
+              se comuniquem com o INVENTOY de forma programatica. Cada chave e unica e vinculada ao tenant 
+              (empresa) que a criou, garantindo isolamento total entre os dados de cada cliente.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-text-primary mb-2">Como Funciona</h3>
+            <ol className="list-decimal list-inside space-y-1 leading-relaxed">
+              <li>Crie uma chave com um nome descritivo (ex: &quot;Integracao ERP Protheus&quot;)</li>
+              <li>Defina as permissoes: <code className="bg-bg-surface px-1 rounded text-brand">read</code> (leitura), <code className="bg-bg-surface px-1 rounded">write</code> (escrita) ou <code className="bg-bg-surface px-1 rounded">admin</code> (total)</li>
+              <li>Copie a chave gerada — ela so aparece uma vez</li>
+              <li>Inclua a chave no header <code className="bg-bg-surface px-1 rounded text-brand">Authorization: Bearer {'<sua_key>'}</code> em todas as requisicoes</li>
+            </ol>
+          </div>
+
+          <div className="p-3 rounded-[4px] bg-bg-elevated border border-border-default font-mono text-xs">
+            <div className="text-text-muted mb-1">Exemplo de requisicao:</div>
+            <div className="text-text-secondary">
+              <span className="text-brand">GET</span> https://www.invetoy.com.br/api/v1/products?limit=5<br />
+              <span className="text-text-muted">Authorization:</span> <span className="text-brand">Bearer</span> <span className="text-text-primary">inv_abc123_def456</span>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-text-primary mb-2">Permissoes</h3>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 p-2 rounded-[4px] bg-bg-surface">
+                <TechBadge variant="gray">read</TechBadge>
+                <span className="text-text-secondary">Consultar produtos, estoque e movimentacoes</span>
+              </div>
+              <div className="flex items-center gap-3 p-2 rounded-[4px] bg-bg-surface">
+                <TechBadge variant="blue">write</TechBadge>
+                <span className="text-text-secondary">Criar, atualizar e arquivar registros</span>
+              </div>
+              <div className="flex items-center gap-3 p-2 rounded-[4px] bg-bg-surface">
+                <TechBadge variant="red">admin</TechBadge>
+                <span className="text-text-secondary">Acesso total, incluindo gerenciamento de chaves</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-[4px] border border-brand-warning-20 bg-brand-warning-8">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="h-4 w-4 text-brand-warning shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-brand-warning mb-1">Boas Praticas de Seguranca</p>
+                <ul className="list-disc list-inside space-y-0.5 text-brand-warning">
+                  <li>Nunca compartilhe chaves de API em codigo-fonte, repositorios Git ou logs</li>
+                  <li>Use chaves diferentes para cada ambiente (desenvolvimento, producao)</li>
+                  <li>Revogue chaves que nao estao mais em uso ou que foram comprometidas</li>
+                  <li>Prefira permissoes minimas — crie chaves com acesso apenas ao necessario</li>
+                  <li>Monitore o uso das chaves pelo campo &quot;Ultimo Uso&quot; na tabela acima</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-text-primary mb-2">Endpoint Base</h3>
+            <code className="text-text-secondary bg-bg-elevated px-2 py-1 rounded font-mono">https://www.invetoy.com.br/api/v1</code>
+            <p className="mt-1">Documentacao completa disponivel em <Link href="/docs/api" className="text-brand hover:underline">/docs/api</Link></p>
           </div>
         </div>
       </div>

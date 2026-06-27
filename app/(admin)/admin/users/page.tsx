@@ -212,7 +212,7 @@ export default function AdminUsersPage() {
           </div>
           <div className="flex items-center gap-2">
             <TechBadge variant="blue">GERENTE</TechBadge>
-            <span className="text-text-muted">Gerecia equipe</span>
+            <span className="text-text-muted">Gerencia equipe</span>
           </div>
           <div className="flex items-center gap-2">
             <TechBadge variant="green">ADMINISTRADOR</TechBadge>

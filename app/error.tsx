@@ -16,12 +16,12 @@ export default function Error({
         <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-brand-danger-dim mx-auto mb-6">
           <AlertTriangle className="h-8 w-8 text-brand-danger" />
         </div>
-        <h1 className="text-2xl font-semibold text-text-primary mb-2">Something went wrong</h1>
+        <h1 className="text-2xl font-semibold text-text-primary mb-2">Algo deu errado</h1>
         <p className="text-sm text-text-muted mb-8">
-          {error.message || "An unexpected error occurred. Please try again."}
+          {error.message || "Ocorreu um erro inesperado. Tente novamente."}
         </p>
         <Button onClick={reset}>
-          Try Again
+          Tentar Novamente
         </Button>
       </div>
     </div>

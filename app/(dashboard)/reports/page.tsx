@@ -7,29 +7,29 @@ import { FileText, Download, BarChart3, Package, AlertTriangle, ArrowRightLeft, 
 const reports = [
   {
     id: "inventory-summary",
-    title: "Inventory Summary",
-    description: "Complete overview of all inventory items with quantities and values",
+    title: "Resumo do Inventario",
+    description: "Visao completa de todos os itens com quantidades e valores",
     icon: Package,
     color: "text-brand",
   },
   {
     id: "low-stock",
-    title: "Low Stock Report",
-    description: "Products below minimum stock levels requiring attention",
+    title: "Estoque Baixo",
+    description: "Produtos abaixo do nivel minimo de estoque que precisam de atencao",
     icon: AlertTriangle,
     color: "text-brand-warning",
   },
   {
     id: "movements",
-    title: "Movement History",
-    description: "Chronological log of all inventory movements with filters",
+    title: "Historico de Movimentacoes",
+    description: "Registro cronologico de todas as movimentacoes com filtros",
     icon: ArrowRightLeft,
     color: "text-brand-info",
   },
   {
     id: "valuation",
-    title: "Inventory Valuation",
-    description: "Cost and sale value analysis of current stock",
+    title: "Valorizacao do Estoque",
+    description: "Analise de custo e valor de venda do estoque atual",
     icon: TrendingUp,
     color: "text-brand",
   },
@@ -40,10 +40,10 @@ export default function ReportsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-text-primary tracking-tight">
-          Reports
+          Relatorios
         </h1>
         <p className="text-sm text-text-muted mt-1">
-          Generate and export inventory reports
+          Gere e exporte relatorios de inventario
         </p>
       </div>
 
@@ -67,11 +67,11 @@ export default function ReportsPage() {
               <div className="flex items-center gap-2">
                 <Button size="sm">
                   <FileText className="h-3.5 w-3.5" />
-                  Generate
+                  Gerar
                 </Button>
                 <Button variant="secondary" size="sm">
                   <Download className="h-3.5 w-3.5" />
-                  Export CSV
+                  Exportar CSV
                 </Button>
               </div>
             </CardContent>
@@ -81,12 +81,12 @@ export default function ReportsPage() {
 
       {/* Recent reports */}
       <div>
-        <h2 className="text-sm font-medium text-text-primary mb-3">Recently Generated</h2>
+        <h2 className="text-sm font-medium text-text-primary mb-3">Gerados Recentemente</h2>
         <Card>
           <div className="p-5 text-center text-text-muted">
             <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">No reports generated yet</p>
-            <p className="text-xs mt-1">Generate your first report above</p>
+            <p className="text-sm">Nenhum relatorio gerado ainda</p>
+            <p className="text-xs mt-1">Gere seu primeiro relatorio acima</p>
           </div>
         </Card>
       </div>
