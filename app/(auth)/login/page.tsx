@@ -2,7 +2,7 @@
 
 import { useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { login, sendMagicLink } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,31 +27,13 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    try {
-      const supabase = createClient();
-
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
-
-      if (signInError) {
-        if (signInError.message.includes("Invalid login credentials")) {
-          setError("Email ou senha incorretos");
-        } else if (signInError.message.includes("Email not confirmed")) {
-          setError("Confirme seu email antes de entrar. Verifique sua caixa de entrada.");
-        } else {
-          setError(signInError.message);
-        }
-        return;
+    const result = await login({ email: email.trim(), password });
+    if (result?.error) {
+      if (result.error.includes("Invalid login credentials")) {
+        setError("Email ou senha incorretos");
+      } else {
+        setError(result.error);
       }
-
-      router.push("/dashboard");
-      router.refresh();
-    } catch (err: unknown) {
-      console.error("[Login Error]", err);
-      setError(err instanceof Error ? err.message : "Erro inesperado. Verifique sua internet.");
-    } finally {
       setLoading(false);
     }
   };
@@ -60,45 +42,34 @@ export default function LoginPage() {
     if (!email.trim()) { setError("Digite seu email primeiro"); return; }
     setLoading(true);
     setError("");
-    try {
-      const supabase = createClient();
-      const { error: magicError } = await supabase.auth.signInWithOtp({
-        email: email.trim(),
-        options: { emailRedirectTo: `${window.location.origin}/callback` },
-      });
-      if (magicError) throw magicError;
-      alert("Link mágico enviado! Verifique seu email.");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Erro ao enviar link mágico");
-    } finally {
+    const result = await sendMagicLink(email.trim());
+    if (result?.error) {
+      setError(result.error);
+      setLoading(false);
+    } else {
+      alert("Link magico enviado! Verifique seu email.");
       setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-bg-primary flex">
-      {/* Left side - Form */}
       <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-12 relative">
-        {/* Background grid */}
-        <div
-          className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
           style={{
             backgroundImage: "linear-gradient(rgba(62,207,142,1) 1px, transparent 1px), linear-gradient(90deg, rgba(62,207,142,1) 1px, transparent 1px)",
             backgroundSize: "48px 48px",
           }}
         />
-
         <div className={`relative w-full max-w-sm transition-all duration-500 ${mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}>
-          {/* Logo */}
           <div className="flex flex-col items-center mb-10">
-            <Link href="/" className="group flex items-center justify-center w-14 h-14 rounded-xl bg-brand-8 mb-4 hover:bg-brand-12 transition-all duration-300 hover:shadow-[0_0_30px_rgba(62,207,142,0.1)]" aria-label="Voltar para página inicial">
+            <Link href="/" className="group flex items-center justify-center w-14 h-14 rounded-xl bg-brand-8 mb-4 hover:bg-brand-12 transition-all duration-300 hover:shadow-[0_0_30px_rgba(62,207,142,0.1)]" aria-label="Voltar para pagina inicial">
               <Box className="h-7 w-7 text-brand transition-transform duration-300 group-hover:scale-110" />
             </Link>
             <h1 className="text-xl font-semibold text-text-primary tracking-tight">INVENTOY</h1>
-            <p className="text-sm text-text-muted mt-1">Gestão de Estoque Inteligente</p>
+            <p className="text-sm text-text-muted mt-1">Gestao de Estoque Inteligente</p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-4">
               <div>
@@ -111,7 +82,7 @@ export default function LoginPage() {
                   <button type="button" className="text-[11px] text-text-muted hover:text-brand transition-colors" tabIndex={-1}>Esqueceu?</button>
                 </div>
                 <div className="relative">
-                  <Input id="login-password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" icon={<Lock className="h-4 w-4" />} />
+                  <Input id="login-password" type={showPassword ? "text" : "password"} placeholder="********" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" icon={<Lock className="h-4 w-4" />} />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors p-0.5" aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"} tabIndex={-1}>
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -124,8 +95,8 @@ export default function LoginPage() {
             <Button type="submit" className="w-full h-11" loading={loading}>{loading ? "Entrando..." : "Entrar"}</Button>
 
             <div className="text-center">
-              <span className="text-sm text-text-muted">Não tem conta? </span>
-              <Link href="/register" className="text-sm text-brand hover:text-brand-hover transition-colors font-medium">Cadastre-se grátis</Link>
+              <span className="text-sm text-text-muted">Nao tem conta? </span>
+              <Link href="/register" className="text-sm text-brand hover:text-brand-hover transition-colors font-medium">Cadastre-se gratis</Link>
             </div>
 
             <div className="relative">
@@ -135,19 +106,18 @@ export default function LoginPage() {
 
             <Button type="button" variant="outline" className="w-full h-11" onClick={handleMagicLink} disabled={loading}>
               <Mail className="h-4 w-4" />
-              Entrar com link mágico
+              Entrar com link magico
             </Button>
           </form>
 
           <p className="mt-8 text-[10px] text-text-muted text-center">
-            Ao continuar, você aceita nossos{" "}
+            Ao continuar, voce aceita nossos{" "}
             <Link href="/termos" className="underline underline-offset-2 hover:text-text-primary transition-colors">Termos</Link> e{" "}
             <Link href="/privacidade" className="underline underline-offset-2 hover:text-text-primary transition-colors">Privacidade</Link>
           </p>
         </div>
       </div>
 
-      {/* Right side - Illustration/Branding */}
       <div className="hidden lg:flex flex-1 bg-bg-secondary border-l border-border-default items-center justify-center p-12 relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
           style={{
@@ -166,13 +136,13 @@ export default function LoginPage() {
             Controle total do seu estoque
           </h2>
           <p className="text-text-secondary leading-relaxed mb-8">
-            Dashboard em tempo real, alertas de estoque baixo, movimentações auditadas e muito mais.
+            Dashboard em tempo real, alertas de estoque baixo, movimentacoes auditadas e muito mais.
           </p>
           <div className="grid grid-cols-3 gap-4">
             {[
               { icon: Package, label: "Produtos", value: "Ilimitados" },
               { icon: BarChart3, label: "Analytics", value: "Em tempo real" },
-              { icon: Shield, label: "Segurança", value: "RLS nativo" },
+              { icon: Shield, label: "Seguranca", value: "RLS nativo" },
             ].map((item) => (
               <div key={item.label} className="p-4 rounded-lg border border-border-default bg-bg-surface">
                 <item.icon className="h-5 w-5 text-brand mx-auto mb-2" />
