@@ -17,7 +17,6 @@ import { createClient } from "@/lib/supabase/client";
 import type { Location } from "@/types";
 
 export default function LocationsPage() {
-  const supabase = createClient();
   const [locations, setLocations] = useState<Location[]>([]);
   const [itemCountMap, setItemCountMap] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -66,6 +65,7 @@ export default function LocationsPage() {
   const handleCreate = async () => {
     setSaving(true);
     try {
+      const supabase = createClient();
       const { error } = await supabase.from("locations").insert({
         name: formName,
         aisle: formAisle || null,
@@ -90,6 +90,7 @@ export default function LocationsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this location?")) return;
     try {
+      const supabase = createClient();
       const { error } = await supabase.from("locations").delete().eq("id", id);
       if (error) throw error;
       setRefreshKey(k => k + 1);

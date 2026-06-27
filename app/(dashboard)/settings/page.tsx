@@ -18,7 +18,6 @@ const plans = [
 ];
 
 export default function SettingsPage() {
-  const supabase = createClient();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [loading, setLoading] = useState(true);
@@ -78,6 +77,7 @@ export default function SettingsPage() {
     if (!profile) return;
     setProfileSaving(true);
     try {
+      const supabase = createClient();
       const { error } = await supabase
         .from("profiles")
         .update({ name: profileName })
@@ -94,6 +94,7 @@ export default function SettingsPage() {
     if (!tenant) return;
     setTenantSaving(true);
     try {
+      const supabase = createClient();
       const { error } = await supabase
         .from("tenants")
         .update({ name: tenantName })

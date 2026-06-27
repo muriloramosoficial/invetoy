@@ -9,7 +9,7 @@
  * Values defined DIRECTLY in @theme - no circular var() references.
  * This generates CSS variables AND Tailwind utilities simultaneously.
  */
-@theme inline {
+@theme {
   /* Backgrounds */
   --color-bg-primary: #121212;
   --color-bg-secondary: #1c1c1c;

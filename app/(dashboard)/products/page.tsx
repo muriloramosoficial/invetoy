@@ -39,7 +39,6 @@ interface ProductWithCategory extends Product {
 }
 
 export default function ProductsPage() {
-  const supabase = createClient();
   const [products, setProducts] = useState<ProductWithCategory[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [stockMap, setStockMap] = useState<Record<string, number>>({});
@@ -135,6 +134,7 @@ export default function ProductsPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
+      const supabase = createClient();
       const payload = {
         sku: formSku,
         name: formName,
@@ -169,6 +169,7 @@ export default function ProductsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
+      const supabase = createClient();
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
       setRefreshKey(k => k + 1);

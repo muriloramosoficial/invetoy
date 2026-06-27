@@ -19,7 +19,6 @@ import type { Category } from "@/types";
 const colorOptions = ["#3ECF8E", "#53B1E5", "#F5A623", "#E5484D", "#8B5CF6", "#06B6D4", "#F472B6", "#A1A1AA"];
 
 export default function CategoriesPage() {
-  const supabase = createClient();
   const [categories, setCategories] = useState<Category[]>([]);
   const [productCountMap, setProductCountMap] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -91,6 +90,7 @@ export default function CategoriesPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
+      const supabase = createClient();
       const payload = {
         name: formName,
         description: formDescription || null,
@@ -120,6 +120,7 @@ export default function CategoriesPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this category?")) return;
     try {
+      const supabase = createClient();
       const { error } = await supabase.from("categories").delete().eq("id", id);
       if (error) throw error;
       setRefreshKey(k => k + 1);
