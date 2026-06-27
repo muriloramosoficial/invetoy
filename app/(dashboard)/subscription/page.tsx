@@ -74,6 +74,28 @@ const PLANS: Plan[] = [
     cta: "Assinar",
     limits: { products: 3000, users: 10 },
   },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    price: "Sob consulta",
+    period: "",
+    description: "Para grandes operações",
+    features: [
+      "Produtos ilimitados",
+      "Usuários ilimitados",
+      "API externa (/api/v1)",
+      "Scanner de código",
+      "Relatórios customizados",
+      "Exportação CSV",
+      "Múltiplos depósitos",
+      "Suporte prioritário 24h",
+      "Onboarding dedicado",
+      "SLA personalizado",
+    ],
+    highlighted: false,
+    cta: "Falar com Vendas",
+    limits: { products: -1, users: -1 },
+  },
 ];
 
 interface TenantInfo {
@@ -128,6 +150,10 @@ export default function SubscriptionPage() {
 
   const handlePlanSelect = (planId: string) => {
     if (planId === currentPlanName) return;
+    if (planId === "enterprise") {
+      window.location.href = "mailto:contato@invetoy.com.br?subject=Plano%20Enterprise%20-%20INVENTOY";
+      return;
+    }
     if (tenant) {
       router.push(`/api/payments/asaas/checkout?plan=${planId}`);
     }
@@ -204,7 +230,7 @@ export default function SubscriptionPage() {
       )}
 
       {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {PLANS.map((plan) => {
           const isCurrent = plan.id === currentPlanName;
           const isDisabled = isCurrent;
@@ -236,7 +262,7 @@ export default function SubscriptionPage() {
 
               <div className="mb-6">
                 <span className="text-3xl font-semibold text-text-primary font-mono">{plan.price}</span>
-                <span className="text-sm text-text-muted ml-1">{plan.period}</span>
+                {plan.period && <span className="text-sm text-text-muted ml-1">{plan.period}</span>}
               </div>
 
               <ul className="space-y-3 mb-6">

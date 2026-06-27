@@ -42,7 +42,7 @@ export default function RegisterPage() {
       const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
 
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
@@ -52,9 +52,18 @@ export default function RegisterPage() {
       });
 
       if (signUpError) {
-        if (signUpError.message.includes("already registered")) {
+        if (
+          signUpError.message.includes("already registered") ||
+          signUpError.message.includes("already been registered")
+        ) {
           setError("Este email já está cadastrado. Faça login.");
         } else setError(signUpError.message);
+        return;
+      }
+
+      // Supabase may return empty identities for existing users without an error
+      if (signUpData?.user && signUpData.user.identities?.length === 0) {
+        setError("Este email já está cadastrado. Faça login.");
         return;
       }
 

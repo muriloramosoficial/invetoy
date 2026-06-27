@@ -216,3 +216,5 @@ export const ASAAS_PLANS = {
     description: "INVENTOY Professional - Até 3.000 produtos",
   },
 } as const;
+
+export type PlanId = keyof typeof ASAAS_PLANS | "free" | "enterprise";

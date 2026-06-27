@@ -83,6 +83,26 @@ const plans = [
     cta: "Testar Grátis",
     highlighted: false,
   },
+  {
+    name: "Enterprise",
+    price: "Sob consulta",
+    period: "",
+    desc: "Para grandes operações",
+    features: [
+      "Produtos ilimitados",
+      "Usuários ilimitados",
+      "API REST externa (/api/v1)",
+      "Scanner de código",
+      "Relatórios customizados",
+      "Exportação CSV",
+      "Múltiplos depósitos",
+      "Suporte prioritário 24h",
+      "Onboarding dedicado",
+      "SLA personalizado",
+    ],
+    cta: "Falar com Vendas",
+    highlighted: false,
+  },
 ];
 
 export default function LandingPage() {
@@ -237,7 +257,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {plans.map((plan) => (
               <div
                 key={plan.name}
@@ -258,7 +278,7 @@ export default function LandingPage() {
 
                 <div className="mb-6">
                   <span className="text-3xl font-semibold text-text-primary font-mono">{plan.price}</span>
-                  <span className="text-sm text-text-muted ml-1">{plan.period}</span>
+                  {plan.period && <span className="text-sm text-text-muted ml-1">{plan.period}</span>}
                 </div>
 
                 <ul className="space-y-2.5 mb-6">
@@ -273,7 +293,11 @@ export default function LandingPage() {
                 <Button
                   variant={plan.highlighted ? "primary" : "outline"}
                   className="w-full"
-                  onClick={() => router.push("/register")}
+                  onClick={() =>
+                    plan.name === "Enterprise"
+                      ? (window.location.href = "mailto:contato@invetoy.com.br?subject=Plano%20Enterprise")
+                      : router.push("/register")
+                  }
                 >
                   {plan.cta}
                 </Button>
