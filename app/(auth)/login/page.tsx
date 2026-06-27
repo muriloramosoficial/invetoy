@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { login, sendMagicLink } from "@/app/actions/auth";
+import { sendMagicLink } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,10 +16,10 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     if (!email || !password) {
       setError("Preencha todos os campos");
       return;
@@ -27,13 +27,25 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    const result = await login({ email: email.trim(), password });
-    if (result?.error) {
-      if (result.error.includes("Invalid login credentials")) {
-        setError("Email ou senha incorretos");
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+      const result = await res.json();
+      if (!res.ok || result.error) {
+        if (result.error?.includes("Invalid login credentials")) {
+          setError("Email ou senha incorretos");
+        } else {
+          setError(result.error || "Erro ao fazer login");
+        }
       } else {
-        setError(result.error);
+        router.push("/dashboard");
       }
+    } catch {
+      setError("Erro de conexao. Tente novamente.");
+    } finally {
       setLoading(false);
     }
   };
@@ -70,7 +82,7 @@ export default function LoginPage() {
             <p className="text-sm text-text-muted mt-1">Gestao de Estoque Inteligente</p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form noValidate className="space-y-5">
             <div className="space-y-4">
               <div>
                 <Label htmlFor="login-email">Email</Label>
@@ -92,7 +104,7 @@ export default function LoginPage() {
 
             {error && (<div className="text-sm p-3 rounded-[4px] border border-brand-danger-20 bg-brand-danger-dim text-brand-danger" role="alert">{error}</div>)}
 
-            <Button type="submit" className="w-full h-11" loading={loading}>{loading ? "Entrando..." : "Entrar"}</Button>
+            <button type="button" className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-[4px] font-medium bg-brand text-black" onClick={handleLogin}>{loading ? "Entrando..." : "Entrar"}</button>
 
             <div className="text-center">
               <span className="text-sm text-text-muted">Nao tem conta? </span>

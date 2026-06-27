@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { register } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,10 +18,10 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRegister = async () => {
     setLoading(true);
     setError("");
 
@@ -37,18 +36,27 @@ export default function RegisterPage() {
       return;
     }
 
-    const result = await register({
-      name: name.trim(),
-      email: email.trim(),
-      password,
-      companyName: companyName.trim(),
-    });
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          password,
+          companyName: companyName.trim(),
+        }),
+      });
+      const result = await res.json();
 
-    if (result.error) {
-      setError(result.error);
-      setLoading(false);
-    } else {
-      setSuccess(true);
+      if (!res.ok || result.error) {
+        setError(result.error || "Erro ao criar conta");
+      } else {
+        setSuccess(true);
+      }
+    } catch {
+      setError("Erro de conexao. Tente novamente.");
+    } finally {
       setLoading(false);
     }
   };
@@ -124,7 +132,7 @@ export default function RegisterPage() {
             <p className="text-sm text-text-muted mt-1">Comece seu teste gratis - sem cartao de credito</p>
           </div>
 
-          <form onSubmit={handleRegister} className="space-y-4">
+          <form noValidate className="space-y-4">
             <div>
               <Label htmlFor="reg-name">Nome completo</Label>
               <Input id="reg-name" placeholder="Seu nome" value={name} onChange={(e) => setName(e.target.value)} required icon={<User className="h-4 w-4" />} />
@@ -156,7 +164,7 @@ export default function RegisterPage() {
 
             {error && (<div className="text-sm p-3 rounded-[4px] border border-brand-danger-20 bg-brand-danger-dim text-brand-danger" role="alert">{error}</div>)}
 
-            <Button type="submit" className="w-full h-11" loading={loading}>{loading ? "Criando conta..." : "Criar Conta Gratis"}</Button>
+            <button type="button" className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-[4px] font-medium bg-brand text-black" onClick={handleRegister}>{loading ? "Criando conta..." : "Criar Conta Gratis"}</button>
 
             <div className="text-center">
               <span className="text-sm text-text-muted">Ja tem conta? </span>
