@@ -1,5 +1,4 @@
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { registerSchema } from "@/lib/validations";
 import { checkRateLimit } from "@/lib/rate-limiter";
@@ -42,21 +41,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Supabase nao configurado. Verifique .env.local" }, { status: 500 });
     }
 
-    const cookieStore = await cookies();
+    const response = NextResponse.json({ success: true });
 
     const supabase = createServerClient(supabaseUrl, supabaseKey, {
       cookies: {
         getAll() {
-          return cookieStore.getAll();
+          return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // setAll called from Server Component — ignored
-          }
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
         },
       },
     });
@@ -94,13 +89,11 @@ export async function POST(request: NextRequest) {
             },
           });
 
-          // Update profile with CPF
           await adminSupabase
             .from("profiles")
             .update({ cpf })
             .eq("id", data.user.id);
 
-          // Update tenant with CNPJ if provided
           if (cnpj) {
             const { data: profile } = await adminSupabase
               .from("profiles")
@@ -118,12 +111,11 @@ export async function POST(request: NextRequest) {
         }
       } catch (postErr) {
         console.error("[api/register] post-signup update error:", postErr);
-        // Non-critical: user was created, CPF/CNPJ update is best-effort
       }
     }
 
     console.log("[api/register] success for", email);
-    return NextResponse.json({ success: true });
+    return response;
   } catch (err) {
     console.error("[api/register] unexpected error:", err);
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
