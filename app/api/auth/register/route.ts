@@ -2,19 +2,21 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { registerSchema } from "@/lib/validations";
-import { checkRateLimit } from "@/lib/rate-limiter";
+import { registerRatelimit } from "@/lib/upstash-ratelimit";
 
 export async function POST(request: NextRequest) {
   try {
-    // Rate limiting
-    const rateLimit = await checkRateLimit(request);
-    if (!rateLimit.allowed) {
+    // Rate limiting via Upstash
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1";
+    const { success, remaining, reset } = await registerRatelimit.limit(ip);
+
+    if (!success) {
       return NextResponse.json(
-        { error: "Muitas tentativas. Tente novamente em " + rateLimit.resetIn + " segundos." },
+        { error: "Muitas tentativas. Tente novamente em " + Math.ceil((reset - Date.now()) / 1000) + " segundos." },
         {
           status: 429,
           headers: {
-            "Retry-After": String(rateLimit.resetIn),
+            "Retry-After": String(Math.ceil((reset - Date.now()) / 1000)),
             "X-RateLimit-Remaining": "0",
           },
         }
