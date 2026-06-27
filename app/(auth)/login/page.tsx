@@ -49,8 +49,9 @@ export default function LoginPage() {
       }
 
       router.push("/dashboard");
-    } catch {
-      setError("Erro de conexão. Verifique sua internet.");
+    } catch (err: any) {
+      console.error("[Login Error]", err);
+      setError(err?.message || "Erro inesperado. Verifique sua internet.");
     } finally {
       setLoading(false);
     }

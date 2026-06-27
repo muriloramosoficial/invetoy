@@ -18,6 +18,6 @@ export const config = {
      * - api/webhooks (webhooks are external)
      * - Static files (.svg, .png, .jpg, etc.)
      */
-    "/((?!_next/static|_next/image|favicon.ico|login|register|auth|api/webhooks|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|login|register|auth|termos|privacidade|api/webhooks|api/debug|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

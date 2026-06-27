@@ -1,5 +1,6 @@
 import { Box, Shield, Eye, Trash2, Database, Mail, Lock, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { BackButton } from "@/components/back-button";
 
 export const metadata = {
   title: "Política de Privacidade — INVENTOY",
@@ -75,12 +76,7 @@ export default function PrivacidadePage() {
       {/* Header */}
       <header className="border-b border-border-default">
         <div className="max-w-3xl mx-auto px-4 py-6 sm:py-8">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-primary transition-colors mb-6"
-          >
-            ← Voltar ao início
-          </Link>
+          <BackButton />
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center">
               <Shield className="h-5 w-5 text-brand" />
