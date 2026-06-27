@@ -6,6 +6,9 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { LogOut, AlertTriangle } from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -16,6 +19,7 @@ export default function DashboardLayout({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userName, setUserName] = useState("Admin");
   const [tenantName, setTenantName] = useState("INVENTOY");
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -55,9 +59,14 @@ export default function DashboardLayout({
   }, [router]);
 
   const handleLogout = async () => {
+    setShowLogoutConfirm(false);
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/login");
+  };
+
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true);
   };
 
   const pathname = usePathname();
@@ -107,7 +116,7 @@ export default function DashboardLayout({
         <Topbar
           tenantName={tenantName}
           userName={userName}
-          onLogout={handleLogout}
+          onLogout={handleLogoutClick}
           onMenuToggle={() => setMobileOpen(true)}
         />
 
@@ -116,6 +125,32 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
+
+      {/* Logout confirmation modal */}
+      <Dialog
+        open={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        title="Sair do sistema"
+        description="Tem certeza que deseja sair? Voce precisara fazer login novamente para acessar o sistema."
+      >
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 p-3 rounded-[6px] border border-brand-warning-20 bg-brand-warning-8">
+            <AlertTriangle className="h-5 w-5 text-brand-warning shrink-0 mt-0.5" />
+            <p className="text-sm text-brand-warning">
+              Sua sessao sera encerrada e todos os dados nao salvos serao perdidos.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setShowLogoutConfirm(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleLogout} className="bg-brand-danger hover:bg-brand-danger text-white">
+              <LogOut className="h-4 w-4" />
+              Sair
+            </Button>
+          </DialogFooter>
+        </div>
+      </Dialog>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -16,7 +16,6 @@ import {
   ChevronRight,
   DollarSign,
   Key,
-  LogOut,
   Webhook,
   CreditCard,
   Receipt,
@@ -62,7 +61,6 @@ interface AdminSidebarProps {
 export function AdminSidebar({ collapsed = false, onToggle }: AdminSidebarProps) {
   const [isStaff, setIsStaff] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
 
   useEffect(() => {
     async function checkRole() {
@@ -83,12 +81,6 @@ export function AdminSidebar({ collapsed = false, onToggle }: AdminSidebarProps)
   }, []);
 
   const navItems = isStaff ? staffNav : adminNav;
-
-  const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
 
   return (
     <aside

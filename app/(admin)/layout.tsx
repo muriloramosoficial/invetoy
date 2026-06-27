@@ -6,7 +6,9 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { cn } from "@/lib/utils";
-import { Shield, Menu, User, Settings, LogOut, Search, LayoutDashboard } from "lucide-react";
+import { Shield, Menu, User, Settings, LogOut, Search, LayoutDashboard, AlertTriangle } from "lucide-react";
+import { Dialog, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -15,6 +17,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState<string>("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -53,6 +56,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [pathname]);
 
   const handleLogout = async () => {
+    setShowLogoutConfirm(false);
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/login");
@@ -161,7 +165,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     </Link>
                     <hr className="border-border-default my-1" />
                     <button
-                      onClick={handleLogout}
+                      onClick={() => { setUserMenuOpen(false); setShowLogoutConfirm(true); }}
                       className="flex items-center gap-2 w-full px-3 py-2 text-sm text-brand-danger hover:bg-brand-danger-8 transition-colors"
                     >
                       <LogOut className="h-4 w-4" />
@@ -176,6 +180,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
+
+      {/* Logout confirmation modal */}
+      <Dialog
+        open={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        title="Sair do sistema"
+        description="Tem certeza que deseja sair? Voce precisara fazer login novamente para acessar o painel."
+      >
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 p-3 rounded-[6px] border border-brand-warning-20 bg-brand-warning-8">
+            <AlertTriangle className="h-5 w-5 text-brand-warning shrink-0 mt-0.5" />
+            <p className="text-sm text-brand-warning">
+              Sua sessao sera encerrada e todos os dados nao salvos serao perdidos.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setShowLogoutConfirm(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleLogout} className="bg-brand-danger hover:bg-brand-danger text-white">
+              <LogOut className="h-4 w-4" />
+              Sair
+            </Button>
+          </DialogFooter>
+        </div>
+      </Dialog>
     </div>
   );
 }
