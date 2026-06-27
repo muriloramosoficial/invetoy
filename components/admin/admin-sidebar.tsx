@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import {
@@ -24,19 +25,29 @@ interface NavItem {
   label: string;
   href: string;
   icon: React.ReactNode;
+  staffOnly?: boolean;
 }
 
 const adminNav: NavItem[] = [
   { label: "Painel", href: "/admin", icon: <LayoutDashboard className="h-4 w-4" /> },
   { label: "Empresas", href: "/admin/tenants", icon: <Building2 className="h-4 w-4" /> },
   { label: "Usuarios", href: "/admin/users", icon: <Users className="h-4 w-4" /> },
+  { label: "Planos", href: "/admin/plans", icon: <CreditCard className="h-4 w-4" /> },
+  { label: "Assinaturas", href: "/admin/subscriptions", icon: <DollarSign className="h-4 w-4" /> },
   { label: "Financeiro", href: "/admin/billing", icon: <DollarSign className="h-4 w-4" /> },
   { label: "Relatorios", href: "/admin/reports", icon: <BarChart3 className="h-4 w-4" /> },
   { label: "Atividades", href: "/admin/activity", icon: <Activity className="h-4 w-4" /> },
-  { label: "Planos", href: "/admin/plans", icon: <CreditCard className="h-4 w-4" /> },
-  { label: "Assinaturas", href: "/admin/subscriptions", icon: <DollarSign className="h-4 w-4" /> },
   { label: "Asaas", href: "/admin/asaas-config", icon: <Webhook className="h-4 w-4" /> },
   { label: "API Keys", href: "/admin/api-keys", icon: <Key className="h-4 w-4" /> },
+];
+
+// Staff-only sidebar (limited navigation for sales/support team)
+const staffNav: NavItem[] = [
+  { label: "Painel", href: "/admin", icon: <LayoutDashboard className="h-4 w-4" /> },
+  { label: "Empresas", href: "/admin/tenants", icon: <Building2 className="h-4 w-4" /> },
+  { label: "Usuarios", href: "/admin/users", icon: <Users className="h-4 w-4" /> },
+  { label: "Planos", href: "/admin/plans", icon: <CreditCard className="h-4 w-4" /> },
+  { label: "Assinaturas", href: "/admin/subscriptions", icon: <DollarSign className="h-4 w-4" /> },
 ];
 
 interface AdminSidebarProps {
@@ -45,8 +56,29 @@ interface AdminSidebarProps {
 }
 
 export function AdminSidebar({ collapsed = false, onToggle }: AdminSidebarProps) {
+  const [isStaff, setIsStaff] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    async function checkRole() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("is_staff")
+          .eq("id", user.id)
+          .single();
+        if (profile?.is_staff) {
+          setIsStaff(true);
+        }
+      }
+    }
+    checkRole();
+  }, []);
+
+  const navItems = isStaff ? staffNav : adminNav;
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -76,7 +108,7 @@ export function AdminSidebar({ collapsed = false, onToggle }: AdminSidebarProps)
 
       {/* Navigation */}
       <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
-        {adminNav.map((item) => {
+        {navItems.map((item) => {
           const isActive =
             item.href === "/admin"
               ? pathname === "/admin"

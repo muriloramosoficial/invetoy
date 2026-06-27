@@ -29,12 +29,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
       const { data: profile } = await supabase
         .from("profiles")
-        .select("is_system_admin, name")
+        .select("is_system_admin, is_staff, name")
         .eq("id", user.id)
         .single();
 
       if (!cancelled) {
-        if (!profile?.is_system_admin) {
+        if (!profile?.is_system_admin && !profile?.is_staff) {
           router.push("/dashboard");
           return;
         }

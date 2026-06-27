@@ -31,12 +31,12 @@ export default function DashboardLayout({
 
         const { data: profile } = await supabase
           .from("profiles")
-          .select("name, is_system_admin, tenants(name)")
+          .select("name, is_system_admin, is_staff, tenants(name)")
           .eq("id", user.id)
           .single();
 
         if (!cancelled && profile) {
-          if (profile.is_system_admin) {
+          if (profile.is_system_admin || profile.is_staff) {
             router.push("/admin");
             return;
           }

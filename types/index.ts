@@ -31,6 +31,7 @@ export interface Profile {
   created_at: string;
   cpf: string | null;
   is_system_admin?: boolean;
+  is_staff?: boolean;
 }
 
 // ─── Inventory Core ───

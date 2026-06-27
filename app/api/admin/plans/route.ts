@@ -55,11 +55,11 @@ export async function PUT(request: NextRequest) {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("is_system_admin")
+      .select("is_system_admin, is_staff")
       .eq("id", user.id)
       .single();
 
-    if (!profile?.is_system_admin) {
+    if (!profile?.is_system_admin && !profile?.is_staff) {
       return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
     }
 

@@ -43,14 +43,13 @@ export default function LoginPage() {
       } else {
         const { createClient } = await import("@/lib/supabase/client");
         const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("is_system_admin")
-            .eq("id", user.id)
-            .single();
-          if (profile?.is_system_admin) {
+        const { data: { user } } = await supabase.auth.getUser();          if (user) {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("is_system_admin, is_staff")
+              .eq("id", user.id)
+              .single();
+          if (profile?.is_system_admin || profile?.is_staff) {
             router.push("/admin");
           } else {
             router.push("/dashboard");

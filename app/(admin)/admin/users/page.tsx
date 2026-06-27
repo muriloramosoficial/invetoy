@@ -39,6 +39,7 @@ interface UserRow {
   email: string;
   role: string;
   is_system_admin: boolean;
+  is_staff: boolean;
   status: string;
   suspended_at: string | null;
   banned_at: string | null;
@@ -73,7 +74,7 @@ export default function AdminUsersPage() {
       const supabase = createClient();
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, name, email, role, is_system_admin, status, suspended_at, banned_at, created_at, tenant_id, tenants(name, plan, slug)")
+        .select("id, name, email, role, is_system_admin, is_staff, status, suspended_at, banned_at, created_at, tenant_id, tenants(name, plan, slug)")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -98,6 +99,28 @@ export default function AdminUsersPage() {
       setTimeout(() => setSuccess(null), 3000);
       setUsers((prev) =>
         prev.map((u) => u.id === userId ? { ...u, is_system_admin: !currentValue } : u)
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao atualizar");
+    } finally {
+      setUpdating(null);
+      menu.close();
+    }
+  };
+
+  const toggleStaff = async (userId: string, currentValue: boolean) => {
+    setUpdating(userId);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("profiles")
+        .update({ is_staff: !currentValue })
+        .eq("id", userId);
+      if (error) throw error;
+      setSuccess(`Funcionario ${!currentValue ? "adicionado" : "removido"} com sucesso`);
+      setTimeout(() => setSuccess(null), 3000);
+      setUsers((prev) =>
+        prev.map((u) => u.id === userId ? { ...u, is_staff: !currentValue } : u)
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao atualizar");
@@ -189,6 +212,7 @@ export default function AdminUsersPage() {
   );
 
   const adminCount = users.filter((u) => u.is_system_admin).length;
+  const staffCount = users.filter((u) => u.is_staff).length;
   const activeCount = users.filter((u) => u.status === "active" || !u.status).length;
   const bannedCount = users.filter((u) => u.status === "banned").length;
   const suspendedCount = users.filter((u) => u.status === "suspended").length;
@@ -198,7 +222,7 @@ export default function AdminUsersPage() {
       <div>
         <h1 className="text-2xl font-semibold text-text-primary tracking-tight">Usuarios</h1>
         <p className="text-sm text-text-muted mt-1">
-          {loading ? "Carregando..." : `${activeCount} ativos · ${suspendedCount} suspensos · ${bannedCount} banidos · ${adminCount} admins`}
+          {loading ? "Carregando..." : `${activeCount} ativos · ${suspendedCount} suspensos · ${bannedCount} banidos · ${adminCount} admins · ${staffCount} staff`}
         </p>
       </div>
 
@@ -362,6 +386,8 @@ export default function AdminUsersPage() {
                     <TableCell>
                       {u.is_system_admin ? (
                         <TechBadge variant="red">ADMIN</TechBadge>
+                      ) : u.is_staff ? (
+                        <TechBadge variant="blue">STAFF</TechBadge>
                       ) : (
                         <span className="text-[10px] text-text-muted">-</span>
                       )}
@@ -406,6 +432,18 @@ export default function AdminUsersPage() {
                   <><ShieldOff className="h-3.5 w-3.5" /> Remover admin do sistema</>
                 ) : (
                   <><Shield className="h-3.5 w-3.5" /> Tornar admin do sistema</>
+                )}
+              </MenuItem>
+
+              {/* Toggle staff */}
+              <MenuItem
+                onClick={() => { menu.close(); toggleStaff(u.id, u.is_staff); }}
+                disabled={updating === u.id || disabled}
+              >
+                {u.is_staff ? (
+                  <><UserX className="h-3.5 w-3.5" /> Remover funcionario</>
+                ) : (
+                  <><UserCheck className="h-3.5 w-3.5" /> Tornar funcionario</>
                 )}
               </MenuItem>
 
