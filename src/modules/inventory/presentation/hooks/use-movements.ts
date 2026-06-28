@@ -23,8 +23,8 @@ export function useMovements(limit = 50) {
           .limit(limit);
         if (error) throw error;
         if (mounted) setMovements((data || []) as Movement[]);
-      } catch (err: any) {
-        if (mounted) setError(err.message);
+      } catch (err: unknown) {
+        if (mounted) setError(err instanceof Error ? err.message : "Erro desconhecido");
       } finally {
         if (mounted) setLoading(false);
       }

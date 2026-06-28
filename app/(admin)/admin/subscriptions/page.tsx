@@ -61,7 +61,17 @@ export default function AdminSubscriptionsPage() {
 
       if (error) throw error;
 
-      const rows = (tenants || []) as SubscriptionRow[];
+      const rows: SubscriptionRow[] = (tenants || []).map((t: Record<string, unknown>) => ({
+        tenant_id: t.id as string,
+        tenant_name: t.name as string,
+        tenant_slug: t.slug as string,
+        plan: t.plan as string,
+        subscription_id: t.subscription_id as string | null,
+        subscription_status: t.subscription_status as string | null,
+        payment_provider: t.payment_provider as string | null,
+        payment_customer_id: t.payment_customer_id as string | null,
+        created_at: t.created_at as string,
+      }));
 
       // Get user counts per tenant
       const { data: profiles } = await supabase
@@ -74,9 +84,6 @@ export default function AdminSubscriptionsPage() {
       });
 
       rows.forEach((r) => {
-        r.tenant_id = (r as any).id;
-        r.tenant_name = (r as any).name;
-        r.tenant_slug = (r as any).slug;
         r.user_count = userCounts[r.tenant_id] || 0;
       });
 

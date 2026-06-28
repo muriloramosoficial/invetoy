@@ -92,7 +92,7 @@ export default function ProductsPage() {
         if (productsResult.error) throw productsResult.error;
         if (categoriesResult.error) throw categoriesResult.error;
 
-        if (mounted) setProducts((productsResult.data || []) as unknown as ProductWithCategory[]);
+        if (mounted) setProducts((productsResult.data || []) as ProductWithCategory[]);
         if (mounted) setCategories(categoriesResult.data || []);
       } catch (err) {
         if (mounted) setError(err instanceof Error ? err.message : "Erro ao carregar patrimonio");

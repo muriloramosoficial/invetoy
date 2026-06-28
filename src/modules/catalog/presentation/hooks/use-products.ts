@@ -2,10 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { getBrowserClient } from "@infra/database/supabase/client";
+import type { PostgrestError } from "@supabase/supabase-js";
 import type { Product } from "../../domain/product.types";
 import type { Category } from "../../domain/category.types";
 
 type ProductWithCategory = Product & { category?: Category };
+type ProductInsert = Omit<Product, "id" | "created_at" | "updated_at" | "archived_at">;
+type ProductUpdate = Partial<ProductInsert>;
 
 export function useProducts(tenantId?: string) {
   const [products, setProducts] = useState<ProductWithCategory[]>([]);
@@ -37,8 +40,8 @@ export function useProducts(tenantId?: string) {
           setProducts((productResult.data || []) as ProductWithCategory[]);
           setCategories(categoryResult.data || []);
         }
-      } catch (err: any) {
-        if (mounted) setError(err.message);
+      } catch (err: unknown) {
+        if (mounted) setError(err instanceof Error ? err.message : "Erro desconhecido");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -47,13 +50,13 @@ export function useProducts(tenantId?: string) {
     return () => { mounted = false; };
   }, [refreshKey, showArchived]);
 
-  const create = useCallback(async (data: any) => {
+  const create = useCallback(async (data: ProductInsert) => {
     const { error } = await getBrowserClient().from("products").insert(data);
     if (error) throw error;
     refresh();
   }, [refresh]);
 
-  const update = useCallback(async (id: string, data: any) => {
+  const update = useCallback(async (id: string, data: ProductUpdate) => {
     const { error } = await getBrowserClient().from("products").update(data).eq("id", id);
     if (error) throw error;
     refresh();

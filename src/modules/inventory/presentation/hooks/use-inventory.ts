@@ -19,8 +19,8 @@ export function useInventory() {
           .select("*, product:products(*), location:locations(*)");
         if (error) throw error;
         if (mounted) setItems((data || []) as InventoryItem[]);
-      } catch (err: any) {
-        if (mounted) setError(err.message);
+      } catch (err: unknown) {
+        if (mounted) setError(err instanceof Error ? err.message : "Erro desconhecido");
       } finally {
         if (mounted) setLoading(false);
       }

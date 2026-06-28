@@ -1,11 +1,15 @@
 import { createBrowserClient } from "@supabase/ssr";
 
+function createNullClient() {
+  return createBrowserClient("", "");
+}
+
 export function createClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    if (typeof window === "undefined") return null as unknown as ReturnType<typeof createBrowserClient>;
+    if (typeof window === "undefined") return createNullClient();
     console.error("[Supabase] Missing env vars", {
       urlPresent: !!supabaseUrl,
       keyPresent: !!supabaseAnonKey,

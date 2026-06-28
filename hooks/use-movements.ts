@@ -4,6 +4,12 @@ import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Movement } from "@/types";
 
+function isMovement(item: unknown): item is Movement {
+  if (!item || typeof item !== "object") return false;
+  const m = item as Record<string, unknown>;
+  return typeof m.id === "string" && typeof m.type === "string";
+}
+
 interface UseMovementsOptions {
   limit?: number;
   productId?: string;
@@ -46,7 +52,7 @@ export function useMovements(options: UseMovementsOptions = {}) {
 
       if (queryError) throw queryError;
 
-      setData((result || []) as unknown as Movement[]);
+      setData(Array.isArray(result) ? result.filter(isMovement) : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch movements");
     } finally {

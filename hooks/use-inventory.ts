@@ -4,6 +4,12 @@ import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Product, InventoryItem } from "@/types";
 
+function isInventoryWithProduct(item: unknown): item is InventoryWithProduct {
+  if (!item || typeof item !== "object") return false;
+  const i = item as Record<string, unknown>;
+  return "product_id" in i || "quantity" in i || "id" in i;
+}
+
 interface UseInventoryOptions {
   search?: string;
   categoryId?: string;
@@ -70,7 +76,7 @@ export function useInventory(options: UseInventoryOptions = {}) {
 
       if (queryError) throw queryError;
 
-      setData((result || []) as unknown as InventoryWithProduct[]);
+      setData(Array.isArray(result) ? result.filter(isInventoryWithProduct) : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch inventory");
     } finally {

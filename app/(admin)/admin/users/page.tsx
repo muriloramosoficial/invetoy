@@ -87,7 +87,10 @@ export default function AdminUsersPage() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setUsers((data || []) as unknown as UserRow[]);
+      setUsers((data || []).map((u: Record<string, unknown>) => ({
+        ...u,
+        tenants: Array.isArray(u.tenants) && u.tenants.length > 0 ? u.tenants[0] : null,
+      })) as unknown as UserRow[]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao carregar usuarios");
     } finally {

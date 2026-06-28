@@ -81,7 +81,7 @@ export default function InventoryPage() {
           `);
 
         if (queryError) throw queryError;
-        if (mounted) setItems((data || []) as unknown as InventoryWithRelations[]);
+        if (mounted) setItems((data || []) as InventoryWithRelations[]);
 
         // Also load locations for the filter
         const { data: locs } = await supabase.from("locations").select("*").is("archived_at", null);
