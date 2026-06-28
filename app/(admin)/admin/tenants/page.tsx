@@ -183,8 +183,8 @@ export default function AdminTenantsPage() {
         />
       </div>
 
-      <div className="rounded-[6px] border border-border-default overflow-hidden">
-        <Table>
+      <div className="rounded-[6px] border border-border-default overflow-x-auto">
+        <Table className="min-w-[700px]">
           <TableHeader>
             <TableRow>
               <TableHead>Empresa</TableHead>

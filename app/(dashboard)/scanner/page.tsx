@@ -97,14 +97,13 @@ export default function ScannerPage() {
       {/* Camera Scanner */}
       <Card accent="brand">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Camera className="h-4 w-4 text-brand" />
+          <div className="flex items-center justify-between">              <div className="flex items-center gap-2">
+              <Camera className="h-4 w-4 text-brand shrink-0" />
               <CardTitle>Camera</CardTitle>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:flex-1 sm:justify-end">
               {isScanning && (
-                <div className="flex items-center gap-1.5 text-xs text-brand">
+                <div className="flex items-center gap-1.5 text-xs text-brand whitespace-nowrap">
                   <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
                   Escaneando...
                 </div>
@@ -117,7 +116,7 @@ export default function ScannerPage() {
                 {isScanning ? (
                   <><CameraOff className="h-3.5 w-3.5" /> Parar</>
                 ) : (
-                  <><Camera className="h-3.5 w-3.5" /> Iniciar Camera</>
+                  <><Camera className="h-3.5 w-3.5" /> Iniciar</>
                 )}
               </Button>
             </div>
@@ -173,23 +172,23 @@ export default function ScannerPage() {
       {lastSku && scanResults[0] && (
         <Card>
           <CardContent className="pt-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
                 {scanResults[0].status === "found" ? (
-                  <CheckCircle className="h-8 w-8 text-brand" />
+                  <CheckCircle className="h-8 w-8 shrink-0 text-brand" />
                 ) : (
-                  <AlertCircle className="h-8 w-8 text-brand-warning" />
+                  <AlertCircle className="h-8 w-8 shrink-0 text-brand-warning" />
                 )}
-                <div>
-                  <p className="text-lg font-mono font-semibold text-text-primary">{lastSku}</p>
-                  <p className="text-sm text-text-secondary">
+                <div className="min-w-0 flex-1">
+                  <p className="text-base sm:text-lg font-mono font-semibold text-text-primary truncate">{lastSku}</p>
+                  <p className="text-xs sm:text-sm text-text-secondary">
                     {scanResults[0].status === "found"
                       ? `Produto encontrado: ${scanResults[0].productName}`
                       : "Item nao encontrado no patrimonio"}
                   </p>
                 </div>
               </div>
-              <TechBadge variant={scanResults[0].status === "found" ? "green" : "yellow"}>
+              <TechBadge variant={scanResults[0].status === "found" ? "green" : "yellow"} className="self-start sm:self-auto shrink-0">
                 {scanResults[0].status === "found" ? "ENCONTRADO" : "NAO ENCONTRADO"}
               </TechBadge>
             </div>
@@ -210,19 +209,19 @@ export default function ScannerPage() {
           <CardContent>
             <div className="space-y-2">
               {scanResults.map((result, i) => (
-                <div key={`${result.sku}-${i}`} className="flex items-center justify-between p-3 rounded-[4px] border border-border-default bg-bg-surface">
-                  <div className="flex items-center gap-3">
+                <div key={`${result.sku}-${i}`} className="flex items-center justify-between p-3 rounded-[4px] border border-border-default bg-bg-surface gap-2">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     {result.status === "found" ? (
-                      <CheckCircle className="h-4 w-4 text-brand" />
+                      <CheckCircle className="h-4 w-4 shrink-0 text-brand" />
                     ) : (
-                      <AlertCircle className="h-4 w-4 text-brand-warning" />
+                      <AlertCircle className="h-4 w-4 shrink-0 text-brand-warning" />
                     )}
-                    <div>
-                      <p className="text-sm font-mono text-text-primary">{result.sku}</p>
-                      {result.productName && <p className="text-xs text-text-muted">{result.productName}</p>}
+                    <div className="min-w-0">
+                      <p className="text-sm font-mono text-text-primary truncate">{result.sku}</p>
+                      {result.productName && <p className="text-xs text-text-muted truncate">{result.productName}</p>}
                     </div>
                   </div>
-                  <span className="text-[10px] text-text-muted font-mono">{result.timestamp}</span>
+                  <span className="text-[10px] text-text-muted font-mono shrink-0">{result.timestamp}</span>
                 </div>
               ))}
             </div>

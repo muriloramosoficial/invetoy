@@ -154,37 +154,37 @@ export default function ProfilePage() {
             <CardTitle>Dados Pessoais</CardTitle>
           </div>
           <CardDescription>Seu nome e email de acesso</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        </CardHeader>        <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               label="Nome"
               value={profileName}
               onChange={(e) => setProfileName(e.target.value)}
             />
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs font-medium text-text-secondary mb-1.5 tracking-wide uppercase">
                 Email
               </label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Input
                   type="email"
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
+                  className="flex-1"
                 />
                 <Button
                   variant="secondary"
                   size="sm"
                   onClick={handleEmailChange}
                   disabled={emailSaving || !newEmail.trim() || newEmail === profileEmail}
-                  className="shrink-0"
+                  className="shrink-0 w-full sm:w-auto"
                 >
                   {emailSaving ? "Salvando..." : "Alterar"}
                 </Button>
               </div>
             </div>
           </div>
-          <Button onClick={handleProfileSave} disabled={saving}>
+          <Button onClick={handleProfileSave} disabled={saving} className="w-full sm:w-auto">
             {saving ? "Salvando..." : "Salvar"}
           </Button>
         </CardContent>

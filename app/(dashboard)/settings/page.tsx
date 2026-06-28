@@ -159,16 +159,15 @@ export default function SettingsPage() {
           </div>
 
           <div className="pt-2">
-            <h4 className="text-xs font-medium text-text-secondary uppercase tracking-wide mb-2">Forma de Pagamento</h4>
-            <div className="flex items-center justify-between p-3 rounded-[4px] border border-border-default bg-bg-surface">
+            <h4 className="text-xs font-medium text-text-secondary uppercase tracking-wide mb-2">Forma de Pagamento</h4>              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 rounded-[4px] border border-border-default bg-bg-surface gap-3">
               <div className="flex items-center gap-3">
-                <QrCode className="h-4 w-4 text-brand" />
+                <QrCode className="h-4 w-4 shrink-0 text-brand" />
                 <div>
                   <p className="text-sm text-text-primary">PIX, Boleto ou Cartao de Credito</p>
                   <p className="text-xs text-text-muted">Assinatura mensal processada com seguranca</p>
                 </div>
               </div>
-              <Button variant="secondary" size="sm" asChild>
+              <Button variant="secondary" size="sm" asChild className="w-full sm:w-auto shrink-0">
                 <Link href="/subscription">Gerenciar <ChevronRight className="h-3.5 w-3.5" /></Link>
               </Button>
             </div>
@@ -185,15 +184,15 @@ export default function SettingsPage() {
           <CardDescription>Acesse a documentacao completa da API REST</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between p-4 rounded-[4px] border border-border-default bg-bg-surface">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 rounded-[4px] border border-border-default bg-bg-surface gap-3">
             <div className="flex items-center gap-3">
-              <ExternalLink className="h-5 w-5 text-brand" />
+              <ExternalLink className="h-5 w-5 shrink-0 text-brand" />
               <div>
                 <p className="text-sm text-text-primary">API /api/v1</p>
                 <p className="text-xs text-text-muted">Integre com seu ERP, site ou aplicativo mobile</p>
               </div>
             </div>
-            <Button variant="secondary" size="sm" asChild>
+            <Button variant="secondary" size="sm" asChild className="w-full sm:w-auto shrink-0">
               <Link href="/settings/api">Ver Documentacao <ChevronRight className="h-3.5 w-3.5" /></Link>
             </Button>
           </div>

@@ -267,8 +267,8 @@ export default function AdminBillingPage() {
       {/* Cost breakdown table */}
       <div className="rounded-[6px] border border-border-default bg-bg-card p-5">
         <h2 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">Detalhamento de Custos</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-1">
+          <table className="w-full text-sm min-w-[500px]">
             <thead>
               <tr className="border-b border-border-default">
                 <th className="text-left py-2 text-text-muted font-medium text-xs">Item</th>
