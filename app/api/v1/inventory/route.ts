@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { authenticateV1Request, V1AuthError } from "@/lib/api/v1-auth";
+import { authenticateV1Request } from "@/lib/api/v1-auth";
+import { errorHandler } from "@infra/http/error-handler";
 
 export async function GET(req: NextRequest) {
   try {
@@ -42,15 +43,10 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error: unknown) {
-    if (error instanceof V1AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
-    }
-    console.error("API v1 inventory error:", error);
-    return NextResponse.json(
-      { error: "Erro ao buscar inventario" },
-      { status: 500 }
-    );
+    return errorHandler(error);
   }
 }
+
+
 
 

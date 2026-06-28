@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { authenticateV1Request, V1AuthError } from "@/lib/api/v1-auth";
+import { authenticateV1Request } from "@/lib/api/v1-auth";
 import { createMovementSchema } from "@/lib/validations";
+import { errorHandler } from "@infra/http/error-handler";
 
 export async function GET(req: NextRequest) {
   try {
@@ -50,14 +51,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error: unknown) {
-    if (error instanceof V1AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
-    }
-    console.error("API v1 movements error:", error);
-    return NextResponse.json(
-      { error: "Erro ao buscar movimentacoes" },
-      { status: 500 }
-    );
+    return errorHandler(error);
   }
 }
 
@@ -117,14 +111,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ data }, { status: 201 });
   } catch (error: unknown) {
-    if (error instanceof V1AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
-    }
-    console.error("API v1 movements create error:", error);
-    return NextResponse.json(
-      { error: "Erro ao criar movimentacao" },
-      { status: 500 }
-    );
+    return errorHandler(error);
   }
 }
 

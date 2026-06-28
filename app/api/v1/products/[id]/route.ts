@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { authenticateV1Request, V1AuthError } from "@/lib/api/v1-auth";
+import { authenticateV1Request } from "@/lib/api/v1-auth";
 import { updateProductSchema } from "@/lib/validations";
+import { errorHandler } from "@infra/http/error-handler";
 
 function getAdminClient() {
   return createClient(
@@ -36,13 +37,7 @@ export async function GET(
 
     return NextResponse.json({ data });
   } catch (error: unknown) {
-    if (error instanceof V1AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
-    }
-    return NextResponse.json(
-      { error: "Erro ao buscar produto" },
-      { status: 500 }
-    );
+    return errorHandler(error);
   }
 }
 
@@ -82,13 +77,7 @@ export async function PATCH(
 
     return NextResponse.json({ data });
   } catch (error: unknown) {
-    if (error instanceof V1AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
-    }
-    return NextResponse.json(
-      { error: "Erro ao atualizar produto" },
-      { status: 500 }
-    );
+    return errorHandler(error);
   }
 }
 
@@ -101,7 +90,6 @@ export async function DELETE(
     const { id } = await params;
     const adminClient = getAdminClient();
 
-    // Archive instead of hard-delete (soft delete)
     const { error } = await adminClient
       .from("products")
       .update({ archived_at: new Date().toISOString() })
@@ -117,12 +105,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, message: "Product archived" });
   } catch (error: unknown) {
-    if (error instanceof V1AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
-    }
-    return NextResponse.json(
-      { error: "Erro ao arquivar produto" },
-      { status: 500 }
-    );
+    return errorHandler(error);
   }
 }
