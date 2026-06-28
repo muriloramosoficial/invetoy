@@ -286,6 +286,18 @@ export interface CreditCardToken {
   creditCardToken: string;
 }
 
+/**
+ * PCI-DSS NON-COMPLIANT — DO NOT USE IN PRODUCTION
+ *
+ * Esta funcao processa dados brutos de cartao (numero, CVV, titular) no servidor,
+ * o que coloca a aplicacao dentro do escopo PCI-DSS (SAQ-D, auditoria anual).
+ *
+ * Para conformidade, substituir por:
+ * - Asaas Transparent Checkout (redirect): https://docs.asaas.com/docs/checkout-transparente
+ * - Asaas Card Tokenization (client-side JS): https://docs.asaas.com/docs/cartao-de-credito#tokenizacao
+ *
+ * @deprecated PCI-risco — remover antes de lancar producao com cartao
+ */
 export async function tokenizeCreditCard(
   apiKey: string,
   baseUrl: string,

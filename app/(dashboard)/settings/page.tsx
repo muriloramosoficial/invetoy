@@ -3,14 +3,15 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { TechBadge } from "@/components/tech-badge";
-import { Building2, CreditCard, Check, ChevronRight, QrCode, Code2, ExternalLink, Loader2, Users, Plus, X } from "lucide-react";
+import { CreditCard, Check, ChevronRight, QrCode, Code2, ExternalLink, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { Dialog, DialogFooter } from "@/components/ui/dialog";
 import type { Profile, Tenant } from "@/types";
 import { useToast } from "@/components/ui/toast";
+import { TenantInfoForm } from "@/src/modules/tenant/presentation/components/tenant-info-form";
+import { TeamMemberList } from "@/src/modules/tenant/presentation/components/team-member-list";
+import { InviteMemberDialog } from "@/src/modules/tenant/presentation/components/invite-member-dialog";
 
 interface TeamMember {
   id: string;
@@ -34,20 +35,9 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const { success: toastSuccess, error: toastError } = useToast();
 
-  const [tenantName, setTenantName] = useState("");
-  const [tenantSlug, setTenantSlug] = useState("");
-  const [tenantSaving, setTenantSaving] = useState(false);
-
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [teamLoading, setTeamLoading] = useState(false);
   const [teamModalOpen, setTeamModalOpen] = useState(false);
-  const [newMemberEmail, setNewMemberEmail] = useState("");
-  const [newMemberName, setNewMemberName] = useState("");
-  const [newMemberPassword, setNewMemberPassword] = useState("");
-  const [newMemberRole, setNewMemberRole] = useState("operator");
-  const [teamSaving, setTeamSaving] = useState(false);
-  const [editingMemberRole, setEditingMemberRole] = useState<string | null>(null);
-  const [newRole, setNewRole] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -76,8 +66,6 @@ export default function SettingsPage() {
         if (mounted) {
           setProfile(profileData);
           setTenant(tenantData);
-          setTenantName(tenantData.name);
-          setTenantSlug(tenantData.slug);
         }
       } catch (err) {
         if (mounted) toastError(err instanceof Error ? err.message : "Erro ao carregar configuracoes");
@@ -89,7 +77,6 @@ export default function SettingsPage() {
     return () => { mounted = false; };
   }, []);
 
-  // Load team members
   useEffect(() => {
     const tenantId = profile?.tenant_id;
     if (!tenantId) return;
@@ -112,85 +99,7 @@ export default function SettingsPage() {
     return () => { mounted = false; };
   }, [profile?.tenant_id]);
 
-  const handleCreateMember = async () => {
-    if (!newMemberEmail || !newMemberPassword || !newMemberName || !profile?.tenant_id) {
-      toastError("Preencha todos os campos");
-      return;
-    }
-    if (newMemberPassword.length < 6) {
-      toastError("A senha deve ter no minimo 6 caracteres");
-      return;
-    }
-    setTeamSaving(true);
-    try {
-      const res = await fetch("/api/admin/users/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: newMemberEmail,
-          password: newMemberPassword,
-          name: newMemberName,
-          role: newMemberRole,
-          tenantId: profile.tenant_id,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      toastSuccess(data.message);
-      setTeamModalOpen(false);
-      setNewMemberEmail("");
-      setNewMemberName("");
-      setNewMemberPassword("");
-      setNewMemberRole("operator");
-      // Reload team
-      const supabase = createClient();
-      const { data: updatedTeam } = await supabase
-        .from("profiles")
-        .select("id, name, email, role, status, created_at")
-        .eq("tenant_id", profile.tenant_id)
-        .order("created_at", { ascending: true });
-      if (updatedTeam) setTeamMembers(updatedTeam as TeamMember[]);
-    } catch (err) {
-      toastError(err instanceof Error ? err.message : "Erro ao criar usuario");
-    } finally {
-      setTeamSaving(false);
-    }
-  };
-
-  const handleRoleChange = async (userId: string, role: string) => {
-    try {
-      const supabase = createClient();
-      const { error } = await supabase.from("profiles").update({ role }).eq("id", userId);
-      if (error) throw error;
-      toastSuccess(`Funcao alterada para "${role}"`);
-      setTeamMembers((prev) =>
-        prev.map((m) => (m.id === userId ? { ...m, role } : m))
-      );
-      setEditingMemberRole(null);
-    } catch (err) {
-      toastError(err instanceof Error ? err.message : "Erro ao alterar funcao");
-    }
-  };
-
-  const isTeamAdmin = profile?.role === "admin" || profile?.role === "manager" || profile?.is_system_admin || profile?.is_staff;
-
-  const handleTenantSave = async () => {
-    if (!tenant) return;
-    setTenantSaving(true);
-    try {
-      const supabase = createClient();
-      const { error: supabaseError } = await supabase
-        .from("tenants")
-        .update({ name: tenantName })
-        .eq("id", tenant.id);
-      if (supabaseError) throw supabaseError;
-      toastSuccess("Organizacao atualizada com sucesso");
-    } catch (err) {
-      toastError(err instanceof Error ? err.message : "Erro ao atualizar organizacao");
-    } finally {
-      setTenantSaving(false);
-    }
-  };
+  const isTeamAdmin = !!(profile?.role === "admin" || profile?.role === "manager" || profile?.is_system_admin || profile?.is_staff);
 
   if (loading) {
     return (
@@ -207,38 +116,11 @@ export default function SettingsPage() {
     <div className="space-y-6 max-w-3xl">
       <div>
         <h1 className="text-2xl font-semibold text-text-primary tracking-tight">Configuracoes da Empresa</h1>
-        <p className="text-sm text-text-muted mt-1">
-          Gerencie sua empresa, plano e integracoes
-        </p>
+        <p className="text-sm text-text-muted mt-1">Gerencie sua empresa, plano e integracoes</p>
       </div>
 
-      {/* Organizacao */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-text-muted" />
-            <CardTitle>Organizacao</CardTitle>
-          </div>
-          <CardDescription>Dados da sua empresa</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Input
-            label="Nome da Empresa"
-            value={tenantName}
-            onChange={(e) => setTenantName(e.target.value)}
-          />
-          <Input
-            label="Slug da empresa"
-            value={tenantSlug}
-            disabled
-          />
-          <Button onClick={handleTenantSave} disabled={tenantSaving}>
-            {tenantSaving ? "Salvando..." : "Salvar"}
-          </Button>
-        </CardContent>
-      </Card>
+      {tenant && <TenantInfoForm tenant={tenant} />}
 
-      {/* Planos */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -266,10 +148,9 @@ export default function SettingsPage() {
                   </div>
                   <p className="text-2xl font-semibold text-text-primary font-mono">{plan.price}</p>
                   <p className="text-xs text-text-muted mt-1">{plan.description}</p>
-                  {!isCurrent && (
+                  {!isCurrent ? (
                     <Button variant="outline" size="sm" className="w-full mt-3">Fazer Upgrade</Button>
-                  )}
-                  {isCurrent && (
+                  ) : (
                     <TechBadge variant="green" className="w-full justify-center mt-3">Atual</TechBadge>
                   )}
                 </div>
@@ -278,9 +159,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="pt-2">
-            <h4 className="text-xs font-medium text-text-secondary uppercase tracking-wide mb-2">
-              Forma de Pagamento
-            </h4>
+            <h4 className="text-xs font-medium text-text-secondary uppercase tracking-wide mb-2">Forma de Pagamento</h4>
             <div className="flex items-center justify-between p-3 rounded-[4px] border border-border-default bg-bg-surface">
               <div className="flex items-center gap-3">
                 <QrCode className="h-4 w-4 text-brand" />
@@ -290,16 +169,13 @@ export default function SettingsPage() {
                 </div>
               </div>
               <Button variant="secondary" size="sm" asChild>
-                <Link href="/subscription">
-                  Gerenciar <ChevronRight className="h-3.5 w-3.5" />
-                </Link>
+                <Link href="/subscription">Gerenciar <ChevronRight className="h-3.5 w-3.5" /></Link>
               </Button>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* API Access */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -318,177 +194,37 @@ export default function SettingsPage() {
               </div>
             </div>
             <Button variant="secondary" size="sm" asChild>
-              <Link href="/settings/api">
-                Ver Documentacao <ChevronRight className="h-3.5 w-3.5" />
-              </Link>
+              <Link href="/settings/api">Ver Documentacao <ChevronRight className="h-3.5 w-3.5" /></Link>
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Equipe */}
       {tenant && profile && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-text-muted" />
-              <CardTitle>Equipe</CardTitle>
-              <span className="text-xs text-text-muted ml-1">({teamMembers.length} membros)</span>
-            </div>
-            <CardDescription>
-              {isTeamAdmin
-                ? "Gerencie os usuarios da sua empresa. Adicione operadores e gerentes."
-                : "Membros da sua empresa"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="rounded-[6px] border border-border-default overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border-default bg-bg-card">
-                    <th className="text-left px-3 py-2 text-[10px] font-medium text-text-muted uppercase tracking-wider">Nome</th>
-                    <th className="text-left px-3 py-2 text-[10px] font-medium text-text-muted uppercase tracking-wider">Email</th>
-                    <th className="text-left px-3 py-2 text-[10px] font-medium text-text-muted uppercase tracking-wider">Funcao</th>
-                    <th className="text-left px-3 py-2 text-[10px] font-medium text-text-muted uppercase tracking-wider">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {teamLoading ? (
-                    <tr>
-                      <td colSpan={4} className="text-center py-8 text-text-muted">
-                        <Loader2 className="h-5 w-5 animate-spin mx-auto" />
-                      </td>
-                    </tr>
-                  ) : teamMembers.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="text-center py-8 text-text-muted text-xs">Nenhum membro encontrado</td>
-                    </tr>
-                  ) : (
-                    teamMembers.map((member) => (
-                      <tr key={member.id} className="border-b border-border-default last:border-0 hover:bg-bg-surface-hover/50">
-                        <td className="px-3 py-2.5">
-                          <span className="text-text-primary text-sm">{member.name}</span>
-                          {member.id === profile.id && (
-                            <span className="ml-1.5 text-[10px] text-brand font-medium">(Voce)</span>
-                          )}
-                        </td>
-                        <td className="px-3 py-2.5 text-text-muted text-xs">{member.email}</td>
-                        <td className="px-3 py-2.5">
-                          {isTeamAdmin && editingMemberRole === member.id ? (
-                            <div className="flex items-center gap-1">
-                              <select
-                                value={newRole}
-                                onChange={(e) => setNewRole(e.target.value)}
-                                className="h-7 px-1.5 rounded-[4px] border border-border-default bg-bg-surface text-xs text-text-primary outline-none"
-                              >
-                                <option value="admin">Admin</option>
-                                <option value="manager">Gerente</option>
-                                <option value="operator">Operador</option>
-                              </select>
-                              <button onClick={() => handleRoleChange(member.id, newRole)} className="p-0.5 rounded text-brand hover:bg-brand-8">
-                                <Check className="h-3 w-3" />
-                              </button>
-                              <button onClick={() => setEditingMemberRole(null)} className="p-0.5 rounded text-text-muted hover:bg-bg-surface">
-                                <X className="h-3 w-3" />
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => {
-                                if (!isTeamAdmin || member.id === profile.id) return;
-                                setEditingMemberRole(member.id);
-                                setNewRole(member.role || "operator");
-                              }}
-                              className={`group flex items-center gap-1 ${isTeamAdmin && member.id !== profile.id ? "hover:bg-bg-surface rounded px-1.5 py-0.5 -mx-1.5" : ""}`}
-                            >
-                              <TechBadge variant={member.role === "admin" ? "green" : member.role === "manager" ? "blue" : "gray"}>
-                                {member.role?.toUpperCase() || "OPERADOR"}
-                              </TechBadge>
-                              {isTeamAdmin && member.id !== profile.id && (
-                                <span className="text-[9px] text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">editar</span>
-                              )}
-                            </button>
-                          )}
-                        </td>
-                        <td className="px-3 py-2.5">
-                          {member.status === "suspended" ? (
-                            <TechBadge variant="yellow">SUSPENSO</TechBadge>
-                          ) : member.status === "banned" ? (
-                            <TechBadge variant="red">BANIDO</TechBadge>
-                          ) : (
-                            <TechBadge variant="green">ATIVO</TechBadge>
-                          )}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {isTeamAdmin && (
-              <Button onClick={() => setTeamModalOpen(true)}>
-                <Plus className="h-4 w-4" />
-                Adicionar Membro
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+        <>
+          <TeamMemberList
+            members={teamMembers}
+            loading={teamLoading}
+            currentUserId={profile.id}
+            isAdmin={isTeamAdmin}
+            onAddClick={() => setTeamModalOpen(true)}
+          />
+          <InviteMemberDialog
+            open={teamModalOpen}
+            tenantId={tenant.id}
+            onClose={() => setTeamModalOpen(false)}
+            onCreated={() => {
+              const supabase = createClient();
+              supabase
+                .from("profiles")
+                .select("id, name, email, role, status, created_at")
+                .eq("tenant_id", tenant.id)
+                .order("created_at", { ascending: true })
+                .then(({ data }) => { if (data) setTeamMembers(data as TeamMember[]); });
+            }}
+          />
+        </>
       )}
-
-      {/* Dialog para criar membro */}
-      <Dialog
-        open={teamModalOpen}
-        onClose={() => setTeamModalOpen(false)}
-        title="Adicionar Membro a Equipe"
-        description="Crie um novo usuario para sua empresa"
-      >
-        <div className="space-y-4">
-          <Input
-            label="Nome"
-            placeholder="Nome completo"
-            value={newMemberName}
-            onChange={(e) => setNewMemberName(e.target.value)}
-          />
-          <Input
-            label="Email"
-            type="email"
-            placeholder="email@exemplo.com"
-            value={newMemberEmail}
-            onChange={(e) => setNewMemberEmail(e.target.value)}
-          />
-          <Input
-            label="Senha"
-            type="password"
-            placeholder="Minimo 6 caracteres"
-            value={newMemberPassword}
-            onChange={(e) => setNewMemberPassword(e.target.value)}
-          />
-          <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1.5 tracking-wide uppercase">
-              Funcao
-            </label>
-            <select
-              value={newMemberRole}
-              onChange={(e) => setNewMemberRole(e.target.value)}
-              className="flex h-10 w-full rounded-[4px] border border-border-default bg-bg-surface px-3 py-2 text-sm text-text-primary appearance-none focus:border-brand-40 focus:ring-1 focus:ring-brand-20 transition-colors outline-none"
-            >
-              <option value="operator">Operador</option>
-              <option value="manager">Gerente</option>
-              <option value="admin">Administrador</option>
-            </select>
-          </div>
-          <DialogFooter>
-            <Button variant="secondary" onClick={() => setTeamModalOpen(false)} disabled={teamSaving}>
-              Cancelar
-            </Button>
-            <Button onClick={handleCreateMember} disabled={teamSaving}>
-              {teamSaving ? "Criando..." : "Criar Usuario"}
-            </Button>
-          </DialogFooter>
-        </div>
-      </Dialog>
-
     </div>
   );
 }
