@@ -1,8 +1,9 @@
 import { createHash, randomBytes } from "crypto";
 import { SupabaseRepository } from "@infra/database/supabase/repository.helper";
 import type { ApiKey } from "../domain/api-key.types";
+import type { IApiKeyRepository } from "../domain/repositories/i-api-key.repository";
 
-export class SupabaseApiKeyRepository extends SupabaseRepository {
+export class SupabaseApiKeyRepository extends SupabaseRepository implements IApiKeyRepository {
   private generateKey(): { raw: string; prefix: string; hash: string } {
     const raw = `inv_${randomBytes(24).toString("base64url")}`;
     const prefix = raw.slice(0, 12);

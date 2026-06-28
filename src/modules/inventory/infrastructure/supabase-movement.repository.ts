@@ -1,7 +1,8 @@
 import { SupabaseRepository } from "@infra/database/supabase/repository.helper";
 import type { Movement } from "../domain/movement.types";
+import type { IMovementRepository } from "../domain/repositories/i-movement.repository";
 
-export class SupabaseMovementRepository extends SupabaseRepository {
+export class SupabaseMovementRepository extends SupabaseRepository implements IMovementRepository {
   async findByTenant(
     tenantId: string,
     options: { page?: number; pageSize?: number; productId?: string; type?: string } = {}

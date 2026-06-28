@@ -1,7 +1,8 @@
 import { SupabaseRepository } from "@infra/database/supabase/repository.helper";
 import type { Product } from "../domain/product.types";
+import type { IProductRepository } from "../domain/repositories/i-product.repository";
 
-export class SupabaseProductRepository extends SupabaseRepository {
+export class SupabaseProductRepository extends SupabaseRepository implements IProductRepository {
   async findById(id: string): Promise<Product | null> {
     const { data, error } = await this.getClient()
       .from("products")

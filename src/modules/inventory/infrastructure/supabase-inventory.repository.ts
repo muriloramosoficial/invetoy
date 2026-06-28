@@ -1,7 +1,8 @@
 import { SupabaseRepository } from "@infra/database/supabase/repository.helper";
 import type { InventoryItem } from "../domain/inventory.types";
+import type { IInventoryRepository } from "../domain/repositories/i-inventory.repository";
 
-export class SupabaseInventoryRepository extends SupabaseRepository {
+export class SupabaseInventoryRepository extends SupabaseRepository implements IInventoryRepository {
   async findByTenant(tenantId: string): Promise<InventoryItem[]> {
     const { data, error } = await this.getClient()
       .from("inventory_items")

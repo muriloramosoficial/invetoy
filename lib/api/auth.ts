@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import { createHash, randomBytes } from "crypto";
+import { cache } from "@/src/@core/cache/simple-cache";
 
 interface ApiAuthResult {
   authenticated: boolean;
@@ -120,12 +121,18 @@ export async function listApiKeys(tenantId: string) {
 }
 
 export async function checkPlanAccess(tenantId: string, feature: string): Promise<boolean> {
+  const cacheKey = `plan:${tenantId}:${feature}`;
+  const cached = cache.get<boolean>(cacheKey);
+  if (cached !== undefined) return cached;
+
   const supabase = await getServiceClient();
   const { data } = await supabase.rpc("check_plan_feature", {
     p_tenant_id: tenantId,
     p_feature: feature,
   });
-  return data ?? false;
+  const result = data ?? false;
+  cache.set(cacheKey, result, 300_000);
+  return result;
 }
 
 export { generateApiKey };
