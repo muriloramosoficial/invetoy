@@ -81,16 +81,32 @@ export default function AdminUsersPage() {
     setLoading(true);
     try {
       const supabase = createClient();
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, name, email, role, is_system_admin, is_staff, status, suspended_at, banned_at, created_at, tenant_id, tenants(name, plan, slug)")
-        .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setUsers((data || []).map((u: Record<string, unknown>) => ({
+      // Fetch profiles and tenants separately to avoid Supabase join issues
+      const [profilesResult, tenantsResult] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("id, name, email, role, is_system_admin, is_staff, status, suspended_at, banned_at, created_at, tenant_id")
+          .order("created_at", { ascending: false }),
+        supabase.from("tenants").select("id, name, plan, slug"),
+      ]);
+
+      if (profilesResult.error) throw profilesResult.error;
+      if (tenantsResult.error) throw tenantsResult.error;
+
+      // Map tenants by id for quick lookup
+      const tenantMap: Record<string, { name: string; plan: string; slug: string }> = {};
+      (tenantsResult.data || []).forEach((t: { id: string; name: string; plan: string; slug: string }) => {
+        tenantMap[t.id] = { name: t.name, plan: t.plan, slug: t.slug };
+      });
+
+      // Join profiles with tenant data
+      const usersWithTenants = (profilesResult.data || []).map((u: Record<string, unknown>) => ({
         ...u,
-        tenants: Array.isArray(u.tenants) && u.tenants.length > 0 ? u.tenants[0] : null,
-      })) as unknown as UserRow[]);
+        tenants: u.tenant_id ? (tenantMap[u.tenant_id as string] || null) : null,
+      })) as unknown as UserRow[];
+
+      setUsers(usersWithTenants);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao carregar usuarios");
     } finally {

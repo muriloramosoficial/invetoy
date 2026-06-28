@@ -5,8 +5,23 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { BottomNav } from "@/components/layout/bottom-nav";
 import { cn } from "@/lib/utils";
-import { Shield, Menu, User, UserCircle, LogOut, Search, LayoutDashboard, AlertTriangle } from "lucide-react";
+import {
+  Shield,
+  Menu,
+  User,
+  UserCircle,
+  LogOut,
+  Search,
+  LayoutDashboard,
+  AlertTriangle,
+  Building2,
+  Users,
+  BarChart3,
+  Activity,
+  Settings,
+} from "lucide-react";
 import { Dialog, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
@@ -54,6 +69,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setMobileOpen(false);
     setUserMenuOpen(false);
   }, [pathname]);
+
+  const bottomNavItems = [
+    { label: "Painel", href: "/admin", icon: <LayoutDashboard className="h-5 w-5" /> },
+    { label: "Empresas", href: "/admin/tenants", icon: <Building2 className="h-5 w-5" /> },
+    { label: "Usuarios", href: "/admin/users", icon: <Users className="h-5 w-5" /> },
+    { label: "Planos", href: "/admin/plans", icon: <BarChart3 className="h-5 w-5" /> },
+    { label: "Atividades", href: "/admin/activity", icon: <Activity className="h-5 w-5" /> },
+    { label: "Perfil", href: "/admin/settings", icon: <Settings className="h-5 w-5" /> },
+  ];
 
   const handleLogout = async () => {
     setShowLogoutConfirm(false);
@@ -178,8 +202,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6 pb-20 lg:pb-6">{children}</main>
       </div>
+
+      {/* Mobile bottom navigation */}
+      <BottomNav items={bottomNavItems} />
 
       {/* Logout confirmation modal */}
       <Dialog

@@ -4,11 +4,20 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
+import { BottomNav } from "@/components/layout/bottom-nav";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { LogOut, AlertTriangle } from "lucide-react";
+import {
+  LayoutDashboard,
+  ArrowRightLeft,
+  ScanLine,
+  Settings,
+  LogOut,
+  AlertTriangle,
+  Package,
+} from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -76,6 +85,14 @@ export default function DashboardLayout({
     setMobileOpen(false); // eslint-disable-line react-hooks/set-state-in-effect
   }, [pathname]);
 
+  const bottomNavItems = [
+    { label: "Painel", href: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
+    { label: "Patrimonio", href: "/products", icon: <Package className="h-5 w-5" /> },
+    { label: "Movimentos", href: "/movements", icon: <ArrowRightLeft className="h-5 w-5" /> },
+    { label: "Scanner", href: "/scanner", icon: <ScanLine className="h-5 w-5" /> },
+    { label: "Config", href: "/settings", icon: <Settings className="h-5 w-5" /> },
+  ];
+
   return (
     <div className="h-full flex">
       {/* Mobile overlay */}
@@ -123,10 +140,13 @@ export default function DashboardLayout({
         </div>
 
         {/* Page content */}
-        <main className="flex-1 p-4 lg:p-6 overflow-y-auto">
+        <main className="flex-1 p-4 lg:p-6 overflow-y-auto pb-20 lg:pb-6">
           {children}
         </main>
       </div>
+
+      {/* Mobile bottom navigation */}
+      <BottomNav items={bottomNavItems} />
 
       {/* Logout confirmation modal */}
       <Dialog
