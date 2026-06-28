@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { BottomNav } from "@/components/layout/bottom-nav";
+import { MobileMenu } from "@/components/layout/mobile-menu";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogFooter } from "@/components/ui/dialog";
@@ -17,6 +18,11 @@ import {
   LogOut,
   AlertTriangle,
   Package,
+  Tags,
+  MapPin,
+  BarChart3,
+  Code2,
+  Box,
 } from "lucide-react";
 
 export default function DashboardLayout({
@@ -93,25 +99,28 @@ export default function DashboardLayout({
     { label: "Config", href: "/settings", icon: <Settings className="h-5 w-5" /> },
   ];
 
+  const mobileMenuItems = [
+    { label: "Painel", href: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
+    { label: "Patrimonio", href: "/products", icon: <Box className="h-5 w-5" /> },
+    { label: "Movimentacoes", href: "/movements", icon: <ArrowRightLeft className="h-5 w-5" /> },
+    { label: "Leitor", href: "/scanner", icon: <ScanLine className="h-5 w-5" /> },
+    { label: "Categorias", href: "/categories", icon: <Tags className="h-5 w-5" /> },
+    { label: "Locais", href: "/locations", icon: <MapPin className="h-5 w-5" /> },
+    { label: "Relatorios", href: "/reports", icon: <BarChart3 className="h-5 w-5" /> },
+    { label: "Configuracoes", href: "/settings", icon: <Settings className="h-5 w-5" /> },
+    { label: "API", href: "/settings/api", icon: <Code2 className="h-5 w-5" /> },
+  ];
+
   return (
     <div className="h-full flex">
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
-
-      {/* Mobile sidebar drawer */}
-      <div
-        className={cn(
-          "fixed inset-y-0 left-0 z-40 transform transition-transform duration-200 lg:hidden",
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
-        )}
-      >
-        <Sidebar collapsed={false} onToggle={() => setMobileOpen(false)} />
-      </div>
+      {/* Mobile full-screen menu */}
+      <MobileMenu
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        items={mobileMenuItems}
+        title={tenantName}
+        subtitle={userName}
+      />
 
       {/* Desktop sidebar */}
       <div className="hidden lg:block">

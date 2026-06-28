@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { BottomNav } from "@/components/layout/bottom-nav";
+import { MobileMenu } from "@/components/layout/mobile-menu";
 import { cn } from "@/lib/utils";
 import {
   Shield,
@@ -21,6 +22,11 @@ import {
   BarChart3,
   Activity,
   Settings,
+  CreditCard,
+  DollarSign,
+  Receipt,
+  Webhook,
+  Key,
 } from "lucide-react";
 import { Dialog, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -79,6 +85,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: "Perfil", href: "/admin/settings", icon: <Settings className="h-5 w-5" /> },
   ];
 
+  const mobileMenuItems = [
+    { label: "Painel", href: "/admin", icon: <LayoutDashboard className="h-5 w-5" /> },
+    { label: "Empresas", href: "/admin/tenants", icon: <Building2 className="h-5 w-5" /> },
+    { label: "Usuarios", href: "/admin/users", icon: <Users className="h-5 w-5" /> },
+    { label: "Planos", href: "/admin/plans", icon: <CreditCard className="h-5 w-5" /> },
+    { label: "Assinaturas", href: "/admin/subscriptions", icon: <DollarSign className="h-5 w-5" /> },
+    { label: "Financeiro", href: "/admin/billing", icon: <Receipt className="h-5 w-5" /> },
+    { label: "Perfil", href: "/admin/settings", icon: <Settings className="h-5 w-5" /> },
+    { label: "Relatorios", href: "/admin/reports", icon: <BarChart3 className="h-5 w-5" /> },
+    { label: "Atividades", href: "/admin/activity", icon: <Activity className="h-5 w-5" /> },
+    { label: "Asaas", href: "/admin/asaas-config", icon: <Webhook className="h-5 w-5" /> },
+    { label: "API Keys", href: "/admin/api-keys", icon: <Key className="h-5 w-5" /> },
+  ];
+
   const handleLogout = async () => {
     setShowLogoutConfirm(false);
     const supabase = createClient();
@@ -103,21 +123,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="h-full flex">
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
-
-      <div
-        className={cn(
-          "fixed inset-y-0 left-0 z-40 transform transition-transform duration-200 lg:hidden",
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
-        )}
-      >
-        <AdminSidebar collapsed={false} onToggle={() => setMobileOpen(false)} />
-      </div>
+      {/* Mobile full-screen menu */}
+      <MobileMenu
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        items={mobileMenuItems}
+        title="INVENTOY Admin"
+        subtitle={userName}
+      />
 
       <div className="hidden lg:block">
         <AdminSidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
