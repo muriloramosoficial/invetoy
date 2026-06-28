@@ -1,19 +1,18 @@
-import { createClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { LoginRequest, AuthSession } from "../domain/auth.types";
+import { InvalidCredentialsError } from "../domain/auth.errors";
 
-export async function loginUseCase(request: LoginRequest): Promise<AuthSession> {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
+export async function loginUseCase(
+  supabase: SupabaseClient,
+  request: LoginRequest
+): Promise<AuthSession> {
   const { data, error } = await supabase.auth.signInWithPassword({
     email: request.email,
     password: request.password,
   });
 
   if (error || !data.user) {
-    throw new Error("Email ou senha inválidos");
+    throw new InvalidCredentialsError();
   }
 
   const { data: profile } = await supabase
@@ -23,7 +22,7 @@ export async function loginUseCase(request: LoginRequest): Promise<AuthSession> 
     .single();
 
   if (!profile) {
-    throw new Error("Perfil não encontrado");
+    throw new InvalidCredentialsError();
   }
 
   return {

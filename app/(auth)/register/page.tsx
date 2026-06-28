@@ -42,8 +42,18 @@ export default function RegisterPage() {
       setLoading(false);
       return;
     }
-    if (password.length < 6) {
-      setError("A senha deve ter no minimo 6 caracteres");
+    if (password.length < 8) {
+      setError("A senha deve ter no minimo 8 caracteres");
+      setLoading(false);
+      return;
+    }
+    if (!/[A-Z]/.test(password)) {
+      setError("A senha deve conter pelo menos uma letra maiuscula");
+      setLoading(false);
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      setError("A senha deve conter pelo menos um numero");
       setLoading(false);
       return;
     }
@@ -186,12 +196,12 @@ export default function RegisterPage() {
             <div>
               <Label htmlFor="reg-password">Senha *</Label>
               <div className="relative">
-                <Input id="reg-password" type={showPassword ? "text" : "password"} placeholder="Minimo 6 caracteres" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} icon={<Lock className="h-4 w-4" />} />
+                <Input id="reg-password" type={showPassword ? "text" : "password"} placeholder="Minimo 8 caracteres, 1 maiuscula, 1 numero" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} icon={<Lock className="h-4 w-4" />} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors p-0.5" aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"} tabIndex={-1}>
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              <p className="text-[10px] text-text-muted mt-0.5">Deve ter no minimo 6 caracteres</p>
+              <p className="text-[10px] text-text-muted mt-0.5">Minimo 8 caracteres, 1 letra maiuscula e 1 numero</p>
             </div>
 
             <p className="text-[11px] text-text-muted leading-relaxed">

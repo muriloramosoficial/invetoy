@@ -25,12 +25,16 @@ const nextConfig: NextConfig = {
   // Compress with gzip
   compress: true,
 
-  // Content Security Policy
+  // Security headers + Content Security Policy
   async headers() {
     return [
       {
         source: "/(.*)",
         headers: [
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
           {
             key: "Content-Security-Policy",
             value: [

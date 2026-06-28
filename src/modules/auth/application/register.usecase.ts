@@ -1,55 +1,44 @@
-import { createClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { RegisterRequest } from "../domain/auth.types";
+import { EmailAlreadyRegisteredError } from "../domain/auth.errors";
 
 interface RegisterResult {
   userId: string;
   tenantId: string;
 }
 
-export async function registerUseCase(request: RegisterRequest): Promise<RegisterResult> {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
+export async function registerUseCase(
+  supabase: SupabaseClient,
+  request: RegisterRequest
+): Promise<RegisterResult> {
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email: request.email,
     password: request.password,
+    options: {
+      data: {
+        name: request.name,
+        tenant_name: request.tenantName,
+      },
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/callback`,
+    },
   });
 
   if (authError || !authData.user) {
     throw new Error(authError?.message || "Erro ao criar conta");
   }
 
-  const slug = request.tenantName
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+  if (authData?.user?.identities?.length === 0) {
+    throw new EmailAlreadyRegisteredError();
+  }
 
-  const { data: tenant, error: tenantError } = await supabase
-    .from("tenants")
-    .insert({ name: request.tenantName, slug, plan: "free", locale: "pt-BR" })
-    .select()
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("tenant_id")
+    .eq("id", authData.user.id)
     .single();
 
-  if (tenantError || !tenant) {
-    await supabase.auth.admin.deleteUser(authData.user.id);
-    throw new Error("Erro ao criar organização");
-  }
-
-  const { error: profileError } = await supabase.from("profiles").insert({
-    id: authData.user.id,
-    tenant_id: tenant.id,
-    email: request.email,
-    name: request.name,
-    role: "admin",
-  });
-
-  if (profileError) {
-    await supabase.from("tenants").delete().eq("id", tenant.id);
-    await supabase.auth.admin.deleteUser(authData.user.id);
-    throw new Error("Erro ao criar perfil");
-  }
-
-  return { userId: authData.user.id, tenantId: tenant.id };
+  return {
+    userId: authData.user.id,
+    tenantId: profile?.tenant_id || "",
+  };
 }

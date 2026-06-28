@@ -10,8 +10,10 @@ export const loginSchema = z.object({
     .transform((v) => v.toLowerCase().trim()),
   password: z
     .string()
-    .min(6, "Senha deve ter no mínimo 6 caracteres")
-    .max(128, "Senha muito longa"),
+    .min(8, "Senha deve ter no mínimo 8 caracteres")
+    .max(128, "Senha muito longa")
+    .regex(/[A-Z]/, "Senha deve conter pelo menos uma letra maiúscula")
+    .regex(/[0-9]/, "Senha deve conter pelo menos um número"),
 });
 
 export const registerSchema = z.object({
@@ -27,8 +29,10 @@ export const registerSchema = z.object({
     .transform((v) => v.toLowerCase().trim()),
   password: z
     .string()
-    .min(6, "Senha deve ter no mínimo 6 caracteres")
-    .max(128, "Senha muito longa"),
+    .min(8, "Senha deve ter no mínimo 8 caracteres")
+    .max(128, "Senha muito longa")
+    .regex(/[A-Z]/, "Senha deve conter pelo menos uma letra maiúscula")
+    .regex(/[0-9]/, "Senha deve conter pelo menos um número"),
   companyName: z
     .string()
     .min(2, "Nome da empresa deve ter no mínimo 2 caracteres")
