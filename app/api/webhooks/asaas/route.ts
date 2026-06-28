@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { asaasWebhookSchema } from "@/lib/validations";
+import { logger } from "@core/logger";
 
 // ASAAS Webhook Implementation
 // Docs: https://docs.asaas.com/docs/eventos-para-assinaturas
@@ -90,22 +91,24 @@ export async function POST(req: NextRequest) {
     }
 
     if (!expectedToken || token !== expectedToken) {
-      console.warn("[ASAAS Webhook] Invalid token received");
+      logger.warn("Invalid webhook token", { path: "asaas" });
       return NextResponse.json({ error: "Invalid webhook token" }, { status: 401 });
     }
 
     const rawBody = await req.json();
     const parsed = asaasWebhookSchema.safeParse(rawBody);
     if (!parsed.success) {
-      console.warn("[ASAAS Webhook] Invalid payload:", parsed.error.issues);
-      return NextResponse.json({ received: true }); // Always return 200 for webhooks
+      logger.warn("Invalid webhook payload", { path: "asaas", issues: parsed.error.issues });
+      return NextResponse.json({ received: true });
     }
 
     const { event, payment, subscription } = parsed.data;
 
-    console.log(`[ASAAS Webhook] Event: ${event}`, {
-      paymentId: payment?.id,
-      subscriptionId: subscription?.id || payment?.subscription,
+    logger.info("Webhook event received", {
+      path: "asaas",
+      event,
+      payment_id: payment?.id,
+      subscription_id: subscription?.id || payment?.subscription,
     });
 
     switch (event) {
@@ -119,7 +122,7 @@ export async function POST(req: NextRequest) {
               .from("tenants")
               .update({ subscription_status: "active" })
               .eq("id", tenant.id);
-            console.log(`[ASAAS] Tenant ${tenant.id} subscription activated (${event})`);
+            logger.info("Tenant subscription activated", { tenant_id: tenant.id, event });
           }
         }
         break;
@@ -136,7 +139,7 @@ export async function POST(req: NextRequest) {
                 .from("tenants")
                 .update({ subscription_status: "active" })
                 .eq("id", tenant.id);
-              console.log(`[ASAAS] Tenant ${tenant.id} subscription activated via PAYMENT_CREATED`);
+              logger.info("Tenant activated via PAYMENT_CREATED", { tenant_id: tenant.id });
             }
           }
         }
@@ -152,7 +155,7 @@ export async function POST(req: NextRequest) {
               .from("tenants")
               .update({ subscription_status: "past_due" })
               .eq("id", tenant.id);
-            console.log(`[ASAAS] Tenant ${tenant.id} subscription past due`);
+            logger.warn("Tenant subscription past due", { tenant_id: tenant.id });
           }
         }
         break;
@@ -168,7 +171,7 @@ export async function POST(req: NextRequest) {
               .from("tenants")
               .update({ subscription_status: "incomplete" })
               .eq("id", tenant.id);
-            console.log(`[ASAAS] Tenant ${tenant.id} payment failed/refunded`);
+            logger.warn("Tenant payment failed/refunded", { tenant_id: tenant.id });
           }
         }
         break;
@@ -183,7 +186,7 @@ export async function POST(req: NextRequest) {
               .from("tenants")
               .update({ subscription_status: "canceled" })
               .eq("id", tenant.id);
-            console.log(`[ASAAS] Tenant ${tenant.id} payment deleted, subscription canceled`);
+            logger.warn("Tenant payment deleted, subscription canceled", { tenant_id: tenant.id });
           }
         }
         break;
@@ -198,7 +201,7 @@ export async function POST(req: NextRequest) {
               .from("tenants")
               .update({ subscription_status: "canceled" })
               .eq("id", tenant.id);
-            console.log(`[ASAAS] Tenant ${tenant.id} subscription canceled`);
+            logger.info("Tenant subscription canceled", { tenant_id: tenant.id });
           }
         }
         break;
@@ -220,7 +223,7 @@ export async function POST(req: NextRequest) {
               .from("tenants")
               .update({ subscription_status: mappedStatus })
               .eq("id", tenant.id);
-            console.log(`[ASAAS] Tenant ${tenant.id} subscription status updated to ${mappedStatus}`);
+            logger.info("Tenant subscription status updated", { tenant_id: tenant.id, status: mappedStatus });
           }
         }
         break;
@@ -229,7 +232,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error("ASAAS webhook error:", error);
+    logger.error("ASAAS webhook error", { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ received: true });
   }
 }

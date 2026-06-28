@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { authenticateV1Request, V1AuthError } from "@/lib/api/v1-auth";
+import { authenticateV1Request } from "@/lib/api/v1-auth";
 import { createProductSchema } from "@/lib/validations";
+import { errorHandler } from "@infra/http/error-handler";
 
 function getAdminClient() {
   return createClient(
@@ -59,14 +60,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error: unknown) {
-    if (error instanceof V1AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
-    }
-    console.error("API v1 products error:", error);
-    return NextResponse.json(
-      { error: "Erro ao buscar produtos" },
-      { status: 500 }
-    );
+    return errorHandler(error);
   }
 }
 
@@ -116,13 +110,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ data }, { status: 201 });
   } catch (error: unknown) {
-    if (error instanceof V1AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
-    }
-    console.error("API v1 products create error:", error);
-    return NextResponse.json(
-      { error: "Erro ao criar produto" },
-      { status: 500 }
-    );
+    return errorHandler(error);
   }
 }
