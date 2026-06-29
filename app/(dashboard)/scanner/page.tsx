@@ -89,10 +89,9 @@ export default function ScannerPage() {
     setBarcodeDetectorSupported(supported);
 
     if (supported) {
-      // Get supported formats
+      // Get supported formats (static method on constructor)
       const BarcodeDetectorClass = (window as any).BarcodeDetector;
-      const detector = new BarcodeDetectorClass();
-      detector.getSupportedFormats().then((formats: BarcodeFormat[]) => {
+      BarcodeDetectorClass.getSupportedFormats().then((formats: BarcodeFormat[]) => {
         addLog(`Formatos suportados: ${formats.join(", ")}`);
         setBarcodeFormats(formats);
       }).catch((err: unknown) => addLog(`Erro ao obter formatos: ${err}`));
