@@ -37,83 +37,112 @@ export default function ScannerPage() {
   }, []);
 
   const stopCamera = useCallback(async () => {
-    if (scanner && isScanning) {
+      if (scanner && isScanning) {
+        try {
+          await scanner.stop();
+        } catch (e) {
+          console.warn("[Scanner] stop error:", e);
+        }
+        setIsScanning(false);
+        setScanner(null);
+      }
+    }, [scanner, isScanning]);
+
+    const requestCameraPermission = useCallback(async () => {
       try {
-        await scanner.stop();
-      } catch (e) {
-        console.warn("[Scanner] stop error:", e);
+        // Explicitly request camera permission - this triggers browser's native prompt
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode } 
+        });
+        // Stop the test stream immediately - we just wanted to trigger permission prompt
+        stream.getTracks().forEach(track => track.stop());
+        return true;
+      } catch (err) {
+        console.error("[Scanner] Permission request failed:", err);
+        return false;
       }
-      setIsScanning(false);
-      setScanner(null);
-    }
-  }, [scanner, isScanning]);
+    }, [facingMode]);
 
-  const startCamera = useCallback(async () => {
-    setCameraError("");
+    const startCamera = useCallback(async () => {
+      setCameraError("");
     
-    // Clean up any existing scanner first
-    if (scanner) {
-      try { await scanner.stop(); } catch {}
-    }
-
-    // Wait for DOM to be ready
-    if (!previewRef.current) {
-      console.warn("[Scanner] Preview ref not ready");
-      setCameraError("Elemento de preview não encontrado. Tente novamente.");
-      return;
-    }
-
-    // Check permission first
-    if (cameraPermission === "denied") {
-      setCameraError("Permissão de câmera negada. Clique no ícone de câmera/escudo na barra de endereço do navegador e permita o acesso.");
-      return;
-    }
-
-    try {
-      const html5QrCode = new Html5Qrcode("scanner-preview");
-      setScanner(html5QrCode);
-
-      await html5QrCode.start(
-        { facingMode },
-        {
-          fps: 15,
-          qrbox: { width: 250, height: 150 },
-          aspectRatio: 1.7778,
-        },
-        (decodedText) => {
-          if (mountedRef.current) {
-            handleScan(decodedText);
-          }
-        },
-        () => {} // error callback - ignore scan errors
-      );
-      setIsScanning(true);
-    } catch (err: unknown) {
-      const error = err as Error;
-      console.error("[Scanner] Camera error:", error);
-      
-      let errorMessage = "Não foi possível acessar a câmera. ";
-      if (error.name === "NotAllowedError" || error.message.includes("permission")) {
-        errorMessage += "Permissão negada. Clique no ícone de câmera 📷 ou escudo 🛡️ na barra de endereço do navegador e permita o acesso.";
-      } else if (error.name === "NotFoundError" || error.message.includes("no camera")) {
-        errorMessage += "Nenhuma câmera encontrada. Verifique se o dispositivo tem câmera e ela não está sendo usada por outro app.";
-      } else if (error.name === "NotReadableError" || error.message.includes("busy")) {
-        errorMessage += "A câmera está sendo usada por outro aplicativo. Feche outros apps que usam câmera.";
-      } else if (error.name === "OverconstrainedError") {
-        errorMessage += "A câmera não suporta a configuração. Tentando câmera frontal...";
-        setTimeout(() => {
-          setFacingMode("user");
-          startCamera();
-        }, 100);
-        return;
-      } else {
-        errorMessage += `Erro: ${error.message}`;
+      // Clean up any existing scanner first
+      if (scanner) {
+        try { await scanner.stop(); } catch {}
       }
-      setCameraError(errorMessage);
-      setIsScanning(false);
-      setScanner(null);
-    }
-  }, [scanner, facingMode, cameraPermission]);
+
+      // Wait for DOM to be ready
+      if (!previewRef.current) {
+        console.warn("[Scanner] Preview ref not ready");
+        setCameraError("Elemento de preview não encontrado. Tente novamente.");
+        return;
+      }
+
+      // Check current permission state
+      if (cameraPermission === "denied") {
+        setCameraError("Permissão de câmera negada anteriormente. Clique no ícone de câmera 📷 ou escudo 🛡️ na barra de endereço do navegador e permita o acesso, depois tente novamente.");
+        return;
+      }
+
+      // If permission not yet granted, request it explicitly
+      if (cameraPermission !== "granted") {
+        const granted = await requestCameraPermission();
+        if (!granted) {
+          // Permission was denied - update state and show error
+          const perm = await navigator.permissions.query({ name: "camera" as PermissionName });
+          setCameraPermission(perm.state);
+          if (perm.state === "denied") {
+            setCameraError("Permissão de câmera negada. Clique no ícone de câmera 📷 ou escudo 🛡️ na barra de endereço do navegador e permita o acesso, depois toque na área da câmera novamente.");
+            return;
+          }
+        }
+      }
+
+      try {
+        const html5QrCode = new Html5Qrcode("scanner-preview");
+        setScanner(html5QrCode);
+
+        await html5QrCode.start(
+          { facingMode },
+          {
+            fps: 15,
+            qrbox: { width: 250, height: 150 },
+            aspectRatio: 1.7778,
+          },
+          (decodedText) => {
+            if (mountedRef.current) {
+              handleScan(decodedText);
+            }
+          },
+          () => {} // error callback - ignore scan errors
+        );
+        setIsScanning(true);
+      } catch (err: unknown) {
+        const error = err as Error;
+        console.error("[Scanner] Camera error:", error);
+      
+        let errorMessage = "Não foi possível acessar a câmera. ";
+        if (error.name === "NotAllowedError" || error.message.includes("permission")) {
+          errorMessage += "Permissão negada. Clique no ícone de câmera 📷 ou escudo 🛡️ na barra de endereço do navegador e permita o acesso, depois tente novamente.";
+        } else if (error.name === "NotFoundError" || error.message.includes("no camera")) {
+          errorMessage += "Nenhuma câmera encontrada. Verifique se o dispositivo tem câmera e ela não está sendo usada por outro app.";
+        } else if (error.name === "NotReadableError" || error.message.includes("busy")) {
+          errorMessage += "A câmera está sendo usada por outro aplicativo. Feche outros apps que usam câmera.";
+        } else if (error.name === "OverconstrainedError") {
+          errorMessage += "A câmera não suporta a configuração. Tentando câmera frontal...";
+          setTimeout(() => {
+            setFacingMode("user");
+            startCamera();
+          }, 100);
+          return;
+        } else {
+          errorMessage += `Erro: ${error.message}`;
+        }
+        setCameraError(errorMessage);
+        setIsScanning(false);
+        setScanner(null);
+      }
+    }, [scanner, facingMode, cameraPermission]);
 
   useEffect(() => {
     mountedRef.current = true;
