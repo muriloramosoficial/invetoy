@@ -62,7 +62,6 @@ export default function ScannerPage() {
   const [cameraPermission, setCameraPermission] = useState<PermissionState>("prompt");
   const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
   const [showSettings, setShowSettings] = useState(false);
-  const [debugLogs, setDebugLogs] = useState<string[]>([]);
   const [barcodeDetectorSupported, setBarcodeDetectorSupported] = useState(false);
   const [barcodeFormats, setBarcodeFormats] = useState<BarcodeFormat[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -74,39 +73,39 @@ export default function ScannerPage() {
   const barcodeDetectorRef = useRef<BarcodeDetector | null>(null);
   const scanIntervalRef = useRef<number | null>(null);
   const lastDetectedRef = useRef<string>("");
+  const videoInitializedRef = useRef(false);
 
   const addLog = useCallback((msg: string) => {
     const timestamp = new Date().toLocaleTimeString("pt-BR");
     const log = `[${timestamp}] ${msg}`;
     console.log(log);
-    setDebugLogs(prev => [...prev.slice(-30), log]);
   }, []);
 
   // Check Barcode Detector API support on mount
   useEffect(() => {
     const supported = "BarcodeDetector" in window;
-    addLog(`BarcodeDetector API: ${supported ? "SUPORTADO" : "NÃO SUPORTADO"}`);
+    console.log(`BarcodeDetector API: ${supported ? "SUPORTADO" : "NÃO SUPORTADO"}`);
     setBarcodeDetectorSupported(supported);
 
     if (supported) {
       // Get supported formats (static method on constructor)
       const BarcodeDetectorClass = (window as any).BarcodeDetector;
       BarcodeDetectorClass.getSupportedFormats().then((formats: BarcodeFormat[]) => {
-        addLog(`Formatos suportados: ${formats.join(", ")}`);
+        console.log(`Formatos suportados: ${formats.join(", ")}`);
         setBarcodeFormats(formats);
-      }).catch((err: unknown) => addLog(`Erro ao obter formatos: ${err}`));
+      }).catch((err: unknown) => console.error(`Erro ao obter formatos: ${err}`));
     }
 
     // Check camera permission
     navigator.permissions.query({ name: "camera" as PermissionName }).then((perm) => {
-      addLog(`Initial permission: ${perm.state}`);
+      console.log(`Initial permission: ${perm.state}`);
       setCameraPermission(perm.state);
       perm.onchange = () => {
-        addLog(`Permission changed: ${perm.state}`);
+        console.log(`Permission changed: ${perm.state}`);
         setCameraPermission(perm.state);
       };
-    }).catch(err => addLog(`Permission query failed: ${err}`));
-  }, [addLog]);
+    }).catch(err => console.error(`Permission query failed: ${err}`));
+  }, []);
 
   const stopCamera = useCallback(async () => {
     if (scanIntervalRef.current) {
@@ -116,17 +115,15 @@ export default function ScannerPage() {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
-      addLog("Camera stream stopped");
     }
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
     setIsScanning(false);
     barcodeDetectorRef.current = null;
-  }, [addLog]);
+  }, []);
 
   const startCamera = useCallback(async () => {
-    addLog("=== START CAMERA ===");
     setCameraError("");
 
     // Clean up any existing
@@ -134,11 +131,9 @@ export default function ScannerPage() {
 
     // Check DOM
     if (!videoRef.current) {
-      addLog("ERROR: Video ref not ready");
       setCameraError("Elemento de vídeo não encontrado. Tente novamente.");
       return;
     }
-    addLog(`Video element found`);
 
     // Check permission state
     if (cameraPermission === "denied") {
@@ -149,21 +144,17 @@ export default function ScannerPage() {
     // Check API support
     if (!barcodeDetectorSupported) {
       setCameraError("BarcodeDetector API não suportada neste navegador. Use Chrome/Edge 83+.");
-     
       return;
     }
 
     // Request permission if needed
     if (cameraPermission !== "granted") {
-      addLog("Permission not granted, requesting...");
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ 
           video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } } 
         });
-        addLog("Permission granted via getUserMedia");
         stream.getTracks().forEach(track => track.stop());
       } catch (err: any) {
-        addLog(`Permission request failed: ${err.name} - ${err.message}`);
         const perm = await navigator.permissions.query({ name: "camera" as PermissionName });
         setCameraPermission(perm.state);
         if (perm.state === "denied") {
@@ -175,7 +166,6 @@ export default function ScannerPage() {
 
     try {
       // Get camera stream
-      addLog(`Requesting camera stream (facingMode: ${facingMode})...`);
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
           facingMode, 
@@ -185,17 +175,14 @@ export default function ScannerPage() {
         } 
       });
       streamRef.current = stream;
-      addLog("Got camera stream");
 
       // Setup video element
       if (!videoRef.current) {
-        addLog("ERROR: Video ref lost");
         stream.getTracks().forEach(track => track.stop());
         return;
       }
       
       videoRef.current.srcObject = stream;
-      addLog("Video srcObject set");
 
       // Wait for video to be ready
       await new Promise<void>((resolve, reject) => {
@@ -205,19 +192,15 @@ export default function ScannerPage() {
         }
         
         videoRef.current.onloadedmetadata = () => {
-          addLog(`Video metadata loaded: ${videoRef.current?.videoWidth}x${videoRef.current?.videoHeight}`);
           videoRef.current?.play().then(() => {
-            addLog("Video playing");
             resolve();
           }).catch(reject);
         };
         
         videoRef.current.onerror = (e) => {
-          addLog(`Video error: ${e}`);
           reject(new Error("Video error"));
         };
         
-        // Timeout
         setTimeout(() => reject(new Error("Video load timeout")), 10000);
       });
 
@@ -226,26 +209,22 @@ export default function ScannerPage() {
       barcodeDetectorRef.current = new BarcodeDetectorClass({
         formats: barcodeFormats.length > 0 ? barcodeFormats : undefined
       });
-      addLog(`BarcodeDetector created with formats: ${barcodeFormats.join(", ") || "auto"}`);
 
       // Start scanning loop
       setIsScanning(true);
-      addLog("Starting scan loop...");
-
       const scanLoop = async () => {
         if (!mountedRef.current || !isScanning || !videoRef.current || !barcodeDetectorRef.current) {
           return;
         }
 
         try {
-          const barcodes = await barcodeDetectorRef.current.detect(videoRef.current);
+          const barcodes = await barcodeDetectorRef.current!.detect(videoRef.current!);
           
           if (barcodes.length > 0) {
             for (const barcode of barcodes) {
               const value = barcode.rawValue.trim();
               if (value && value !== lastDetectedRef.current) {
                 lastDetectedRef.current = value;
-                addLog(`BARCODE DETECTED: ${value} (${barcode.format})`);
                 handleScan(value, barcode.format);
                 break; // Only process first barcode
               }
@@ -263,7 +242,6 @@ export default function ScannerPage() {
       scanIntervalRef.current = requestAnimationFrame(scanLoop);
 
     } catch (err: any) {
-      addLog(`START ERROR: ${err.name} - ${err.message}`);
       console.error("[Scanner] Camera error:", err);
       
       let errorMessage = "Não foi possível acessar a câmera. ";
@@ -274,7 +252,6 @@ export default function ScannerPage() {
       } else if (err.name === "NotReadableError" || err.message.includes("busy")) {
         errorMessage += "Câmera ocupada por outro app.";
       } else if (err.name === "OverconstrainedError") {
-        errorMessage += "Config não suportada. Tentando frontal...";
         setTimeout(() => { setFacingMode("user"); startCamera(); }, 100);
         return;
       } else {
@@ -284,7 +261,7 @@ export default function ScannerPage() {
       setIsScanning(false);
       await stopCamera();
     }
-  }, [facingMode, cameraPermission, barcodeDetectorSupported, barcodeFormats, addLog]);
+  }, [facingMode, cameraPermission, barcodeDetectorSupported, barcodeFormats]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -321,8 +298,7 @@ export default function ScannerPage() {
     if ("vibrate" in navigator) {
       navigator.vibrate(found ? [100] : [50, 50, 50]);
     }
-    addLog(`Scan processed: ${cleanSku} (${format}) - ${found ? "FOUND" : "NOT FOUND"}`);
-  }, [addLog]);
+  }, []);
 
   const clearHistory = () => {
     setScanResults([]);
@@ -349,7 +325,7 @@ export default function ScannerPage() {
             )}
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-text-primary">Scanner (Native)</h1>
+            <h1 className="text-2xl font-semibold text-text-primary">Scanner</h1>
             <p className="text-sm text-text-muted">
               {barcodeDetectorSupported 
                 ? `API nativa ativa - ${barcodeFormats.length} formatos` 
@@ -360,20 +336,6 @@ export default function ScannerPage() {
         <Button variant="ghost" size="sm" onClick={() => setShowSettings(!showSettings)}>
           <Settings className="h-4 w-4" />
         </Button>
-      </div>
-
-      {/* Debug Panel */}
-      <div className="rounded-xl border border-brand/30 bg-brand/5 p-3 max-h-64 overflow-y-auto">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-mono text-brand">LOGS DE DEBUG</span>
-          <Button variant="ghost" size="sm" onClick={() => setDebugLogs([])}>Limpar</Button>
-        </div>
-        <div className="font-mono text-[10px] text-text-muted space-y-1 max-h-48 overflow-y-auto">
-          {debugLogs.map((log, i) => (
-            <div key={i} className="border-l border-brand/20 pl-2">{log}</div>
-          ))}
-          {debugLogs.length === 0 && <span className="text-xs">Nenhum log. Clique na câmera.</span>}
-        </div>
       </div>
 
       {/* Settings Panel */}
@@ -441,7 +403,9 @@ export default function ScannerPage() {
             </div>
             <div>
               <h3 className="font-semibold text-text-primary">Câmera</h3>
-              <p className="text-sm text-text-muted">Toque na área abaixo para iniciar/parar</p>
+              <p className="text-sm text-text-muted">
+                {isScanning ? "Escaneando..." : "Toque na área abaixo para iniciar"}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -462,10 +426,10 @@ export default function ScannerPage() {
           </div>
         )}
         <div
-          id="scanner-preview"
-          className={`w-full ${isScanning ? "min-h-[300px] sm:min-h-[400px]" : "min-h-[200px]"} rounded-none bg-black/60 transition-all cursor-pointer`}
-          onClick={isScanning ? stopCamera : startCamera}
-        >
+                  id="scanner-preview"
+                  className={`w-full ${isScanning ? "min-h-[300px] sm:min-h-[400px]" : "min-h-[200px]"} rounded-none bg-black/60 transition-all cursor-pointer`}
+                  onClick={isScanning ? stopCamera : startCamera}
+                >
           {!isScanning && !cameraError && (
             <div className="w-full h-full flex flex-col items-center justify-center p-8">
               <Camera className="h-16 w-16 text-text-muted/30 mb-4" />
@@ -582,7 +546,7 @@ export default function ScannerPage() {
                   {result.status === "found" ? (
                     <CheckCircle className="h-5 w-5 shrink-0 text-brand" />
                   ) : (
-                    <AlertCircle className="h-5 w-5 shrink-0 shrink-0 text-brand-warning" />
+                    <AlertCircle className="h-5 w-5 shrink-0 text-brand-warning" />
                   )}
                   <div className="min-w-0">
                     <p className="text-sm font-mono text-text-primary truncate">{result.sku}</p>
@@ -606,4 +570,13 @@ export default function ScannerPage() {
       )}
     </div>
   );
+}
+
+interface ScanResult {
+  sku: string;
+  timestamp: string;
+  status: "found" | "not_found";
+  productName?: string;
+  rawValue?: string;
+  format?: string;
 }
