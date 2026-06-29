@@ -41,7 +41,14 @@ export function useProducts(tenantId?: string) {
           setCategories(categoryResult.data || []);
         }
       } catch (err: unknown) {
-        if (mounted) setError(err instanceof Error ? err.message : "Erro desconhecido");
+        if (mounted) {
+          const errorMessage = err instanceof Error 
+            ? err.message 
+            : (err as { message?: string }).message 
+            ? (err as { message: string }).message 
+            : "Erro ao carregar produtos";
+          setError(errorMessage);
+        }
       } finally {
         if (mounted) setLoading(false);
       }
