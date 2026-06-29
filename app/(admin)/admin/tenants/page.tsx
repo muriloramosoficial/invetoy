@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { TechBadge } from "@/components/tech-badge";
 import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
@@ -63,45 +62,13 @@ export default function AdminTenantsPage() {
   async function load() {
     setLoading(true);
     try {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("tenants")
-        .select("id, name, slug, plan, subscription_status, payment_provider, created_at")
-        .order("created_at", { ascending: false });
+      // Use admin API that bypasses RLS via service role
+      const res = await fetch("/api/admin/tenants/list");
+      const data = await res.json();
 
-      if (error) throw error;
+      if (!res.ok) throw new Error(data.error || "Erro ao carregar empresas");
 
-      const tenantsList = (data || []) as TenantRow[];
-
-      // Get counts per tenant
-      const ids = tenantsList.map((t) => t.id);
-      if (ids.length > 0) {
-        const [usersRes, productsRes, locationsRes, movementsRes] = await Promise.all([
-          supabase.from("profiles").select("tenant_id"),
-          supabase.from("products").select("tenant_id"),
-          supabase.from("locations").select("tenant_id"),
-          supabase.from("movements").select("tenant_id"),
-        ]);
-
-        const userCounts: Record<string, number> = {};
-        const prodCounts: Record<string, number> = {};
-        const locCounts: Record<string, number> = {};
-        const movCounts: Record<string, number> = {};
-
-        (usersRes.data || []).forEach((r: any) => { userCounts[r.tenant_id] = (userCounts[r.tenant_id] || 0) + 1; });
-        (productsRes.data || []).forEach((r: any) => { prodCounts[r.tenant_id] = (prodCounts[r.tenant_id] || 0) + 1; });
-        (locationsRes.data || []).forEach((r: any) => { locCounts[r.tenant_id] = (locCounts[r.tenant_id] || 0) + 1; });
-        (movementsRes.data || []).forEach((r: any) => { movCounts[r.tenant_id] = (movCounts[r.tenant_id] || 0) + 1; });
-
-        tenantsList.forEach((t) => {
-          t.user_count = userCounts[t.id] || 0;
-          t.product_count = prodCounts[t.id] || 0;
-          t.location_count = locCounts[t.id] || 0;
-          t.movement_count = movCounts[t.id] || 0;
-        });
-      }
-
-      setTenants(tenantsList);
+      setTenants(data.tenants || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao carregar empresas");
     } finally {
@@ -126,12 +93,13 @@ export default function AdminTenantsPage() {
     if (!editModal) return;
     setSaving(true);
     try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("tenants")
-        .update({ plan: editPlan, subscription_status: editStatus })
-        .eq("id", editModal.id);
-      if (error) throw error;
+      const res = await fetch("/api/admin/tenants/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "update-tenant", tenantId: editModal.id, plan: editPlan, subscription_status: editStatus }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
       setEditModal(null);
       load();
     } catch (err) {
@@ -145,12 +113,13 @@ export default function AdminTenantsPage() {
     menu.close();
     const newStatus = t.subscription_status === "active" ? "canceled" : "active";
     try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("tenants")
-        .update({ subscription_status: newStatus })
-        .eq("id", t.id);
-      if (error) throw error;
+      const res = await fetch("/api/admin/tenants/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "toggle-status", tenantId: t.id, subscription_status: newStatus }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
       load();
     } catch (err) {
       toastError(err instanceof Error ? err.message : "Erro ao alterar status");

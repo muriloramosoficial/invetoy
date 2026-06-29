@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { TechBadge } from "@/components/tech-badge";
 import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
@@ -80,33 +79,13 @@ export default function AdminUsersPage() {
   async function load() {
     setLoading(true);
     try {
-      const supabase = createClient();
+      // Use admin API that bypasses RLS via service role
+      const res = await fetch("/api/admin/users/list");
+      const data = await res.json();
 
-      // Fetch profiles and tenants separately to avoid Supabase join issues
-      const [profilesResult, tenantsResult] = await Promise.all([
-        supabase
-          .from("profiles")
-          .select("id, name, email, role, is_system_admin, is_staff, status, suspended_at, banned_at, created_at, tenant_id")
-          .order("created_at", { ascending: false }),
-        supabase.from("tenants").select("id, name, plan, slug"),
-      ]);
+      if (!res.ok) throw new Error(data.error || "Erro ao carregar usuários");
 
-      if (profilesResult.error) throw profilesResult.error;
-      if (tenantsResult.error) throw tenantsResult.error;
-
-      // Map tenants by id for quick lookup
-      const tenantMap: Record<string, { name: string; plan: string; slug: string }> = {};
-      (tenantsResult.data || []).forEach((t: { id: string; name: string; plan: string; slug: string }) => {
-        tenantMap[t.id] = { name: t.name, plan: t.plan, slug: t.slug };
-      });
-
-      // Join profiles with tenant data
-      const usersWithTenants = (profilesResult.data || []).map((u: Record<string, unknown>) => ({
-        ...u,
-        tenants: u.tenant_id ? (tenantMap[u.tenant_id as string] || null) : null,
-      })) as unknown as UserRow[];
-
-      setUsers(usersWithTenants);
+      setUsers(data.users || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao carregar usuarios");
     } finally {
@@ -117,13 +96,14 @@ export default function AdminUsersPage() {
   const toggleAdmin = async (userId: string, currentValue: boolean) => {
     setUpdating(userId);
     try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("profiles")
-        .update({ is_system_admin: !currentValue })
-        .eq("id", userId);
-      if (error) throw error;
-      toastSuccess(`Admin do sistema ${!currentValue ? "adicionado" : "removido"} com sucesso`);
+      const res = await fetch("/api/admin/users/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "toggle-admin", userId, is_system_admin: !currentValue }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      toastSuccess(data.message);
       setUsers((prev) =>
         prev.map((u) => u.id === userId ? { ...u, is_system_admin: !currentValue } : u)
       );
@@ -138,13 +118,14 @@ export default function AdminUsersPage() {
   const toggleStaff = async (userId: string, currentValue: boolean) => {
     setUpdating(userId);
     try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("profiles")
-        .update({ is_staff: !currentValue })
-        .eq("id", userId);
-      if (error) throw error;
-      toastSuccess(`Funcionario ${!currentValue ? "adicionado" : "removido"} com sucesso`);
+      const res = await fetch("/api/admin/users/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "toggle-staff", userId, is_staff: !currentValue }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      toastSuccess(data.message);
       setUsers((prev) =>
         prev.map((u) => u.id === userId ? { ...u, is_staff: !currentValue } : u)
       );
@@ -159,13 +140,14 @@ export default function AdminUsersPage() {
   const changeRole = async (userId: string, role: string) => {
     setUpdating(userId);
     try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("profiles")
-        .update({ role })
-        .eq("id", userId);
-      if (error) throw error;
-      toastSuccess(`Funcao alterada para "${role}" com sucesso`);
+      const res = await fetch("/api/admin/users/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "change-role", userId, role }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      toastSuccess(data.message);
       setUsers((prev) =>
         prev.map((u) => u.id === userId ? { ...u, role } : u)
       );
